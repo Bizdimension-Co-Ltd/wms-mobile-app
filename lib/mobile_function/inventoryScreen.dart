@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class Inventory extends StatefulWidget {
-  const Inventory({super.key});
-
-  @override
-  State<Inventory> createState() => _InventoryState();
-}
+import 'package:wms_mobile/loginScreen.dart';
 
 const gridList = [
   {"name": "Store Request", "img": "request-changes.svg"},
@@ -14,33 +8,37 @@ const gridList = [
   {"name": "Good Receipt", "img": "document-add.svg"},
   {"name": "Transfer Receipt", "img": "document-preliminary.svg"},
   {"name": "Warehouse Tranfer", "img": "building-warehouse.svg"},
-    {"name": "Bin Tranfer", "img": "shopping-cart-share.svg"},
+  {"name": "Bin Tranfer", "img": "shopping-cart-arrow-up.svg"},
   {"name": "Bin Replenishment", "img": "replace.svg"}
-
 ];
 
-class _InventoryState extends State<Inventory> {
+class InventoryScreen extends StatefulWidget {
+  const InventoryScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
+  State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
+class _InventoryScreenState extends State<InventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(
-          Icons.menu,
-          color: Colors.black,
+         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.logout)),
+          const SizedBox(
+            width: 15,
+          )
+        ],
+         iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(

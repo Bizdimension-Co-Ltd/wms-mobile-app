@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class RMA extends StatefulWidget {
-  const RMA({super.key});
-
-  @override
-  State<RMA> createState() => _RMAState();
-}
+import 'package:wms_mobile/loginScreen.dart';
 
 const gridList = [
   {"name": "Return Request", "img": "request-changes.svg"},
@@ -14,28 +8,33 @@ const gridList = [
   {"name": "Quick Return", "img": "document-add.svg"},
 ];
 
-class _RMAState extends State<RMA> {
+class MRAScreen extends StatefulWidget {
+  const MRAScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
+  State<MRAScreen> createState() => _MRAScreenState();
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
+class _MRAScreenState extends State<MRAScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(
-          Icons.menu,
-          color: Colors.black,
+         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.logout)),
+          const SizedBox(
+            width: 15,
+          )
+        ],
+  iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
@@ -53,13 +52,6 @@ class MainPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const Text(
-              //   "Function",
-              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              // ),
-              // const SizedBox(
-              //   height: 20,
-              // ),
               SizedBox(
                 child: GridView.builder(
                     shrinkWrap: true, // use
@@ -78,7 +70,6 @@ class MainPage extends StatelessWidget {
                             child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
-
                           children: [
                             SvgPicture.asset(
                               "images/svg/${gridList[index]["img"]}",
@@ -90,7 +81,7 @@ class MainPage extends StatelessWidget {
                             ),
                             Text(
                               "${gridList[index]["name"]}",
-                            textAlign: TextAlign.center,
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         )),

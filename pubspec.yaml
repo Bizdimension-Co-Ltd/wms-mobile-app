@@ -37,6 +37,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   flutter_svg: ^1.1.6
+  animated_splash_screen: ^1.3.0
+  intl: ^0.18.1
+  dio: ^5.4.0
+  pull_to_refresh: ^2.0.0
+  flutter_secure_storage: ^8.1.0
   
 dev_dependencies:
   flutter_test:
@@ -66,7 +71,7 @@ flutter:
    - images/svg/building-warehouse.svg
    - images/svg/call-received.svg
    - images/svg/return.svg
-   - images/svg/counting.svg
+   - images/svg/c.svg
    - images/svg/package-24.svg
    - images/svg/shopping-cart.svg
    - images/svg/receipt.svg
@@ -81,6 +86,13 @@ flutter:
    - images/svg/history.svg
    - images/svg/printer.svg
    - images/svg/file-earmark-break.svg
+   - images/svg/cloud-offline-outline.svg
+   - images/svg/x.svg
+   - images/svg/edit.svg
+   - images/svg/box-3.svg
+   - images/svg/arrow-down-left.svg
+   - images/svg/shopping-cart-arrow-up.svg
+   - images/svg/history-solid.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

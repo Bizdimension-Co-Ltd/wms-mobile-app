@@ -1,41 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class Counting extends StatefulWidget {
-  const Counting({super.key});
-
-  @override
-  State<Counting> createState() => _CountingState();
-}
+import 'package:wms_mobile/loginScreen.dart';
 
 const gridList = [
   {"name": "Bin count", "img": "request-changes.svg"},
-  {"name": "Cicle Count", "img": "history.svg"},
+  {"name": "Cicle Count", "img": "history-solid.svg"},
   {"name": "Physical Count", "img": "document-add.svg"},
 ];
 
-class _CountingState extends State<Counting> {
+class CountingScreen extends StatefulWidget {
+  const CountingScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
+  State<CountingScreen> createState() => _CountingScreenState();
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
+class _CountingScreenState extends State<CountingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(
-          Icons.menu,
-          color: Colors.black,
+         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.logout)),
+          const SizedBox(
+            width: 15,
+          )
+        ],
+        iconTheme: const IconThemeData(
+          color: Colors.black, //change your color here
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(

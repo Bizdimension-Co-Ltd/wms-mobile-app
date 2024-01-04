@@ -10,28 +10,15 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
-}
-
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          iconTheme: const IconThemeData(
+            color: Colors.black, //change your color here
+          ),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
           title: const Text(
             "setting",
-            style: TextStyle(
-              color: Colors.black,
-            ),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
         ),
         body: SingleChildScrollView(
@@ -46,7 +33,6 @@ class MainPage extends StatelessWidget {
                   child: SizedBox(
                       width: double.infinity,
                       child: Container(
-
                         padding: const EdgeInsets.all(40),
                         width: double.infinity,
                         // color: Colors.red,
@@ -74,20 +60,20 @@ class MainPage extends StatelessWidget {
                             ),
                             const TextField(
                               decoration: InputDecoration(
-                                labelText: 'Web Server Adress',
-                                border: OutlineInputBorder(),
-                                hintText: 'Enter Web Server Adress',
-                              ),
+                                  labelText: 'Web Server Adress',
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Web Server Adress',
+                                  isDense: true),
                             ),
                             const SizedBox(
                               height: 25,
                             ),
                             const TextField(
                               decoration: InputDecoration(
-                                labelText: 'Port',
-                                border: OutlineInputBorder(),
-                                hintText: 'Enter Port',
-                              ),
+                                  labelText: 'Port',
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Port',
+                                  isDense: true),
                             ),
                             const SizedBox(
                               height: 40,
@@ -100,7 +86,7 @@ class MainPage extends StatelessWidget {
                                     null, // Replace null with your actual callback function
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
-                                      const Color.fromARGB(255, 17, 29, 38)),
+                                      const Color.fromARGB(255, 17, 18, 48)),
                                 ),
                                 child: const Text(
                                   'Save',
@@ -138,7 +124,6 @@ class MainPage extends StatelessWidget {
               ],
             ),
           ),
-        )
-        );
+        ));
   }
 }

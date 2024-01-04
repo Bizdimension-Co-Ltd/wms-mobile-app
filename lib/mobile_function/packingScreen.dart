@@ -1,42 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class Packing extends StatefulWidget {
-  const Packing({super.key});
-
-  @override
-  State<Packing> createState() => _PackingState();
-}
+import 'package:wms_mobile/loginScreen.dart';
 
 const gridList = [
   {"name": "Packing Pallet", "img": "request-changes.svg"},
   {"name": "Pallet Print", "img": "printer.svg"},
   {"name": "pallet Break", "img": "file-earmark-break.svg"},
-  {"name": "Pallet Inquiry", "img": "document-preliminary.svg "},
+  {"name": "Pallet Inquiry", "img": "document-preliminary.svg"},
 ];
 
-class _PackingState extends State<Packing> {
+class PackingScreen extends StatefulWidget {
+  const PackingScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
+  State<PackingScreen> createState() => _PackingScreenState();
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
+class _PackingScreenState extends State<PackingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(
-          Icons.menu,
-          color: Colors.black,
+         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.logout)),
+          const SizedBox(
+            width: 15,
+          )
+        ],
+        iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(

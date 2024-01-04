@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wms_mobile/loginScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -7,10 +9,30 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  // @override
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()));
+    });
+  }
+
+  void dispos() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter layout demo',
         home: Scaffold(
           body: Container(
@@ -29,11 +51,10 @@ class _SplashScreenState extends State<SplashScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 210),
-                        const Text("WMMS Mobile",
-                        style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold
-                        ),
+                        const Text(
+                          "WMMS Mobile",
+                          style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 30),
                         Image.asset(
@@ -55,23 +76,19 @@ class _SplashScreenState extends State<SplashScreen> {
                       children: const [
                         Text(
                           "Copyright@ 2023 BizDimension Cambodia",
-                          style: TextStyle(fontSize: 14.5,
-                          color: Colors.grey
-                          ),
+                          style: TextStyle(fontSize: 14.5, color: Colors.grey),
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         Text(
                           "All right reserved",
-                          style: TextStyle(fontSize: 14.5,
-                            color: Colors.grey
-                          ),
-                        )
+                          style: TextStyle(fontSize: 14.5, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

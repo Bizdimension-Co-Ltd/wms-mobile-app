@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class Receiving extends StatefulWidget {
-  const Receiving({super.key});
-
-  @override
-  State<Receiving> createState() => _ReceivingState();
-}
+import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/purchase/direct_put_away/directPutAwayList.dart';
+import 'package:wms_mobile/purchase/purchase_order/purchaseOrderListScreen.dart';
 
 const gridList = [
   {"name": "Purchase Order", "img": "shopping-cart.svg"},
@@ -15,28 +11,33 @@ const gridList = [
   {"name": "Direct Put Away", "img": "document.svg"},
 ];
 
-class _ReceivingState extends State<Receiving> {
+class ReceivingScreen extends StatefulWidget {
+  const ReceivingScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter layout demo',
-      home: MainPage(),
-    );
-  }
+  State<ReceivingScreen> createState() => _ReceivingScreenState();
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({
-    Key? key,
-  }) : super(key: key);
-
+class _ReceivingScreenState extends State<ReceivingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(
-          Icons.menu,
-          color: Colors.black,
+         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.logout)),
+          const SizedBox(
+            width: 15,
+          )
+        ],
+        iconTheme: const IconThemeData(
+          color: Colors.black, //change your color here
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
@@ -71,28 +72,61 @@ class MainPage extends StatelessWidget {
                             mainAxisSpacing: 10.0),
                     itemCount: gridList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Center(
-                            child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "images/svg/${gridList[index]["img"]}",
-                              width: 47,
-                              height: 47,
-                            ),
-                            const SizedBox(
-                              height: 18,
-                            ),
-                            Text(
-                              "${gridList[index]["name"]}",
-                            ),
-                          ],
-                        )),
+                      return GestureDetector(
+                        onTap: () {
+                          if (index == 0) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PurchaseOrderListScreen()),
+                            );
+                          } else if (index == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PurchaseOrderListScreen()),
+                            );
+                          } else if (index == 2) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PurchaseOrderListScreen()),
+                            );
+                          } else if (index == 3) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DirectPutAwayListScreen()),
+                            );
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Center(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "images/svg/${gridList[index]["img"]}",
+                                width: 47,
+                                height: 47,
+                              ),
+                              const SizedBox(
+                                height: 18,
+                              ),
+                              Text(
+                                "${gridList[index]["name"]}",
+                              ),
+                            ],
+                          )),
+                        ),
                       );
                     }),
               )
