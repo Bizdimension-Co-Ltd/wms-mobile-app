@@ -7,6 +7,7 @@ import 'package:wms_mobile/component/textFlexTwo.dart';
 import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayItemsScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:wms_mobile/purchase/purchase_order/myData.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DirectPutAwayCreateScreen extends StatefulWidget {
   const DirectPutAwayCreateScreen({super.key, this.ind});
@@ -20,15 +21,27 @@ class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
   final _supplier = TextEditingController();
   String _responseMessage = '';
   Future<void> _postData() async {
-    const String apiUrl = 'https://jsonplaceholder.typicode.com/users';
+    const String apiUrl = 'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo';
 
     try {
       Dio dio = Dio();
       var payload = {
-        'name': _supplier.text,
+        'FirstName': _supplier.text,
       };
       if (widget.ind != null) {
-        Response response = await dio.patch("$apiUrl/${widget.ind}", data: payload);
+            const FlutterSecureStorage secureStorage = FlutterSecureStorage();
+            String? token = await secureStorage.read(key: "sessionId");
+       Response response;
+        response = await dio.post(
+          apiUrl,
+          options: Options(
+            headers: {
+              "Cookie": "B1SESSION=$token; ROUTEID=.node4",
+              "Content-Type": "application/json",
+            },
+          ),
+          data: payload
+        );
         setState(() {
           _responseMessage =
               'Status:PATH ${response.statusCode}\nResponse: ${response.data}';
