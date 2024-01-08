@@ -40,7 +40,7 @@ class ListItem extends StatelessWidget {
                 child: Center(
                   child: Radio(
                      fillColor:
-                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 65, 65, 69)),
+                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 120, 120, 124)),
                     value: index,
                     groupValue: selectedRadio,
                     onChanged: (value) {
