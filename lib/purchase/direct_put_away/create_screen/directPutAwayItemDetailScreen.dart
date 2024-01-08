@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
-import 'package:wms_mobile/component/flexTwoArrowWithText.dart';
+import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class DirectPutAwayItemDetailScreen extends StatefulWidget {
@@ -87,21 +87,21 @@ class _DirectPutAwayItemDetailScreenState
             ),
             FlexTwoArrowWithText(
               title: "Line Of Business",
-              value: "201003",
+              // textData: "201003",
               // textColor: Color.fromARGB(255, 129, 134, 140),
               simple: FontWeight.normal,
               // req: "true",
             ),
             FlexTwoArrowWithText(
               title: "Revenue Line",
-              value: "",
+              // textData: "",
               // textColor: Color.fromARGB(255, 129, 134, 140),
               simple: FontWeight.normal,
               // req: "true",
             ),
             FlexTwoArrowWithText(
               title: "Product Line",
-              value: "203006",
+              // textData: "203006",
               // textColor: Color.fromARGB(255, 129, 134, 140),
               simple: FontWeight.normal,
               // req: "true",

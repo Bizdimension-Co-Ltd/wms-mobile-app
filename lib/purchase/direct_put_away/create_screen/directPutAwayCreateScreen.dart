@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/component/datePicker.dart';
+import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
-import 'package:wms_mobile/component/flexTwoArrowWithText.dart';
-import 'package:wms_mobile/component/textFlexTwo.dart';
+import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
+import 'package:wms_mobile/form/branchSelect.dart';
+import 'package:wms_mobile/form/textFlexTwo.dart';
 import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayItemsScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:wms_mobile/purchase/purchase_order/myData.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DirectPutAwayCreateScreen extends StatefulWidget {
   const DirectPutAwayCreateScreen({super.key, this.ind});
+  // ignore: prefer_typing_uninitialized_variables
   final ind;
   @override
   State<DirectPutAwayCreateScreen> createState() =>
@@ -19,36 +21,46 @@ class DirectPutAwayCreateScreen extends StatefulWidget {
 
 class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
   final _supplier = TextEditingController();
+
+  String? _branch;
+  num i = -1;
   String _responseMessage = '';
   Future<void> _postData() async {
-    const String apiUrl = 'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo';
+    const String apiUrl =
+        'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo';
 
     try {
       Dio dio = Dio();
       var payload = {
-        'FirstName': _supplier.text,
+        'FirstName': 'Testdata',
       };
+      const FlutterSecureStorage secureStorage = FlutterSecureStorage();
+      String? token = await secureStorage.read(key: "sessionId");
       if (widget.ind != null) {
-            const FlutterSecureStorage secureStorage = FlutterSecureStorage();
-            String? token = await secureStorage.read(key: "sessionId");
-       Response response;
-        response = await dio.post(
-          apiUrl,
-          options: Options(
-            headers: {
-              "Cookie": "B1SESSION=$token; ROUTEID=.node4",
-              "Content-Type": "application/json",
-            },
-          ),
-          data: payload
-        );
+        Response response;
+        response = await dio.patch(
+            'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo(${widget.ind})',
+            options: Options(
+              headers: {
+                "Cookie": "B1SESSION=$token; ROUTEID=.node4",
+                "Content-Type": "application/json",
+              },
+            ),
+            data: payload);
         setState(() {
           _responseMessage =
               'Status:PATH ${response.statusCode}\nResponse: ${response.data}';
           print(_responseMessage);
         });
       } else if (widget.ind == null) {
-        Response response = await dio.post(apiUrl, data: payload);
+        Response response = await dio.post(apiUrl,
+            options: Options(
+              headers: {
+                "Cookie": "B1SESSION=$token; ROUTEID=.node4",
+                "Content-Type": "application/json",
+              },
+            ),
+            data: payload);
 
         setState(() {
           _responseMessage =
@@ -64,9 +76,33 @@ class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
     } finally {}
   }
 
+  Future<void> _navigateAndDisplaySelection(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BranchSelect(
+                indBack: i,
+              )),
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      if (result == null) return;
+      _branch = result["value"];
+      i = result["index"];
+    });
+
+    // ScaffoldMessenger.of(context)
+    //   ..removeCurrentSnackBar()
+    //   ..showSnackBar(
+    //       SnackBar(content: Text(_branch == null ? "unselected" : "$_branch")));
+  }
+
   @override
   void initState() {
     init();
+
     super.initState();
   }
 
@@ -156,17 +192,19 @@ class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
             ),
             const FlexTwoArrowWithText(
               title: "Series",
-              value: "required",
+              // textData: _branch,
               textColor: Color.fromARGB(255, 129, 134, 140),
               simple: FontWeight.normal,
               req: "true",
+                 requried: "requried"
             ),
             const FlexTwoArrowWithText(
               title: "Supplier",
-              value: "required",
+              //  textData: _branch,
               textColor: Color.fromARGB(255, 129, 134, 140),
               simple: FontWeight.normal,
               req: "true",
+              requried: "requried"
             ),
             const FlexTwoArrow(
               title: "Contact Person Code",
@@ -179,12 +217,18 @@ class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
               title: "Supplier Ref No.",
               textData: _supplier,
             ),
-            const FlexTwoArrowWithText(
-              title: "Brach",
-              value: "required",
-              textColor: Color.fromARGB(255, 129, 134, 140),
-              simple: FontWeight.normal,
-              req: "true",
+            GestureDetector(
+              onTap: () {
+                _navigateAndDisplaySelection(context);
+              },
+              child: FlexTwoArrowWithText(
+                title: "Branch",
+                textData: _branch,
+                textColor: Color.fromARGB(255, 129, 134, 140),
+                simple: FontWeight.normal,
+                req: "true",
+                   requried: "requried"
+              ),
             ),
             const FlexTwo(
               title: "Remark",
@@ -215,10 +259,11 @@ class _DirectPutAwayCreateScreenState extends State<DirectPutAwayCreateScreen> {
               },
               child: const FlexTwoArrowWithText(
                 title: "Items",
-                value: "(3)",
+                // textData: _branch,
                 textColor: Color.fromARGB(255, 129, 134, 140),
                 simple: FontWeight.normal,
                 req: "true",
+                   requried: "requried"
               ),
             ),
             const SizedBox(

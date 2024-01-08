@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/component/datePicker.dart';
+import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/loginScreen.dart';
 import 'package:wms_mobile/mobile_function/countingScreen.dart';
 import 'package:wms_mobile/mobile_function/inventoryScreen.dart';

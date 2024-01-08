@@ -62,7 +62,7 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "230010455 - ${data[widget.ind]["name"]}",
+                                    "230010455 - ${data[widget.ind]["FirstName"]}-${data[widget.ind]["LastName"]}",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
@@ -87,7 +87,7 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${data[widget.ind]["email"]}",
+                                    "${data[widget.ind]["JobTitle"]}",
                                     style: const TextStyle(
                                         color:
                                             Color.fromARGB(255, 106, 103, 103)),

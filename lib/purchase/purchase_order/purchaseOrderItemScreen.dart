@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
-import 'package:wms_mobile/component/flexTwoArrowWithText.dart';
+import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 
 class PurchaseOrderItemScreen extends StatefulWidget {
   const PurchaseOrderItemScreen({super.key});
@@ -71,14 +71,14 @@ class _PurchaseOrderItemScreenState extends State<PurchaseOrderItemScreen> {
             ),
             FlexTwoArrowWithText(
               title: "Line Of Business",
-              value: "201001",
+              // textData: "201001",
             ),
             FlexTwoArrow(
               title: "Revenue Line",
             ),
             FlexTwoArrowWithText(
               title: "Product Line",
-              value: "109401",
+              // textData: "109401",
             ),
 
           ],

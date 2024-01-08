@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayItemCreateScreen.dart';
 
 class ListItems extends StatefulWidget {
   const ListItems({super.key});
@@ -94,7 +95,22 @@ class _ListItemsState extends State<ListItems> {
                             ),
                           ),
                         ),
-                        child: const Center(child: Text("5")),
+                        // child: const Center(child: Text("5")),
+                        child: const TextField(
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                              fontWeight: FontWeight.normal,
+                              fontSize: 14.5),
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 14),
+                            border: InputBorder.none,
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(
                         width: 8,
@@ -125,28 +141,38 @@ class _ListItemsState extends State<ListItems> {
                 height: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    SizedBox(
+                  children: [
+                    const SizedBox(
                       height: 13,
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Color.fromARGB(255, 122, 119, 119),
-                      size: 18,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const DirectPutAwayItemCreateScreen()),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Color.fromARGB(255, 122, 119, 119),
+                        size: 18,
+                      ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 14,
                     ),
-                    Text(
+                    const Text(
                       "Ton1390L",
                       style: TextStyle(
                           fontSize: 14.5,
                           color: Color.fromARGB(255, 72, 72, 81)),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 11,
                     ),
-                    Text(
+                    const Text(
                       "WH03 - WH03 - KST01",
                       style: TextStyle(
                           fontSize: 15, color: Color.fromARGB(255, 72, 72, 81)),

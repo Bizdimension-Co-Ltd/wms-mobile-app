@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TextFlexTwo extends StatefulWidget {
-  const TextFlexTwo({super.key, required this.title, required this.textData});
+  const TextFlexTwo({super.key, required this.title, this.textData});
   final textData;
   final title;
   @override
@@ -64,7 +64,7 @@ class _TextFlexTwoState extends State<TextFlexTwo> {
               style: const TextStyle(
                   color: Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.5
+                  fontSize: 14.3
                   ),
               decoration: const InputDecoration(
                 hintStyle:

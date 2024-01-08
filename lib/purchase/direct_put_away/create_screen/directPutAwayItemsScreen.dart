@@ -62,16 +62,7 @@ class _DirectPutAwayItemsScreenState extends State<DirectPutAwayItemsScreen> {
             shrinkWrap: true,
             itemCount: 3,
             itemBuilder: (BuildContext context, int index) {
-              return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const DirectPutAwayItemCreateScreen()),
-                    );
-                  },
-                  child: const ListItems());
+              return const ListItems();
             }),
       ),
     );

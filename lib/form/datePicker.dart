@@ -118,6 +118,7 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
               Text(
                 "${date ?? ''}",
                 style: const TextStyle(
+                  fontSize: 13,
                     color: Color.fromARGB(255, 0, 0, 0),
                     fontWeight: FontWeight.bold),
               ),

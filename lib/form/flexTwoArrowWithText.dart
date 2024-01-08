@@ -4,16 +4,17 @@ class FlexTwoArrowWithText extends StatefulWidget {
   const FlexTwoArrowWithText(
       {super.key,
       required this.title,
-      required this.value,
+      this.textData,
       this.textColor,
       this.simple,
       this.req,
-      });
+      this.requried});
   final title;
-  final value;
+  final textData;
   final Color? textColor;
   final FontWeight? simple;
   final req;
+  final requried;
   @override
   State<FlexTwoArrowWithText> createState() => _FlexTwoArrowWithTextState();
 }
@@ -70,11 +71,28 @@ class _FlexTwoArrowWithTextState extends State<FlexTwoArrowWithText> {
           Container(
             child: Row(
               children: [
-                Text(
-                  "${widget.value}",
-                  style: TextStyle(
-                      fontWeight: widget.simple ?? FontWeight.bold,
-                      color: widget.textColor ?? Colors.black),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: widget.textData,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 12),
+                      ),
+                      if (widget.textData == null)
+                        // Check if textData is null
+                            TextSpan(
+                              text: widget.requried ??
+                                  '', // Add asterisk or any symbol indicating it's required
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color.fromARGB(255, 162, 167, 171),
+                              ),
+                            )
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   width: 10,

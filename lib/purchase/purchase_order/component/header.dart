@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
-import 'package:wms_mobile/component/flexTwoArrowWithText.dart';
+import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/purchase/purchase_order/myData.dart';
 
 class HeaderScreen extends StatefulWidget {
