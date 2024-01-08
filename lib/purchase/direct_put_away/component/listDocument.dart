@@ -16,6 +16,7 @@ class ListDocument extends StatefulWidget {
 class _ListDocumentState extends State<ListDocument> {
   num check = 0;
   var s = 10;
+
   void request() async {
     const FlutterSecureStorage secureStorage = FlutterSecureStorage();
     String? token = await secureStorage.read(key: "sessionId");
@@ -52,8 +53,9 @@ class _ListDocumentState extends State<ListDocument> {
     setState(() {
       data.clear();
       s = 10;
+      request();
     });
-    request();
+
     _refreshController.refreshCompleted();
   }
 
@@ -62,8 +64,8 @@ class _ListDocumentState extends State<ListDocument> {
     if (mounted) {
       setState(() {
         s + 10;
+        request();
       });
-      request();
     }
     _refreshController.loadComplete();
   }
