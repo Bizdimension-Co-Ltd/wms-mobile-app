@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/blockList.dart';
-import 'package:wms_mobile/purchase/direct_put_away/directPutAwayDetailScreen.dart';
-
 
 class ListOffLineDocument extends StatefulWidget {
   const ListOffLineDocument({super.key});
@@ -24,11 +22,11 @@ class _ListOffLineDocumentState extends State<ListOffLineDocument> {
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DirectPutAwayDetailScreens(ind: null,)),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const DirectPutAwayDetailScreens(ind: null,)),
+                // );
               },
               child: const BlockList(
                 name: "230010455 - Chea Narath",

@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/listDocument.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/listOffLineDocument.dart';
 import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayCreateScreen.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+
 /// Flutter code sample for [TabBar].
 
 class DirectPutAwayListScreen extends StatefulWidget {
@@ -21,11 +21,10 @@ class _DirectPutAwayListScreenState extends State<DirectPutAwayListScreen>
   // late final TabController _tabController;
 
   @override
-  // void initState() {
-  //   super.initState();
-  //   _tabController = TabController(length: 4, vsync: this);
-  // }
-
+  void initState() {
+    super.initState();
+    // _tabController = TabController(length: 4, vsync: this);
+  }
 
   @override
   // void dispose() {
@@ -38,7 +37,7 @@ class _DirectPutAwayListScreenState extends State<DirectPutAwayListScreen>
         labelColor: const Color.fromARGB(255, 17, 18, 48),
         //  isScrollable: true,
         // indicatorWeight: 5.0,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         tabs: [
           Tab(
               child: SvgPicture.asset(
@@ -58,17 +57,16 @@ class _DirectPutAwayListScreenState extends State<DirectPutAwayListScreen>
         ],
       );
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 17, 18, 48),
           title: const Text(
             'Good Return Request',
-            style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           actions: [
             IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
@@ -92,10 +90,14 @@ class _DirectPutAwayListScreenState extends State<DirectPutAwayListScreen>
           children: [
             const TabBarView(
               // controller: _tabController,
-              children: <Widget>[ListDocument(), ListOffLineDocument()],
+              children: <Widget>[
+                ListDocument(),
+                ListOffLineDocument(),
+                Text('No')
+              ],
             ),
             Positioned(
-                bottom:30,
+                bottom: 30,
                 right: 30,
                 child: GestureDetector(
                   onTap: () {
@@ -103,7 +105,7 @@ class _DirectPutAwayListScreenState extends State<DirectPutAwayListScreen>
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const DirectPutAwayCreateScreen()),
+                              DirectPutAwayCreateScreen(edit: false,)),
                     );
                   },
                   child: Container(

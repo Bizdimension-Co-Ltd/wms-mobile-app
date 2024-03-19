@@ -31,7 +31,7 @@ class _DirectPutAwayItemDetailScreenState
                       builder: (context) => const PurchaseOrderCodeScreen()),
                 );
               },
-              icon: const Icon(Icons.qr_code_scanner_outlined)),
+              icon: const Icon(Icons.abc_sharp)),
           const SizedBox(
             width: 15,
           ),

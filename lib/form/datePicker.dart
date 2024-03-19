@@ -6,10 +6,11 @@ import 'package:intl/intl.dart';
 /// Flutter code sample for [showDatePicker].
 
 class DatePicker extends StatefulWidget {
-  const DatePicker({super.key, this.restorationId, required this.title});
+   DatePicker(
+      {super.key, this.restorationId, required this.title, this.dateValue});
   final String? title;
   final String? restorationId;
-
+  String? dateValue;
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
@@ -60,18 +61,19 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         _restorableDatePickerRouteFuture, 'date_picker_route_future');
   }
 
-  var date;
   void _selectDate(DateTime? newSelectedDate) {
     if (newSelectedDate != null) {
       setState(() {
         _selectedDate.value = newSelectedDate;
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Selected: ${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}'),
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text(
+        //       'Selected: ${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}'),
+        // ));
 
-        date = DateFormat('yyyy-MM-dd').format(newSelectedDate);
+        widget.dateValue = DateFormat('yyyy-MM-dd').format(newSelectedDate);
+            print(widget.dateValue);
+
       });
     }
   }
@@ -116,9 +118,9 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
               //       isDense: true),
               // ),
               Text(
-                "${date ?? ''}",
+                widget.dateValue ?? '',
                 style: const TextStyle(
-                  fontSize: 13,
+                    fontSize: 13,
                     color: Color.fromARGB(255, 0, 0, 0),
                     fontWeight: FontWeight.bold),
               ),

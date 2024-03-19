@@ -58,7 +58,7 @@ class _BlockListState extends State<BlockList> {
                               Text(
                                 "${widget.name}",
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 15),
+                                    fontWeight: FontWeight.bold, fontSize: 14.5),
                               ),
                               Text(
                                 "${widget.status}",
@@ -71,12 +71,14 @@ class _BlockListState extends State<BlockList> {
                     Expanded(
                         flex: 3,
                         child: Container(
+                          
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 "${widget.date}",
                                 style: const TextStyle(
+                                  fontSize: 13,
                                     color: Color.fromARGB(255, 106, 103, 103)),
                               ),
                               Text(

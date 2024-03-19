@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/blockList.dart';
+import 'package:wms_mobile/model/direct_put_away.dart';
 import 'package:wms_mobile/purchase/direct_put_away/directPutAwayDetailScreen.dart';
-import 'package:wms_mobile/purchase/purchase_order/myData.dart';
+import 'package:wms_mobile/purchase/direct_put_away/myData.dart';
+
 import 'package:dio/dio.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -16,6 +18,7 @@ class ListDocument extends StatefulWidget {
 class _ListDocumentState extends State<ListDocument> {
   num check = 0;
   var s = 10;
+  List<DirectPutAway> _lists = [];
 
   void request() async {
     const FlutterSecureStorage secureStorage = FlutterSecureStorage();
@@ -23,7 +26,7 @@ class _ListDocumentState extends State<ListDocument> {
     final dio = Dio();
     Response response;
     response = await dio.get(
-      "https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo?\$top=$s",
+      "https://svr11.biz-dimension.com:50000/b1s/v1/GoodsReturnRequest?\$top=$s",
       options: Options(
         headers: {
           "Cookie": "B1SESSION=$token; ROUTEID=.node4",
@@ -31,9 +34,13 @@ class _ListDocumentState extends State<ListDocument> {
         },
       ),
     );
+
     if (response.statusCode == 200) {
-      data.addAll(response.data['value']);
+      final List<DirectPutAway> data = List.from(
+          response.data['value'].map((e) => DirectPutAway.fromJson(e)));
+      // directPutAway.addAll(response.data['value']);
       setState(() {
+        _lists = data;
         check = data.length;
       });
     }
@@ -51,7 +58,7 @@ class _ListDocumentState extends State<ListDocument> {
   void _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 300));
     setState(() {
-      data.clear();
+      directPutAway.clear();
       s = 10;
       request();
     });
@@ -92,22 +99,21 @@ class _ListDocumentState extends State<ListDocument> {
               child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                   shrinkWrap: true,
-                  itemCount: data.length,
+                  itemCount: _lists.length,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  DirectPutAwayDetailScreens(ind: index)),
+                              builder: (context) => DirectPutAwayDetailScreens(
+                                  ind: _lists[index])),
                         );
                       },
                       child: BlockList(
-                        name:
-                            "230010455 - ${data[index]["FirstName"]} ${data[index]["LastName"]}",
+                        name: "${_lists[index].cardCode} - ${_lists[index].cardName}",
                         // date: "23-3-2023",
-                        date: "${data[index]["JobTitle"]}",
+                        date: "${_lists[index].docDate }",
                         status: "OPEN",
                         qty: "50/300",
                       ),

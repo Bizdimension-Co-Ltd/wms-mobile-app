@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late String _errorMessage = '';
   String _responseMessage = '';
   late bool checkTypeInput = false;
+
   Future<void> _postData() async {
     Dio dio = Dio();
     const String apiUrl = 'https://svr11.biz-dimension.com:50000/b1s/v1/Login';
@@ -66,10 +67,10 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     } catch (e) {
-      setState(() {
-        _responseMessage = 'Error: $e';
-        print(_responseMessage);
-      });
+      // setState(() {
+      //   _responseMessage = 'Error: $e';
+      //   print(_responseMessage);
+      // });
     }
   }
 

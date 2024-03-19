@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
-import 'package:wms_mobile/purchase/purchase_order/myData.dart';
+import 'package:wms_mobile/model/direct_put_away.dart';
 
 class HeaderScreen extends StatefulWidget {
   const HeaderScreen({super.key, required this.ind});
-  final ind;
+  final DirectPutAway ind;
   @override
   State<HeaderScreen> createState() => _HeaderScreenState();
 }
@@ -62,7 +62,8 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "230010455 - ${data[widget.ind]["FirstName"]}-${data[widget.ind]["LastName"]}",
+                                    // "230010455 - ${directPutAway[widget.ind]["FirstName"]}-${directPutAway[widget.ind]["LastName"]}",
+                                    "230010455 - ${widget.ind.cardCode} - ${widget.ind.cardName}}",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
@@ -85,14 +86,15 @@ class _HeaderScreenState extends State<HeaderScreen> {
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
-                                children: [
+                                children: const [
                                   Text(
-                                    "${data[widget.ind]["JobTitle"]}",
-                                    style: const TextStyle(
+                                    "",
+                                    // "${directPutAway[widget.ind]["JobTitle"]}",
+                                    style: TextStyle(
                                         color:
                                             Color.fromARGB(255, 106, 103, 103)),
                                   ),
-                                  const Text(
+                                  Text(
                                     "1,872,172.510 USD",
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 97, 99, 100),

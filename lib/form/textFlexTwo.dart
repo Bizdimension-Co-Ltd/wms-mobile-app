@@ -56,7 +56,7 @@ class _TextFlexTwoState extends State<TextFlexTwo> {
           //       fontWeight: FontWeight.bold),
           // ),
           Expanded(
-            flex: 4,
+            flex: 5,
             child: TextField(
               // onChanged: widget.onChanged(),
               controller: widget.textData,
@@ -64,7 +64,7 @@ class _TextFlexTwoState extends State<TextFlexTwo> {
               style: const TextStyle(
                   color: Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.3
+                  fontSize: 13 
                   ),
               decoration: const InputDecoration(
                 hintStyle:

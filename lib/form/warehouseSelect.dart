@@ -3,20 +3,21 @@ import 'package:wms_mobile/model/branch.dart';
 import 'package:dio/dio.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:wms_mobile/model/warehouse.dart';
 
-class BranchSelect extends StatefulWidget {
-  const BranchSelect({Key? key, this.indBack}) : super(key: key);
+class WarehouseSelect extends StatefulWidget {
+  const WarehouseSelect({Key? key, this.indBack}) : super(key: key);
   final indBack;
 
   @override
-  State<BranchSelect> createState() => _BranchSelectState();
+  State<WarehouseSelect> createState() => _WarehouseSelectState();
 }
 
-class _BranchSelectState extends State<BranchSelect> {
+class _WarehouseSelectState extends State<WarehouseSelect> {
   int selectedRadio = -1;
   num check = 0;
   var s = 15;
-  final List<Branch> _lists = [];
+  final List<Warehouse> _lists = [];
   bool _isMounted = false; // Add this flag
 
   Future<void> request(int page) async {
@@ -25,7 +26,7 @@ class _BranchSelectState extends State<BranchSelect> {
     final dio = Dio();
     Response response;
     response = await dio.get(
-      "https://svr11.biz-dimension.com:50000/b1s/v1/BusinessPlaces?\$top=$s&\$skip=$page",
+      "https://svr11.biz-dimension.com:50000/b1s/v1/Warehouses?\$top=$s&\$skip=$page",
       options: Options(
         headers: {
           "Cookie": "B1SESSION=$token; ROUTEID=.node4",
@@ -34,8 +35,8 @@ class _BranchSelectState extends State<BranchSelect> {
       ),
     );
     if (response.statusCode == 200) {
-      final List<Branch> data =
-          List.from(response.data['value'].map((e) => Branch.fromJson(e)));
+      final List<Warehouse> data =
+          List.from(response.data['value'].map((e) => Warehouse.fromJson(e)));
 
       if (_isMounted) {
         // Check if the widget is still mounted before calling setState
@@ -92,7 +93,7 @@ class _BranchSelectState extends State<BranchSelect> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text('Branch'),
+        title: const Text('WareHouse'),
         actions: const [
           Icon(Icons.search),
           SizedBox(width: 10),
@@ -147,8 +148,8 @@ class _BranchSelectState extends State<BranchSelect> {
                     backgroundColor: const Color.fromARGB(255, 17, 18, 48)),
                 onPressed: () {
                   final op = {
-                    "bPLName": _lists[selectedRadio].bPLName,
-                    "bPLID": _lists[selectedRadio].bPLID,
+                    "warehouseCode": _lists[selectedRadio].warehouseCode,
+                    "warehouseName": _lists[selectedRadio].warehouseName,
                     "index": selectedRadio
                   };
                   if (selectedRadio != -1) {
@@ -179,7 +180,7 @@ class ListItem extends StatelessWidget {
   final int index;
   final int selectedRadio;
   final Function(int) onSelect;
-  final Branch data;
+  final Warehouse data;
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +229,7 @@ class ListItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "${data.bPLName}",
+                      "${data.warehouseName}",
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     // const SizedBox(height: 15),

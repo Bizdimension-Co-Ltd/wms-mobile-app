@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/model/direct_put_away.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/account.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/content.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/header.dart';
@@ -10,7 +11,7 @@ import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayC
 
 class DirectPutAwayDetailScreens extends StatefulWidget {
   const DirectPutAwayDetailScreens({super.key, required this.ind});
-  final ind;
+  final DirectPutAway ind;
   @override
   State<DirectPutAwayDetailScreens> createState() =>
       _DirectPutAwayDetailScreenState();
@@ -355,9 +356,9 @@ class _DirectPutAwayDetailScreenState extends State<DirectPutAwayDetailScreens>
               // controller: _tabController,
               children: <Widget>[
                 HeaderScreen(ind: widget.ind),
-                ContentScreen(),
-                LogisticScreen(),
-                AccountScreen()
+                const ContentScreen(),
+                const LogisticScreen(),
+                const AccountScreen()
               ],
             ),
             Positioned(
@@ -368,8 +369,10 @@ class _DirectPutAwayDetailScreenState extends State<DirectPutAwayDetailScreens>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                               DirectPutAwayCreateScreen(ind: widget.ind,)),
+                          builder: (context) => DirectPutAwayCreateScreen(
+                                ind: widget.ind,
+                                edit: true,
+                              )),
                     );
                   },
                   child: Container(

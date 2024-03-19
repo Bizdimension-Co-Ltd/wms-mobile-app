@@ -22,17 +22,17 @@ class _MyMainAppState extends State<MyMainApp> {
 
   @override
   void initState() {
-    super.initState();
     _startSessionTimer();
+    super.initState();
   }
 
-  void _startSessionTimer() {
+  void _startSessionTimer() async {
     _sessionTimer = Timer.periodic(sessionTimeout, (Timer timer) async {
       // Check if the session is still valid
       String? sessionId = await _secureStorage.read(key: 'sessionId');
-
       if (sessionId == null) {
         // Navigate to login screen if the session has expired or is invalid
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const LoginScreen()));
         _sessionTimer.cancel();

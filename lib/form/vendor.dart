@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/model/branch.dart';
+import 'package:wms_mobile/model/businessPartner.dart';
 import 'package:dio/dio.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class BranchSelect extends StatefulWidget {
-  const BranchSelect({Key? key, this.indBack}) : super(key: key);
+class Vendor extends StatefulWidget {
+  const Vendor({Key? key, this.indBack}) : super(key: key);
   final indBack;
 
   @override
-  State<BranchSelect> createState() => _BranchSelectState();
+  State<Vendor> createState() => _VendorState();
 }
 
-class _BranchSelectState extends State<BranchSelect> {
+class _VendorState extends State<Vendor> {
   int selectedRadio = -1;
   num check = 0;
-  var s = 15;
-  final List<Branch> _lists = [];
+  var s = 10;
+  final List<BusinessPartner> _lists = [];
   bool _isMounted = false; // Add this flag
 
   Future<void> request(int page) async {
@@ -25,7 +25,7 @@ class _BranchSelectState extends State<BranchSelect> {
     final dio = Dio();
     Response response;
     response = await dio.get(
-      "https://svr11.biz-dimension.com:50000/b1s/v1/BusinessPlaces?\$top=$s&\$skip=$page",
+      "https://svr11.biz-dimension.com:50000/b1s/v1/BusinessPartners?\$filter=CardType eq 'cSupplier'&\$top=$s&\$skip=$page",
       options: Options(
         headers: {
           "Cookie": "B1SESSION=$token; ROUTEID=.node4",
@@ -34,8 +34,8 @@ class _BranchSelectState extends State<BranchSelect> {
       ),
     );
     if (response.statusCode == 200) {
-      final List<Branch> data =
-          List.from(response.data['value'].map((e) => Branch.fromJson(e)));
+      final List<BusinessPartner> data = List.from(
+          response.data['value'].map((e) => BusinessPartner.fromJson(e)));
 
       if (_isMounted) {
         // Check if the widget is still mounted before calling setState
@@ -55,7 +55,7 @@ class _BranchSelectState extends State<BranchSelect> {
     await Future<void>.delayed(const Duration(milliseconds: 200));
     setState(() {
       _lists.clear();
-      s = 15;
+      s = 10;
     });
     await request(0); // Assuming you want to refresh the first page
     _refreshController.refreshCompleted();
@@ -92,7 +92,7 @@ class _BranchSelectState extends State<BranchSelect> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text('Branch'),
+        title: const Text('Spplier'),
         actions: const [
           Icon(Icons.search),
           SizedBox(width: 10),
@@ -147,8 +147,10 @@ class _BranchSelectState extends State<BranchSelect> {
                     backgroundColor: const Color.fromARGB(255, 17, 18, 48)),
                 onPressed: () {
                   final op = {
-                    "bPLName": _lists[selectedRadio].bPLName,
-                    "bPLID": _lists[selectedRadio].bPLID,
+                    "cardCode": _lists[selectedRadio].cardCode,
+                    "cardName": _lists[selectedRadio].cardName,
+                    "cardType": _lists[selectedRadio].cardType,
+                    "address": _lists[selectedRadio].address,
                     "index": selectedRadio
                   };
                   if (selectedRadio != -1) {
@@ -179,7 +181,7 @@ class ListItem extends StatelessWidget {
   final int index;
   final int selectedRadio;
   final Function(int) onSelect;
-  final Branch data;
+  final BusinessPartner data;
 
   @override
   Widget build(BuildContext context) {
@@ -202,37 +204,36 @@ class ListItem extends StatelessWidget {
             Expanded(
               flex: 1,
               child: SizedBox(
-                height: 60,
+                height: 80,
                 child: Center(
-                  child: Transform.scale(
-                    scale: 0.8,
-                    child: Radio(
-                      fillColor: MaterialStateColor.resolveWith(
-                          (states) => const Color.fromARGB(255, 120, 120, 124)),
-                      value: index,
-                      groupValue: selectedRadio,
-                      onChanged: (value) {
-                        onSelect(value as int);
-                      },
-                    ),
+                    child: Transform.scale(
+                  scale: 0.9,
+                  child: Radio(
+                    fillColor: MaterialStateColor.resolveWith(
+                        (states) => const Color.fromARGB(255, 120, 120, 124)),
+                    value: index,
+                    groupValue: selectedRadio,
+                    onChanged: (value) {
+                      onSelect(value as int);
+                    },
                   ),
-                ),
+                )),
               ),
             ),
             Expanded(
               flex: 5,
               child: SizedBox(
-                height: 60,
+                height: 80,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "${data.bPLName}",
-                      style: const TextStyle(fontWeight: FontWeight.w500),
+                      "${data.cardName}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    // const SizedBox(height: 15),
-                    // Text("${data.bPLID}"),
+                    const SizedBox(height: 15),
+                    Text("${data.cardCode}"),
                   ],
                 ),
               ),
