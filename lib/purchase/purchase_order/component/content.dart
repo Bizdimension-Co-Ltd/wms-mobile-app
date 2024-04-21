@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/purchase/purchase_order/purchaseOrderItemScreen.dart';
 
+import '../../../constant/style.dart';
+
 class ContentScreen extends StatefulWidget {
   const ContentScreen({super.key});
 
@@ -13,7 +15,7 @@ class _ContentScreenState extends State<ContentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color.fromARGB(255, 236, 233, 233),
+        color: PRIMARY_BG_COLOR,
         height: double.infinity,
         width: double.infinity,
         child: ListView.builder(
@@ -22,8 +24,8 @@ class _ContentScreenState extends State<ContentScreen> {
             itemCount: 3,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
-                onTap: (){
-                   Navigator.push(
+                onTap: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const PurchaseOrderItemScreen()),
@@ -71,12 +73,11 @@ class _ContentScreenState extends State<ContentScreen> {
                                               fontWeight: FontWeight.bold,
                                               fontSize: 15),
                                         ),
-                                        Text(
-                                          "Quantity: 10",
-                                          style: TextStyle(
-                                            fontSize: 15.2,
-                                               color: Color.fromARGB(255, 0, 0, 0))
-                                        )
+                                        Text("Quantity: 10",
+                                            style: TextStyle(
+                                                fontSize: 15.2,
+                                                color: Color.fromARGB(
+                                                    255, 0, 0, 0)))
                                       ],
                                     ),
                                   )),

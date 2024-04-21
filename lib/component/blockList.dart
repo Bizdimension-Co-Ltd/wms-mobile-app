@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wms_mobile/constant/style.dart';
 
 class BlockList extends StatefulWidget {
   const BlockList(
@@ -62,15 +63,16 @@ class _BlockListState extends State<BlockList> {
                               ),
                               Text(
                                 "${widget.status}",
-                                style: const TextStyle(
-                                    color: Colors.blue, fontSize: 15),
+                                style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: size(context).width * 0.035),
                               )
                             ],
                           ),
                         )),
                     Expanded(
                         flex: 3,
-                        child: Container(
+                        child: SizedBox(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -81,18 +83,21 @@ class _BlockListState extends State<BlockList> {
                               ),
                               Text(
                                 "${widget.qty}",
-                                style: const TextStyle(
-                                    color: Color.fromARGB(255, 106, 103, 103)),
+                                style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 106, 103, 103),
+                                  fontSize: size(context).width * 0.035,
+                                ),
                               )
                             ],
                           ),
                         ))
                   ]),
                 )),
-            Expanded(
+            const Expanded(
                 flex: 1,
-                child: Container(
-                  child: const Center(
+                child: SizedBox(
+                  child: Center(
                     child: Icon(
                       Icons.arrow_forward_ios,
                       size: 20,

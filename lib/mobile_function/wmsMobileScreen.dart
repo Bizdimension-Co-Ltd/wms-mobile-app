@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/form/datePicker.dart';
-import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/mobile_function/countingScreen.dart';
 import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';
 import 'package:wms_mobile/mobile_function/rmaScreen.dart';
+
+import '../constant/style.dart';
 
 const gridList = [
   {"name": "Receiving", "img": "call-received.svg"},
@@ -28,7 +30,9 @@ class _WMSMobileScreenState extends State<WMSMobileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.dashboard),
+        elevation: 0.2,
+        automaticallyImplyLeading: false,
+        // leading: const Icon(Icons.dashboard),
         iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
         ),
@@ -45,7 +49,7 @@ class _WMSMobileScreenState extends State<WMSMobileScreen> {
             width: 15,
           )
         ],
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Colors.white,
         title: const Text(
           "WMS Mobile",
           style: TextStyle(
@@ -57,19 +61,12 @@ class _WMSMobileScreenState extends State<WMSMobileScreen> {
           padding: const EdgeInsets.all(12),
           width: double.infinity,
           height: double.infinity,
-          color: const Color.fromARGB(255, 223, 220, 220),
+          color: PRIMARY_BG_COLOR,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 10,
-              ),
-              const Text(
-                "Function",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 20,
               ),
               SizedBox(
                 child: GridView.builder(
@@ -128,14 +125,16 @@ class _WMSMobileScreenState extends State<WMSMobileScreen> {
                             children: [
                               SvgPicture.asset(
                                 "images/svg/${gridList[index]["img"]}",
-                                width: 47,
-                                height: 47,
+                                width: size(context).width * 0.1,
+                                height: size(context).width * 0.1,
                               ),
                               const SizedBox(
                                 height: 18,
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
+                                style: TextStyle(
+                                    fontSize: size(context).width * 0.035),
                               ),
                             ],
                           )),

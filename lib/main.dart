@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/constant/style.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/splashScreen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
@@ -42,9 +43,17 @@ class _MyMainAppState extends State<MyMainApp> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter layout demo',
-        home: SplashScreen());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        // Define the default color for the date picker
+        colorScheme: const ColorScheme.light(
+          primary: PRIMARY_COLOR, // Change primary color
+          onPrimary: Colors.white, // Change text color
+        ),
+      ),
+      title: 'Flutter layout demo',
+      home: SplashScreen(),
+    );
   }
 }

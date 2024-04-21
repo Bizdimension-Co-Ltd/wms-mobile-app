@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
 
+import '../../../constant/style.dart';
+
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
 
@@ -15,7 +17,7 @@ class _AccountScreenState extends State<AccountScreen> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color.fromARGB(255, 236, 233, 233),
+      color: PRIMARY_BG_COLOR,
       child: ListView(
         children: const [
           SizedBox(

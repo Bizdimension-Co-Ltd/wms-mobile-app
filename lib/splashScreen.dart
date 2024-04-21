@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,8 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void dispos() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
@@ -66,14 +65,14 @@ class _SplashScreenState extends State<SplashScreen>
                     )),
                   ),
                 ),
-                Expanded(
+                const Expanded(
                   flex: 1,
                   child: SizedBox(
                     width: double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children:  [
                         Text(
                           "Copyright@ 2023 BizDimension Cambodia",
                           style: TextStyle(fontSize: 14.5, color: Colors.grey),

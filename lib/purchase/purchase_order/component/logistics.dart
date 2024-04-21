@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 
+import '../../../constant/style.dart';
+
 class LogisticScreen extends StatefulWidget {
   const LogisticScreen({super.key});
 
@@ -14,10 +16,12 @@ class _LogisticScreenState extends State<LogisticScreen> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color.fromARGB(255, 8, 3, 3),
+      color: PRIMARY_BG_COLOR,
       child: ListView(
         children: const [
-          SizedBox(height: 30,),
+          SizedBox(
+            height: 30,
+          ),
           FlexTwo(
             title: "Ship To",
             values: "Phnom Penh, Cambodia",

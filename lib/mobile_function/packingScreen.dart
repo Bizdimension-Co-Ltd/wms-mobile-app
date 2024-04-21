@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+
+import '../constant/style.dart';
+import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
 
 const gridList = [
   {"name": "Packing Pallet", "img": "request-changes.svg"},
   {"name": "Pallet Print", "img": "printer.svg"},
-  {"name": "pallet Break", "img": "file-earmark-break.svg"},
+  {"name": "Pallet Break", "img": "file-earmark-break.svg"},
   {"name": "Pallet Inquiry", "img": "document-preliminary.svg"},
 ];
 
@@ -21,7 +24,8 @@ class _PackingScreenState extends State<PackingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-         actions: [
+        elevation: 0.2,
+        actions: [
           IconButton(
               onPressed: () {
                 Navigator.push(
@@ -49,7 +53,7 @@ class _PackingScreenState extends State<PackingScreen> {
           padding: const EdgeInsets.all(12),
           width: double.infinity,
           height: double.infinity,
-          color: const Color.fromARGB(255, 223, 220, 220),
+          color: PRIMARY_BG_COLOR,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -74,25 +78,38 @@ class _PackingScreenState extends State<PackingScreen> {
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5)),
-                        child: Center(
-                            child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "images/svg/${gridList[index]["img"]}",
-                              width: 47,
-                              height: 47,
-                            ),
-                            const SizedBox(
-                              height: 18,
-                            ),
-                            Text(
-                              "${gridList[index]["name"]}",
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        )),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GoodReceiptListScreen(
+                                        title: gridList[index]["name"] ?? '',
+                                      )),
+                            );
+                          },
+                          child: Center(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "images/svg/${gridList[index]["img"]}",
+                                width: size(context).width * 0.1,
+                                height: size(context).width * 0.1,
+                              ),
+                              const SizedBox(
+                                height: 18,
+                              ),
+                              Text(
+                                "${gridList[index]["name"]}",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: size(context).width * 0.035),
+                              ),
+                            ],
+                          )),
+                        ),
                       );
                     }),
               )

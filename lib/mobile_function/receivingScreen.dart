@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/loginScreen.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+import 'package:wms_mobile/feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
 import 'package:wms_mobile/purchase/direct_put_away/directPutAwayList.dart';
 import 'package:wms_mobile/purchase/purchase_order/purchaseOrderListScreen.dart';
+
+import '../constant/style.dart';
 
 const gridList = [
   {"name": "Purchase Order", "img": "shopping-cart.svg"},
@@ -23,7 +26,8 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-         actions: [
+        elevation: 0.2,
+        actions: [
           IconButton(
               onPressed: () {
                 Navigator.push(
@@ -51,7 +55,7 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
           padding: const EdgeInsets.all(12),
           width: double.infinity,
           height: double.infinity,
-          color: const Color.fromARGB(255, 223, 220, 220),
+          color: PRIMARY_BG_COLOR,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -79,28 +83,36 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const PurchaseOrderListScreen()),
+                                      const PurchaseOrderListScreen(
+                                        title: 'Purchase Order',
+                                      )),
                             );
                           } else if (index == 1) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const PurchaseOrderListScreen()),
+                                      const GoodReceiptListScreen(
+                                        title: 'Good Receipt',
+                                      )),
                             );
                           } else if (index == 2) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const PurchaseOrderListScreen()),
+                                      const GoodReceiptListScreen(
+                                        title: 'Good Receipt PO',
+                                      )),
                             );
                           } else if (index == 3) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const DirectPutAwayListScreen()),
+                                      const GoodReceiptListScreen(
+                                        title: 'Direct Put Away',
+                                      )),
                             );
                           }
                         },
@@ -115,14 +127,16 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
                             children: [
                               SvgPicture.asset(
                                 "images/svg/${gridList[index]["img"]}",
-                                width: 47,
-                                height: 47,
+                                width: size(context).width * 0.1,
+                                height: size(context).width * 0.1,
                               ),
                               const SizedBox(
                                 height: 18,
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
+                                style: TextStyle(
+                                    fontSize: size(context).width * 0.035),
                               ),
                             ],
                           )),

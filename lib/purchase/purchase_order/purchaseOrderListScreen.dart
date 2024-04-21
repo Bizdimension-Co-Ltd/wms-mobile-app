@@ -3,13 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/blockList.dart';
+import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/purchase/purchase_order/myData.dart';
-import 'package:wms_mobile/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 import 'package:wms_mobile/purchase/purchase_order/purchaseOrderDetailScreen.dart';
 import 'package:dio/dio.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
 
 class PurchaseOrderListScreen extends StatefulWidget {
-  const PurchaseOrderListScreen({super.key});
+  const PurchaseOrderListScreen({super.key, required this.title});
+
+  final String title;
 
   @override
   State<PurchaseOrderListScreen> createState() =>
@@ -17,10 +20,15 @@ class PurchaseOrderListScreen extends StatefulWidget {
 }
 
 class _PurchaseOrderListScreenState extends State<PurchaseOrderListScreen> {
-  
+  DateTime selectedDate = DateTime.now();
+
   final dio = Dio();
-  num check = 0;
+  int check = 0;
+
   void request() async {
+    setState(() => check = 0);
+    await Future.delayed(const Duration(seconds: 1));
+
     Response response;
     response = await dio.get('https://jsonplaceholder.typicode.com/users');
     if (response.statusCode == 200) {
@@ -43,24 +51,31 @@ class _PurchaseOrderListScreenState extends State<PurchaseOrderListScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text(
-          "Purchase Orders ",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Text(
+          widget.title,
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: size(context).width * 0.045),
         ),
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PurchaseOrderCodeScreen()),
-                );
+                MaterialDialog.success(context,
+                    title: 'Oop', body: 'Scanner undermantain!');
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const PurchaseOrderCodeScreen()),
+                // );
               },
               icon: const Icon(Icons.qr_code_scanner_outlined)),
           const SizedBox(
             width: 20,
           ),
-          const Icon(Icons.calendar_today_outlined),
+          IconButton(
+            icon: const Icon(Icons.calendar_today_outlined),
+            onPressed: () => _selectDate(context),
+          ),
           const SizedBox(
             width: 13,
           ),
@@ -87,9 +102,11 @@ class _PurchaseOrderListScreenState extends State<PurchaseOrderListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PurchaseOrderDetailScreen(
-                                  ind: index,
-                                )),
+                          builder: (context) => PurchaseOrderDetailScreen(
+                            ind: index,
+                            title: widget.title,
+                          ),
+                        ),
                       );
                     },
                     child: BlockList(
@@ -103,7 +120,40 @@ class _PurchaseOrderListScreenState extends State<PurchaseOrderListScreen> {
                   );
                 }),
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: PRIMARY_COLOR,
+        onPressed: createDocument,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      request();
+    }
+    // setState(() {
+    //   selectedDate = picked;
+    // });
+  }
+
+  Future<void> createDocument() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (mounted) MaterialDialog.loading(context, barrierDismissible: false);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      MaterialDialog.close(context);
+      MaterialDialog.success(context,
+          title: 'Oop', body: 'Internal Error Occur(1)');
+    }
   }
 }
 // 

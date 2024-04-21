@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
+import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
-import 'package:wms_mobile/purchase/purchase_order/myData.dart';
+
+import '../myData.dart';
 
 class HeaderScreen extends StatefulWidget {
   const HeaderScreen({super.key, required this.ind});
@@ -17,7 +19,7 @@ class _HeaderScreenState extends State<HeaderScreen> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color.fromARGB(255, 236, 233, 233),
+      color: PRIMARY_BG_COLOR,
       child: ListView(
         children: [
           Container(
