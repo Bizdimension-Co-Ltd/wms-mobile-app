@@ -78,14 +78,16 @@ class MaterialDialog {
       elevation: 0,
       content: Container(
         padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
         decoration: BoxDecoration(
-            color: Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(
-              15,
-            )),
+          color: Colors.grey.shade600,
+          borderRadius: BorderRadius.circular(
+            30,
+          ),
+        ),
         child: Text(message),
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

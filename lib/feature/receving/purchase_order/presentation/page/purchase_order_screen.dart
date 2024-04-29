@@ -5,21 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/blockList.dart';
 import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/purchase/purchase_order/myData.dart';
+import 'package:wms_mobile/purchase/purchase_order/purchaseOrderDetailScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 
-import 'good_receipt_detail_screen.dart';
-
-class GoodReceiptListScreen extends StatefulWidget {
-  const GoodReceiptListScreen({super.key, required this.title});
+class PurchaseOrderScreen extends StatefulWidget {
+  const PurchaseOrderScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  State<GoodReceiptListScreen> createState() => _GoodReceiptListScreenState();
+  State<PurchaseOrderScreen> createState() =>
+      _PurchaseOrderScreenState();
 }
 
-class _GoodReceiptListScreenState extends State<GoodReceiptListScreen> {
+class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
   DateTime selectedDate = DateTime.now();
 
   final dio = Dio();
@@ -65,7 +65,7 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen> {
                 // Navigator.push(
                 //   context,
                 //   MaterialPageRoute(
-                //       builder: (context) => const GoodReceiptCodeScreen()),
+                //       builder: (context) => const PurchaseOrderCodeScreen()),
                 // );
               },
               icon: const Icon(Icons.qr_code_scanner_outlined)),
@@ -102,7 +102,7 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => GoodReceiptDetailScreen(
+                          builder: (context) => PurchaseOrderDetailScreen(
                             ind: index,
                             title: widget.title,
                           ),
@@ -139,9 +139,6 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen> {
     if (picked != null && picked != selectedDate) {
       request();
     }
-    // setState(() {
-    //   selectedDate = picked;
-    // });
   }
 
   Future<void> createDocument() async {

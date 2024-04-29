@@ -18,14 +18,14 @@ const gridList = [
   {"name": "Packing", "img": "package-24.svg"}
 ];
 
-class WMSMobileScreen extends StatefulWidget {
-  const WMSMobileScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
   @override
-  State<WMSMobileScreen> createState() => _WMSMobileScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _WMSMobileScreenState extends State<WMSMobileScreen> {
+class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
