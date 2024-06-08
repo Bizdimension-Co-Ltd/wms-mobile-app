@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/listDocument.dart';
 import 'package:wms_mobile/purchase/direct_put_away/component/listOffLineDocument.dart';
 import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayCreateScreen.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+// import 'package:pull_to_refresh/pull_to_refresh.dart';
 /// Flutter code sample for [TabBar].
 
 class DirectPutAwayListScreen extends StatefulWidget {
