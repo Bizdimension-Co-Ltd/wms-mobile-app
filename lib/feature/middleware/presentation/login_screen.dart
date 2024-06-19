@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userName = TextEditingController(text: "T006");
+  final _userName = TextEditingController(text: "T010");
   final _password = TextEditingController(text: "1234");
 
   late bool checkTypeInput = false;
@@ -27,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
       MaterialDialog.loading(context);
       if (mounted) {
         // MaterialDialog.close(context);
-
         final loginEntity = LoginEntity(
             username: _userName.text,
             password: _password.text,
@@ -37,7 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
           RequestLoginOnlineEvent(entity: loginEntity),
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   bool _obscureText = true;

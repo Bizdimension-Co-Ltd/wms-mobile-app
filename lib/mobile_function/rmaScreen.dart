@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/good_return_request_list.dart';
 
 import '../constant/style.dart';
-import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
+// import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
 
 const gridList = [
   {"name": "Return Request", "img": "request-changes.svg"},
@@ -66,20 +67,30 @@ class _MRAScreenState extends State<MRAScreen> {
                             mainAxisSpacing: 10.0),
                     itemCount: gridList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: GestureDetector(
-                          onTap: () {
+                      return GestureDetector(
+                        onTap: () {
+                          if (index == 0) {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) =>
+                            //           const PurchaseOrderListScreen(
+                            //             title: 'Purchase Order',
+                            //           )),
+                            // );
+                          } else if (index == 1) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => GoodReceiptListScreen(
-                                        title: gridList[index]["name"] ?? '',
-                                      )),
+                                  builder: (context) =>
+                                      const GoodReturnRequestListScreen()),
                             );
-                          },
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5)),
                           child: Center(
                               child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,

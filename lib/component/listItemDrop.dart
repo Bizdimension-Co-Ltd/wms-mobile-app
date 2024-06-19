@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 
-
 class ListItem extends StatelessWidget {
-  const ListItem({
-    Key? key,
-    required this.index,
-    required this.selectedRadio,
-    required this.onSelect,
-    required this.data,
-  }) : super(key: key);
+  ListItem(
+      {Key? key,
+      required this.index,
+      required this.selectedRadio,
+      required this.onSelect,
+      required this.desc,
+     required this.code,
+      required this.twoRow})
+      : super(key: key);
 
   final int index;
   final int selectedRadio;
   final Function(int) onSelect;
-  final List<Map<String, String>> data;
-
+  final bool twoRow;
+  final String desc;
+  final String code;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -36,11 +38,11 @@ class ListItem extends StatelessWidget {
             Expanded(
               flex: 1,
               child: SizedBox(
-                height: 80,
+                height: twoRow ? 80 : 60,
                 child: Center(
                   child: Radio(
-                     fillColor:
-                        MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 120, 120, 124)),
+                    fillColor: MaterialStateColor.resolveWith(
+                        (states) => Color.fromARGB(255, 120, 120, 124)),
                     value: index,
                     groupValue: selectedRadio,
                     onChanged: (value) {
@@ -53,18 +55,27 @@ class ListItem extends StatelessWidget {
             Expanded(
               flex: 5,
               child: SizedBox(
-                height: 80,
+                height: twoRow ? 80 : 60,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "${data[index]["name"]}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 15),
-                    Text("${data[index]["sub"]}"),
-                  ],
+                  children: twoRow
+                      ? [
+                          Text(
+                            "${desc}",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            "${code}",
+                          ),
+                        ]
+                      : [
+                          Text(
+                            "${desc}",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                 ),
               ),
             ),

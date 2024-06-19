@@ -38,12 +38,19 @@ class _FlexTwoState extends State<FlexTwo> {
             "${widget.title}",
             style: const TextStyle(color: Color.fromARGB(255, 116, 113, 113)),
           ),
-          Text(
+          Container(
+            width: 220,
+            child:  Text(
+              textAlign: TextAlign.end,
+               overflow: TextOverflow.ellipsis,
             "${widget.values}",
             style: const TextStyle(
+              fontSize: 13.5,
                 color: Color.fromARGB(255, 0, 0, 0),
                 fontWeight: FontWeight.bold),
           ),
+          )
+         
         ],
       ),
     );

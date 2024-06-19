@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 
 import '../constant/style.dart';
-import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
+// import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
 
 const gridList = [
   {"name": "Packing Pallet", "img": "request-changes.svg"},
@@ -79,15 +79,15 @@ class _PackingScreenState extends State<PackingScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5)),
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => GoodReceiptListScreen(
-                                        title: gridList[index]["name"] ?? '',
-                                      )),
-                            );
-                          },
+                          // onTap: () {
+                          //   Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => GoodReceiptListScreen(
+                          //               title: gridList[index]["name"] ?? '',
+                          //             )),
+                          //   );
+                          // },
                           child: Center(
                               child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,

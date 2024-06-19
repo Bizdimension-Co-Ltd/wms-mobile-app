@@ -1,28 +1,34 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-/// Flutter code sample for [showDatePicker].
-
 class DatePicker extends StatefulWidget {
-  const DatePicker({super.key, this.restorationId, required this.title});
+  const DatePicker({
+    super.key,
+    this.restorationId,
+    required this.title,
+    this.req,
+    required this.onDateSelected,
+    this.defaultValue, // Add defaultValue parameter
+  });
+
   final String? title;
   final String? restorationId;
+  final String? req;
+  final ValueChanged<DateTime> onDateSelected;
+  final DateTime? defaultValue; // Add defaultValue field
 
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
-/// RestorationProperty objects can be used because of RestorationMixin.
 class _DatePickerState extends State<DatePicker> with RestorationMixin {
-  // In this example, the restoration ID for the mixin is passed in through
-  // the [StatefulWidget]'s constructor.
   @override
   String? get restorationId => widget.restorationId;
 
-  final RestorableDateTime _selectedDate =
-      RestorableDateTime(DateTime(2021, 7, 25));
+  late final RestorableDateTime _selectedDate = RestorableDateTime(
+      widget.defaultValue ??
+          DateTime.now()); // Initialize with defaultValue or current date
+
   late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
       RestorableRouteFuture<DateTime?>(
     onComplete: _selectDate,
@@ -72,12 +78,17 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         ));
 
         date = DateFormat('yyyy-MM-dd').format(newSelectedDate);
+        widget.onDateSelected(newSelectedDate); // Call the callback function
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    date = date ??
+        DateFormat('yyyy-MM-dd')
+            .format(_selectedDate.value); // Format the default value date
+
     return Container(
       padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
       width: double.infinity,
@@ -101,24 +112,35 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "${widget.title}",
-            style: const TextStyle(color: Color.fromARGB(255, 116, 113, 113)),
-          ),
+          widget.req == "true"
+              ? Row(
+                  children: [
+                    Text(
+                      "${widget.title}",
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 116, 113, 113)),
+                    ),
+                    const SizedBox(
+                      width: 6,
+                    ),
+                    const Text(
+                      "*",
+                      style: TextStyle(
+                          fontSize: 17, color: Color.fromARGB(255, 255, 0, 0)),
+                    ),
+                  ],
+                )
+              : Text(
+                  "${widget.title}",
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 116, 113, 113)),
+                ),
           Row(
             children: [
-              // TextField(
-              //   controller: _nameController,
-              //   decoration: const InputDecoration(
-              //       labelText: ' Name',
-              //       border: OutlineInputBorder(),
-              //       hintText: 'Enter Name',
-              //       isDense: true),
-              // ),
               Text(
                 "${date ?? ''}",
                 style: const TextStyle(
-                  fontSize: 13,
+                    fontSize: 13,
                     color: Color.fromARGB(255, 0, 0, 0),
                     fontWeight: FontWeight.bold),
               ),
@@ -144,14 +166,5 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         ],
       ),
     );
-
-    //  Container(
-    //   child: OutlinedButton(
-    //     onPressed: () {
-    //       _restorableDatePickerRouteFuture.present();
-    //     },
-    //     child:
-    //   ),
-    // );
   }
 }

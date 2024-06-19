@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/good_issue_List.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_List.dart';
 
 import '../constant/style.dart';
-import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
+// import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
 
 const gridList = [
   {"name": "Store Request", "img": "request-changes.svg"},
@@ -77,20 +79,41 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             mainAxisSpacing: 10.0),
                     itemCount: gridList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: GestureDetector(
-                          onTap: () {
+                      return GestureDetector(
+                        onTap: () {
+                          if (index == 0) {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) =>
+                            //           const PurchaseOrderListScreen(
+                            //             title: 'Purchase Order',
+                            //           )),
+                            // );
+                          } else if (index == 1) {
                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => GoodReceiptListScreen(
-                                        title: gridList[index]["name"] ?? '',
-                                      )),
-                            );
-                          },
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GoodIssueListScreen()));
+                          } else if (index == 2) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GoodReceiptListScreen()));
+                          } else if (index == 3) {
+                            //  Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (context) =>
+                            //               const GoodReceiptListScreen()));
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5)),
                           child: Center(
                               child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
