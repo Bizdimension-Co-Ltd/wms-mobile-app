@@ -27,12 +27,12 @@ class _PurchaseOrderItemCreateScreenState
   void init() async {
     _itemCode.text = widget.updateItem["ItemCode"] ?? "";
     _itemDesc.text = widget.updateItem["ItemDescription"] ?? "";
-    _quantity.text = widget.updateItem["Quantity"] ?? "";
-    _unitPrice.text = widget.updateItem["UnitPrice"] ?? "";
-    _crossPrice.text = widget.updateItem["CrossPrice"] ?? "";
-    _itemPerUnit.text = widget.updateItem["ItemPerUnit"] ?? "";
+    _quantity.text = widget.updateItem["Quantity"]?.toString() ?? "";
+    _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
+    _crossPrice.text = widget.updateItem["CrossPrice"]?.toString() ?? "";
+    _itemPerUnit.text = widget.updateItem["ItemPerUnit"]?.toString() ?? "";
     _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
-    _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"] ?? "";
+    _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"]?.toString() ?? "";
   }
 
   void initState() {
