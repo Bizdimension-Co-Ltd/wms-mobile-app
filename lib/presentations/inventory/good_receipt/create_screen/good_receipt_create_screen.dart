@@ -70,8 +70,8 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       MaterialDialog.loading(context, barrierDismissible: false);
 
       final response = widget.id
-          ? await dio.patch("/GoodsReturnRequest('')", data: payload)
-          : await dio.post('/GoodsReturnRequest', data: payload);
+          ? await dio.patch("/InventoryGenEntries('')", data: payload)
+          : await dio.post('/InventoryGenEntries', data: payload);
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -98,7 +98,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
 
   Future<void> getListSeries() async {
     Map<String, dynamic> payload = {
-      'DocumentTypeParams': {'Document': '60'},
+      'DocumentTypeParams': {'Document': '59'},
     };
     try {
       final response =
@@ -122,7 +122,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
   Future<void> getDefaultSeries() async {
     if (widget.id) return;
     Map<String, dynamic> payload = {
-      'DocumentTypeParams': {'Document': '60'},
+      'DocumentTypeParams': {'Document': '59'},
     };
     try {
       final response =

@@ -24,7 +24,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
   @override
   void init() async {
     _itemCode.text = widget.updateItem["ItemCode"] ?? "";
-    _itemDesc.text = widget.updateItem["ItemDescription"] ?? "";
+    _itemDesc.text = widget.updateItem["ItemDescription"] ?? widget.updateItem["ItemName"] ?? "";
     _quantity.text = widget.updateItem["Quantity"] ?? "";
     _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
   }

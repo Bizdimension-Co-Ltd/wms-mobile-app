@@ -70,8 +70,8 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       MaterialDialog.loading(context, barrierDismissible: false);
 
       final response = widget.id
-          ? await dio.patch("/GoodsReturnRequest('')", data: payload)
-          : await dio.post('/GoodsReturnRequest', data: payload);
+          ? await dio.patch("/InventoryGenExits('')", data: payload)
+          : await dio.post('/InventoryGenExits', data: payload);
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {

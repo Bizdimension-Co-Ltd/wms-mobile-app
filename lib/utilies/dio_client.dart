@@ -103,7 +103,7 @@ class DioClient {
       log(jsonEncode(e.requestOptions.data));
       log('dio ${e.response?.statusCode}');
 
-      String message = e.response?.data['error']['message']['value'];
+      dynamic message = e.response?.data['error']['message']['value'];
 
       log(jsonEncode(message));
 
@@ -123,7 +123,7 @@ class DioClient {
     }
   }
 
-   Future<Response> patch(String uri,
+     Future<Response> patch(String uri,
       {Options? options,
       Object? data,
       Map<String, dynamic>? queryParameters}) async {
@@ -163,7 +163,7 @@ class DioClient {
       log(jsonEncode(e.requestOptions.data));
       log('dio ${e.response?.statusCode}');
 
-      String message = e.response?.data['error']['message']['value'];
+      dynamic message = e.response?.data['error']['message']['value'];
 
       log(jsonEncode(message));
 

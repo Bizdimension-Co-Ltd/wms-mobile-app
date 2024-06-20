@@ -15,7 +15,6 @@ class PurchaseOrderItemCreateScreen extends StatefulWidget {
 
 class _PurchaseOrderItemCreateScreenState
     extends State<PurchaseOrderItemCreateScreen> {
-      
   final _itemCode = TextEditingController();
   final _itemDesc = TextEditingController();
   final _quantity = TextEditingController();
@@ -26,14 +25,14 @@ class _PurchaseOrderItemCreateScreenState
   Map<String, dynamic> _warehouse = {};
   @override
   void init() async {
-    _itemCode.text = widget.updateItem["ItemCode"] ??"";
-    _itemDesc.text = widget.updateItem["ItemDescription"] ?? "";
-    _quantity.text = widget.updateItem["Quantity"] ?? "";
-    _unitPrice.text = widget.updateItem["UnitPrice"] ??"";
-    _crossPrice.text = widget.updateItem["CrossPrice"] ??"";
-    _itemPerUnit.text = widget.updateItem["ItemPerUnit"] ?? "";
+    _itemCode.text = widget.updateItem["ItemCode"] ?? "";
+    _itemDesc.text = widget.updateItem["ItemDescription"] ?? widget.updateItem["ItemName"] ?? "";
+    _quantity.text =(widget.updateItem["Quantity"])?.toString() ?? "0";
+_unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
+    _crossPrice.text = widget.updateItem["CrossPrice"]?.toString() ?? "";
+    _itemPerUnit.text = widget.updateItem["ItemPerUnit"]?.toString() ?? "";
     _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
-    _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"] ?? "";
+    _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"]?.toString() ?? "";
   }
 
   void initState() {
@@ -88,7 +87,7 @@ class _PurchaseOrderItemCreateScreenState
               textData: _itemDesc,
             ),
             GestureDetector(
-               onTap: () {
+              onTap: () {
                 _navigateWarehouseSelect(context);
               },
               child: FlexTwoArrowWithText(

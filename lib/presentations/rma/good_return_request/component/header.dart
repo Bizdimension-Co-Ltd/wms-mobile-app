@@ -141,7 +141,7 @@ class _HeaderScreenState extends State<HeaderScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(
-                              height: 7,
+                              height: 5,
                             ),
                             Text(
                               "Items (${widget. grrHeader["DocumentLines"].length})",

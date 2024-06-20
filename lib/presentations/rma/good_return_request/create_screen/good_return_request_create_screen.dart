@@ -9,6 +9,7 @@ import 'package:wms_mobile/form/textFlexTwo.dart';
 import 'package:wms_mobile/form/vendorSelect.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/PurchaseOrderListItemsScreen.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/component/purchaseOrderItemsDetailScreen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/component/seriesListSelect.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_list_item_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -32,7 +33,8 @@ class _GoodReturnRequestCreateScreenState
   Map<String, dynamic> _vendor = {};
   Map<String, dynamic> _branch = {};
   Map<String, dynamic> _contactPerson = {};
-  List<dynamic> series = [];
+  Map<String, dynamic> _series = {};
+
   DateTime? _postingDate;
   DateTime? _dueDate;
   DateTime? _documentDate;
@@ -46,84 +48,54 @@ class _GoodReturnRequestCreateScreenState
   final String _responseMessage = '';
   int check = 0;
 
-  Future<void> _postData() async {
+ Future<void> _postData() async {
     Map<String, dynamic> payload = {
-      // "Series": int.parse(series),
       "CardCode": _vendor["cardCode"],
       "CardName": _vendor["cardName"],
       "ContactPersonCode": 0,
       "NumAtCard": _supplierRefNo.text,
-      "BPL_IDAssignedToInvoice": _branch["BplId"],
+      "BPL_IDAssignedToInvoice": _branch["bplId"],
       "JournalMemo": "Purchase Orders - ${_vendor["cardCode"]}",
       "Comments": _remark.text,
       "DocDate": _postingDate.toString(),
-      "DocDueDate": _dueDate.toString(),
+      "DueDate": _dueDate.toString(),
       "Taxdate": _documentDate.toString(),
       "Address2": _shipTo,
       "Address": _vendor["address"],
       "DocumentLines": selectedItems
           .map((e) => {
                 "ItemCode": e["ItemCode"],
-                "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
-                "Quantity": 10,
-                // "WarehouseCode":
-                "UnitPrice": 0,
-                "GrossBuyPrice": 0,
-                "UoMCode": e["InventoryUOM"]
+                "ItemDescription": e["ItemName"],
+                "Quantity": e["Quantity"],
+                "WarehouseCode": _branch["defaultWH"],
+                "UnitPrice": e["UnitPrice"],
+                "GrossPrice": e["GrossPrice"],
+                "UoMCode": e["InventoryUOM"] ?? e["UoMCode"],
               })
           .toList()
     };
     try {
       MaterialDialog.loading(context, barrierDismissible: false);
-
-      final response = widget.id
-          ? await dio.patch("/GoodsReturnRequest('${_vendor["cardCode"]}')",
-              data: payload)
-          : await dio.post('/GoodsReturnRequest', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
+      if (widget.id) {
+        final response = await dio.patch(
+            '/GoodsReturnRequest(${widget.dataById["DocEntry"]})',
+            data: payload);
+        if (response.statusCode == 204) {
           MaterialDialog.close(context);
           MaterialDialog.success(context,
-              title: 'Success',
-              body: widget.id
-                  ? "Updated Sccessfully !"
-                  : "Created Sccessfully !");
+              title: 'Success', body: "Updated Successfully !");
         }
       } else {
-        MaterialDialog.close(context);
-        throw ServerFailure(message: response.data['msg']);
+        final response = await dio.post('/GoodsReturnRequest', data: payload);
+        if (response.statusCode == 201) {
+          MaterialDialog.close(context);
+          MaterialDialog.success(context,
+              title: 'Success', body: "Created Successfully !");
+        }
       }
     } catch (e) {
-      print(e);
       MaterialDialog.close(context);
-      MaterialDialog.success(context, title: 'Error', body: "");
-    }
-  }
-
-  Future<void> getListSeries() async {
-    Map<String, dynamic> payload = {
-      'DocumentTypeParams': {'Document': '1250000025', "DocumentSubType": "S"},
-    };
-    try {
-      final response =
-          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
-          // print(response.data["value"]);
-        }
-      } else {
-        throw ServerFailure(message: response.data['msg']);
-      }
-    } on Failure {
-      rethrow;
+      MaterialDialog.success(context, title: 'Error', body: e.toString());
     }
   }
 
@@ -139,7 +111,7 @@ class _GoodReturnRequestCreateScreenState
         if (mounted) {
           setState(() {
             check = 1;
-            _serie = response.data["Series"].toString();
+            _series["value"] = response.data["Series"];
             // series.addAll(response.data['value']);
           });
         }
@@ -156,25 +128,30 @@ class _GoodReturnRequestCreateScreenState
     super.initState();
 
     init();
-    getListSeries();
     getDefaultSeries();
   }
 
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-        _serie = widget.dataById["Series"].toString();
-        _vendor["cardCode"] = widget.dataById["CardCode"] ?? "";
-        _supplierRefNo.text = widget.dataById["NumAtCard"] ?? "";
-        _branch["bplName"] = widget.dataById["BPLName"] ?? "";
+             _series["value"] = widget.dataById["Series"]?.toString() ?? "";
+        _vendor["cardCode"] = widget.dataById["CardCode"];
+        _vendor["cardName"] = widget.dataById["CardName"];
+        _supplierRefNo.text = widget.dataById["NumAtCard"];
+        _branch["bplId"] = widget.dataById["BPL_IDAssignedToInvoice"];
+        _branch["bplName"] = widget.dataById["BPLName"];
         _postingDate = DateTime.parse(widget.dataById["DocDate"]);
         _dueDate = DateTime.parse(widget.dataById["DocDueDate"]);
         _documentDate = DateTime.parse(widget.dataById["TaxDate"]);
-        _remark.text = widget.dataById["Comments"] ?? "";
-        selectedItems = widget.dataById["DocumentLines"] ?? "";
-        _shipTo = widget.dataById["Address2"] ?? "";
-        _vendor["address"] = widget.dataById["Address"] ?? "";
+        _remark.text = widget.dataById["Comments"];
+        selectedItems = widget.dataById["DocumentLines"];
+        _shipTo = widget.dataById["Address2"];
+        _vendor["address"] = widget.dataById["Address"];
       });
+    } else {
+      _documentDate = DateTime.now();
+      _dueDate = DateTime.now();
+      _postingDate = DateTime.now();
     }
   }
 
@@ -267,13 +244,18 @@ class _GoodReturnRequestCreateScreenState
             const SizedBox(
               height: 30,
             ),
-            FlexTwoArrowWithText(
-                title: "Series",
-                textData: _serie,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
+            GestureDetector(
+              onTap: () {
+                _navigateSeriesSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Series",
+                  textData: _series["value"]?.toString() ?? "...",
+                  textColor: Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
             GestureDetector(
               onTap: () {
                 _navigateVendorSelect(context);
@@ -349,7 +331,12 @@ class _GoodReturnRequestCreateScreenState
                   context,
                   MaterialPageRoute(
                     builder: (context) => GoodReturnRequestListItemsScreen(
-                      dataFromPrev: selectedItems,
+                      dataFromPrev: selectedItems.map((e) {
+                        var newMap = Map<String, dynamic>.from(e);
+                        newMap["WarehouseCode"] =
+                            "${_branch["defaultWH"] ?? widget.dataById["DocumentLines"][0]["WarehouseCode"]}";
+                        return newMap;
+                      }).toList(),
                     ),
                   ),
                 );
@@ -412,6 +399,29 @@ class _GoodReturnRequestCreateScreenState
     });
   }
 
+  num indexSeriesSeleted = -1;
+  Future<void> _navigateSeriesSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SeriesListSelect(
+                indBack: indexSeriesSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _series = {"name": result["name"], "value": result["value"]};
+      indexSeriesSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_series["value"] == null
+              ? "Unselected"
+              : "Selected ${_series["value"]}")));
+  }
+
   num indexVendorSeleted = -1;
   Future<void> _navigateVendorSelect(BuildContext context) async {
     final result = await Navigator.push(
@@ -452,7 +462,11 @@ class _GoodReturnRequestCreateScreenState
     if (!mounted) return;
     setState(() {
       if (result == null) return;
-      _branch = {"bplName": result["name"], "bplId": result["value"]};
+      _branch = {
+        "bplName": result["name"],
+        "bplId": result["value"],
+        "defaultWH": result["defaultWH"]
+      };
       indexBranchSeleted = result["index"];
     });
     ScaffoldMessenger.of(context)

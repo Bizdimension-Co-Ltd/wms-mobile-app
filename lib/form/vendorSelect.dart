@@ -28,6 +28,7 @@ class _VendorSelectState extends State<VendorSelect> {
       final response = await dio.get('/BusinessPartners', query: {
         '\$top': top,
         '\$skip': skip,
+        // '\$filter': "CardType eq 'cSupplier' and CardCode eq 'BFL0001'"
         '\$filter': "CardType eq 'cSupplier'"
       });
 

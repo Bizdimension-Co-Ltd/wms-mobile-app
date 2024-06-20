@@ -29,6 +29,7 @@ class _ListDocumentState extends State<ListDocument> {
       final response = await dio.get('/GoodsReturnRequest', query: {
         '\$top': top,
         '\$skip': skip,
+        '\$orderby': "DocEntry desc"
       });
 
       if (response.statusCode == 200) {
