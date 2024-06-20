@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_item_create_screen.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderItemCreateScreen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_item_create_screen.dart';
 
 class ListItems extends StatefulWidget {
-  ListItems({super.key, required this.item});
+  ListItems({super.key, required this.item,required this.quantity});
   Map<String, dynamic> item;
+  TextEditingController quantity;
   @override
   State<ListItems> createState() => _ListItemsState();
 }
@@ -43,7 +45,7 @@ class _ListItemsState extends State<ListItems> {
                   Container(
                     margin: const EdgeInsets.fromLTRB(13, 7, 0, 9),
                     child: Text(
-                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"]}",
+                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"] ?? ""}",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
@@ -97,7 +99,8 @@ class _ListItemsState extends State<ListItems> {
                           ),
                         ),
                         // child: const Center(child: Text("5")),
-                        child: const TextField(
+                        child:  TextField(
+                          controller: widget.quantity,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),
@@ -160,7 +163,9 @@ class _ListItemsState extends State<ListItems> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const PurchaseOrderItemCreateScreen()),
+                                  GoodReturnRequestItemCreateScreen(
+                                    updateItem: widget.item,
+                                  )),
                         );
                       },
                       child: const Icon(
@@ -173,7 +178,7 @@ class _ListItemsState extends State<ListItems> {
                       height: 14,
                     ),
                     Text(
-                      "${widget.item["InventoryUOM"] ?? widget.item["UoMCode"]}",
+                      "${widget.item["InventoryUOM"] ?? widget.item["UoMCode"] ?? "N/A"}",
                       style: TextStyle(
                           fontSize: 14.5,
                           color: Color.fromARGB(255, 72, 72, 81)),
@@ -181,8 +186,8 @@ class _ListItemsState extends State<ListItems> {
                     const SizedBox(
                       height: 11,
                     ),
-                    const Text(
-                      "WH03 - WH03 - KST01",
+                    Text(
+                      "${widget.item["WarehouseCode"] ?? "N/A"} - WH03 - KST01",
                       style: TextStyle(
                           fontSize: 14, color: Color.fromARGB(255, 72, 72, 81)),
                     ),

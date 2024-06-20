@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/component/itemsSelect.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/component/listItems.dart';
+import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderItemCreateScreen.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class PurchaseOrderListItemsScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class PurchaseOrderListItemsScreen extends StatefulWidget {
 class _PurchaseOrderListItemsScreenState
     extends State<PurchaseOrderListItemsScreen> {
   List<dynamic> selectedItems = [];
+  final _quantity = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -46,11 +48,14 @@ class _PurchaseOrderListItemsScreenState
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PurchaseOrderCodeScreen()),
-                );
+                setState(() {
+                  print("$selectedItems");
+                });
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => PurchaseOrderCodeScreen()),
+                // );
               },
               icon: const Icon(Icons.qr_code_scanner_outlined)),
           const SizedBox(
@@ -93,21 +98,48 @@ class _PurchaseOrderListItemsScreenState
                 style: TextStyle(fontSize: 15),
               )),
             )
-          :  Container(
-        color: const Color.fromARGB(255, 236, 233, 233),
-        height: double.infinity,
-        width: double.infinity,
-        child: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-          shrinkWrap: true,
-          itemCount: selectedItems.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListItems(
-              item: selectedItems[index],
-            );
-          },
-        ),
-      ),
+          : Container(
+              color: const Color.fromARGB(255, 236, 233, 233),
+              height: double.infinity,
+              width: double.infinity,
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                shrinkWrap: true,
+                itemCount: selectedItems.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PurchaseOrderItemCreateScreen(
+                              updateItem: selectedItems[index]),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          selectedItems[index] = result;
+                          _quantity.text = selectedItems[index]["Quantity"] ?? "";
+                        });
+                      }
+                    },
+                    // onTap: () {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => PurchaseOrderItemCreateScreen(
+                    //               updateItem: selectedItems[index],
+                    //             )),
+                    //   );
+                    // },
+                    child: ListItems(
+                      item: selectedItems[index],
+                      quantity: _quantity,
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

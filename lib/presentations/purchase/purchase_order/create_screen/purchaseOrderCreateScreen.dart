@@ -63,11 +63,11 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
           .map((e) => {
                 "ItemCode": e["ItemCode"],
                 "ItemDescription": e["ItemName"],
-                "Quantity": 0,
-                // "WarehouseCode":
-                "UnitPrice": 0,
-                "GrossBuyPrice": 0,
-                "UoMCode": e["InventoryUOM"]
+                "Quantity": e["Quantity"],
+                "WarehouseCode":e["WarehouseCode"],
+                "UnitPrice": e["UnitPrice"],
+                "GrossPrice": e["GrossPrice"],
+                "UoMCode": e["InventoryUOM"] ?? e["UoMCode"]
               })
           .toList()
     };

@@ -14,6 +14,8 @@ class GoodIssueListItemsScreen extends StatefulWidget {
 
 class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
   List<dynamic> selectedItems = [];
+      final _quantity = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -102,7 +104,7 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListItems(
-                    item: selectedItems[index],
+                    item: selectedItems[index], quantity: _quantity,
                   );
                 },
               ),

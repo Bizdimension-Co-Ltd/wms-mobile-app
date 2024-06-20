@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/listItems.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/itemsSelect.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_item_create_screen.dart';
 
 class GoodReturnRequestListItemsScreen extends StatefulWidget {
   GoodReturnRequestListItemsScreen({super.key, required this.dataFromPrev});
@@ -15,6 +16,8 @@ class GoodReturnRequestListItemsScreen extends StatefulWidget {
 class _GoodReturnRequestListItemsScreenState
     extends State<GoodReturnRequestListItemsScreen> {
   List<dynamic> selectedItems = [];
+  final _quantity = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -46,11 +49,14 @@ class _GoodReturnRequestListItemsScreenState
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PurchaseOrderCodeScreen()),
-                );
+                setState(() {
+                  print(selectedItems);
+                });
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => PurchaseOrderCodeScreen()),
+                // );
               },
               icon: const Icon(Icons.qr_code_scanner_outlined)),
           const SizedBox(
@@ -102,8 +108,28 @@ class _GoodReturnRequestListItemsScreenState
                 shrinkWrap: true,
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return ListItems(
-                    item: selectedItems[index],
+                  return GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              GoodReturnRequestItemCreateScreen(
+                                  updateItem: selectedItems[index]),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          selectedItems[index] = result;
+                          _quantity.text =
+                              selectedItems[index]["Quantity"] ?? "";
+                        });
+                      }
+                    },
+                    child: ListItems(
+                      item: selectedItems[index],
+                      quantity: _quantity,
+                    ),
                   );
                 },
               ),

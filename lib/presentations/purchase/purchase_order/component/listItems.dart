@@ -3,13 +3,22 @@ import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/go
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderItemCreateScreen.dart';
 
 class ListItems extends StatefulWidget {
-  ListItems({super.key, required this.item});
+  ListItems({super.key, required this.item, required this.quantity});
   Map<String, dynamic> item;
+  TextEditingController quantity;
   @override
   State<ListItems> createState() => _ListItemsState();
 }
 
 class _ListItemsState extends State<ListItems> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,7 +52,7 @@ class _ListItemsState extends State<ListItems> {
                   Container(
                     margin: const EdgeInsets.fromLTRB(13, 7, 0, 9),
                     child: Text(
-                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"]}",
+                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"] ?? ""}",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
@@ -51,7 +60,7 @@ class _ListItemsState extends State<ListItems> {
                   Container(
                       margin: const EdgeInsets.only(left: 13),
                       child: Text(
-                        "${widget.item["ItemCode"]}",
+                        "${widget.item["ItemCode"] ?? ""}",
                         style: TextStyle(fontSize: 14.5, color: Colors.grey),
                       )),
                   Row(
@@ -97,7 +106,8 @@ class _ListItemsState extends State<ListItems> {
                           ),
                         ),
                         // child: const Center(child: Text("5")),
-                        child: const TextField(
+                        child: TextField(
+                          controller: widget.quantity,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),
@@ -155,14 +165,6 @@ class _ListItemsState extends State<ListItems> {
                       height: 13,
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const PurchaseOrderItemCreateScreen()),
-                        );
-                      },
                       child: const Icon(
                         Icons.arrow_forward_ios,
                         color: Color.fromARGB(255, 122, 119, 119),
@@ -173,7 +175,7 @@ class _ListItemsState extends State<ListItems> {
                       height: 14,
                     ),
                     Text(
-                      "${widget.item["InventoryUOM"] ?? widget.item["UoMCode"]}",
+                      "${widget.item["InventoryUOM"] ?? widget.item["UoMCode"] ?? "N/A"}",
                       style: TextStyle(
                           fontSize: 14.5,
                           color: Color.fromARGB(255, 72, 72, 81)),
@@ -181,8 +183,8 @@ class _ListItemsState extends State<ListItems> {
                     const SizedBox(
                       height: 11,
                     ),
-                    const Text(
-                      "WH03 - WH03 - KST01",
+                    Text(
+                      "${widget.item["WarehouseCode"] ?? ""} - WH03 - KST01",
                       style: TextStyle(
                           fontSize: 14, color: Color.fromARGB(255, 72, 72, 81)),
                     ),
