@@ -91,7 +91,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
             ),
             FlexTwoArrowWithText(
               title: "Bin Location",
-              // textData: _warehouse["name"] ?? _warehouse["value"],
+              textData: _binLocation["name"] ?? _binLocation["value"],
               simple: FontWeight.normal,
               req: "true",
             ),
@@ -105,13 +105,13 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
             ),
             FlexTwoArrowWithText(
               title: "Inventory UoM",
-              // textData: _warehouse["name"] ?? _warehouse["value"],
+              textData: _inventoryUoM["name"] ?? _inventoryUoM["value"],
               simple: FontWeight.normal,
               // req: "true",
             ),
             FlexTwoArrowWithText(
               title: "UoM Code",
-              // textData: _warehouse["name"] ?? _warehouse["value"],
+              textData: _uoMCode["name"] ?? _uoMCode["value"],
               simple: FontWeight.normal,
               req: "true",
             ),

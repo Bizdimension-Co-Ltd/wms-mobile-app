@@ -1,113 +1,168 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/form/datePicker.dart';
-import 'package:wms_mobile/component/flexTwo.dart';
+import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
-import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/form/branchSelect.dart';
+import 'package:wms_mobile/form/employeeSelect.dart';
+import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
+import 'package:wms_mobile/form/goodReceiptTypeSelect.dart';
+import 'package:wms_mobile/form/revenueLine.dart';
 import 'package:wms_mobile/form/textFlexTwo.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_list_item_screen.dart';
+import 'package:wms_mobile/form/warehouseSelect.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_list_item_screen.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 class GoodReceiptCreateScreen extends StatefulWidget {
-  const GoodReceiptCreateScreen({super.key, this.ind});
+  GoodReceiptCreateScreen({super.key, this.id, required this.dataById});
   // ignore: prefer_typing_uninitialized_variables
-  final ind;
+  final id;
+  Map<String, dynamic> dataById;
   @override
-  State<GoodReceiptCreateScreen> createState() =>
-      _GoodReceiptCreateScreenState();
+  State<GoodReceiptCreateScreen> createState() => _GoodReceiptCreateScreenState();
 }
 
 class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
-  final _supplier = TextEditingController();
+  final TextEditingController _supplier = TextEditingController();
+  String? _serie;
+  Map<String, dynamic> _employee = {};
+  final TextEditingController _transportationNo = TextEditingController();
+  final TextEditingController _truckNo = TextEditingController();
+  Map<String, dynamic> _shipTo = {};
+  Map<String, dynamic> _revenueLine = {};
+  Map<String, dynamic> _branch = {};
+  Map<String, dynamic> _warehouse = {};
+  Map<String, dynamic> _giType = {};
+  List<dynamic> selectedItems = [];
+  final TextEditingController _remark = TextEditingController( );
 
-  String? _branch;
-  num i = -1;
-  String _responseMessage = '';
+  final DioClient dio = DioClient();
+  final String _responseMessage = '';
+
+  int check = 0;
   Future<void> _postData() async {
-    const String apiUrl =
-        'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo';
-
+    Map<String, dynamic> payload = {
+      // "Series": int.parse(series),
+      // "CardCode": _vendor["cardCode"],
+      // "CardName": _vendor["cardName"],
+      // "ContactPersonCode": 0,
+      // "NumAtCard": _supplierRefNo.text,
+      // "BPL_IDAssignedToInvoice": _branch["BplId"],
+      // "JournalMemo": "Purchase Orders - ${_vendor["cardCode"]}",
+      // "Comments": _remark.text,
+      // "DocDate": _postingDate.toString(),
+      // "DocDueDate": _dueDate.toString(),
+      // "Taxdate": _documentDate.toString(),
+      // "Address2": _shipTo,
+      // "Address": _vendor["address"],
+      "DocumentLines": selectedItems
+          .map((e) => {
+                "ItemCode": e["ItemCode"],
+                "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
+                "Quantity": 10,
+                // "WarehouseCode":
+                "UnitPrice": 0,
+                "GrossBuyPrice": 0,
+                "UoMCode": e["InventoryUOM"]
+              })
+          .toList()
+    };
     try {
-      Dio dio = Dio();
-      var payload = {
-        'FirstName': 'Testdata',
-      };
-      const FlutterSecureStorage secureStorage = FlutterSecureStorage();
-      String? token = await secureStorage.read(key: "sessionId");
-      if (widget.ind != null) {
-        Response response;
-        response = await dio.patch(
-            'https://svr11.biz-dimension.com:50000/b1s/v1/EmployeesInfo(${widget.ind})',
-            options: Options(
-              headers: {
-                "Cookie": "B1SESSION=$token; ROUTEID=.node4",
-                "Content-Type": "application/json",
-              },
-            ),
-            data: payload);
-        setState(() {
-          _responseMessage =
-              'Status:PATH ${response.statusCode}\nResponse: ${response.data}';
-          print(_responseMessage);
-        });
-      } else if (widget.ind == null) {
-        Response response = await dio.post(apiUrl,
-            options: Options(
-              headers: {
-                "Cookie": "B1SESSION=$token; ROUTEID=.node4",
-                "Content-Type": "application/json",
-              },
-            ),
-            data: payload);
+      MaterialDialog.loading(context, barrierDismissible: false);
 
-        setState(() {
-          _responseMessage =
-              'Status:POST ${response.statusCode}\nResponse: ${response.data}';
-          print(_responseMessage);
-        });
+      final response = widget.id
+          ? await dio.patch("/GoodsReturnRequest('')", data: payload)
+          : await dio.post('/GoodsReturnRequest', data: payload);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            // series.addAll(response.data['value']);
+          });
+          MaterialDialog.close(context);
+          MaterialDialog.success(context,
+              title: 'Success',
+              body: widget.id
+                  ? "Updated Sccessfully !"
+                  : "Created Sccessfully !");
+        }
+      } else {
+        MaterialDialog.close(context);
+        throw ServerFailure(message: response.data['msg']);
       }
     } catch (e) {
-      setState(() {
-        _responseMessage = 'Error: $e';
-        print(_responseMessage);
-      });
-    } finally {}
+      print(e);
+      MaterialDialog.close(context);
+      MaterialDialog.success(context, title: 'Error', body: "");
+    }
   }
 
-  Future<void> _navigateAndDisplaySelection(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => BranchSelect(
-                indBack: i,
-              )),
-    );
+  Future<void> getListSeries() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '60'},
+    };
+    try {
+      final response =
+          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            // series.addAll(response.data['value']);
+          });
+          // print(response.data["value"]);
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
+  }
 
-    if (!mounted) return;
-
-    setState(() {
-      if (result == null) return;
-      _branch = result["value"];
-      i = result["index"];
-    });
-
-    // ScaffoldMessenger.of(context)
-    //   ..removeCurrentSnackBar()
-    //   ..showSnackBar(
-    //       SnackBar(content: Text(_branch == null ? "unselected" : "$_branch")));
+  Future<void> getDefaultSeries() async {
+    if (widget.id) return;
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '60'},
+    };
+    try {
+      final response =
+          await dio.post('/SeriesService_GetDefaultSeries', data: payload);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            _serie = response.data["Series"].toString();
+            // series.addAll(response.data['value']);
+          });
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
   }
 
   @override
   void initState() {
-    init();
-
     super.initState();
+    init();
+    getDefaultSeries();
   }
 
-  void init() async {
-    if (widget.ind != null) {
-      // _supplier.text = await data[widget.ind]['name'];
+  Future<void> init() async {
+    if (widget.id) {
+      setState(() {
+        _serie = widget.dataById["Series"].toString();
+        _employee["value"] = widget.dataById["U_tl_grempl"];
+        _transportationNo.text = widget.dataById["U_tl_grtrano"] ?? "";
+        _truckNo.text = widget.dataById["U_tl_grtruno"] ??"";
+        _shipTo["value"] = widget.dataById["U_tl_branc"];
+        _revenueLine["value"] = widget.dataById["U_ti_revenue"];
+        _branch["value"] = widget.dataById["BPL_IDAssignedToInvoice"];
+        _warehouse["value"] = widget.dataById["U_tl_whsdesc"];
+        _giType["value"] = widget.dataById["U_tl_gitype"];
+      });
     }
   }
 
@@ -143,7 +198,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                     ),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        onPressed: () => {Navigator.pop(context, 'Cancel')},
                         child: const Text('Save Offline Draft',
                             style: TextStyle(color: Colors.black)),
                       ),
@@ -151,8 +206,10 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                         style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                                 const Color.fromARGB(255, 17, 18, 48))),
-                        onPressed: () async =>
-                            {Navigator.pop(context, 'ok'), await _postData()},
+                        onPressed: () async => {
+                          Navigator.pop(context, 'ok'),
+                          // await _postData()
+                        },
                         child: Container(
                           width: 90,
                           // height: 30,
@@ -193,73 +250,98 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
             const SizedBox(
               height: 30,
             ),
-            const FlexTwoArrowWithText(
+            FlexTwoArrowWithText(
                 title: "Series",
-                // textData: _branch,
+                textData: _serie,
                 textColor: Color.fromARGB(255, 129, 134, 140),
                 simple: FontWeight.normal,
                 req: "true",
                 requried: "requried"),
-            const FlexTwoArrowWithText(
-                title: "Employee No",
-                //  textData: _branch,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
-            TextFlexTwo(
-              title: "Transportation No",
-              textData: _supplier,
-              req: "true",
-            ),
-            TextFlexTwo(
-              title: "Truck No",
-              textData: _supplier,
-              req: "true",
-            ),
-            const FlexTwoArrowWithText(
-                title: "Ship To",
-                // textData: _branch,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
-            const FlexTwoArrowWithText(
-                title: "Revenue Line",
-                // textData: _branch,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
-            const SizedBox(
-              height: 30,
-            ),
             GestureDetector(
               onTap: () {
-                _navigateAndDisplaySelection(context);
+                _navigateEmployeeSelect(context);
               },
               child: FlexTwoArrowWithText(
-                  title: "Branch",
-                  textData: _branch,
+                  title: "Employee",
+                  textData: _employee["name"] ?? _employee["value"],
                   textColor: const Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
                   requried: "requried"),
             ),
-            const FlexTwoArrowWithText(
-                title: "Warehouse",
-                // textData: _branch,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
-            const FlexTwoArrowWithText(
-                title: "Good issue Type",
-                // textData: _branch,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
+            TextFlexTwo(
+              title: "Transportation No",
+              textData: _transportationNo,
+              req: "true",
+            ),
+            TextFlexTwo(
+              title: "Truck No",
+              textData: _truckNo,
+              req: "true",
+            ),
+            GestureDetector(
+              onTap: () {
+                _navigateShipToSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Ship To",
+                  textData: _shipTo["name"] ?? _shipTo["value"],
+                  textColor: const Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
+            GestureDetector(
+              onTap: () {
+                _navigateRevenueLineSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Revenue Line",
+                  textData: _revenueLine["name"] ?? _revenueLine["value"],
+                  textColor: const Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            GestureDetector(
+              onTap: () {
+                _navigateBranchSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Branch",
+                  textData: _branch["name"],
+                  textColor: const Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
+            GestureDetector(
+              onTap: () {
+                _navigateWarehouseSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Warehouse",
+                  textData: _warehouse["name"] ?? _warehouse["value"],
+                  textColor: const Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
+            GestureDetector(
+              onTap: () {
+                _navigateGISelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Good Receipt Type",
+                  textData: _giType["name"] ?? _giType["value"],
+                  textColor: const Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
             const SizedBox(
               height: 30,
             ),
@@ -273,22 +355,34 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
             // ),
             TextFlexTwo(
               title: "Remark",
-              textData: _supplier,
+              textData: _remark,
             ),
             const SizedBox(
               height: 30,
             ),
             GestureDetector(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const GoodReceiptItemsScreen()),
+                    builder: (context) => GoodReceiptListItemsScreen(
+                      dataFromPrev: selectedItems,
+                    ),
+                  ),
                 );
+
+                // Handle the result here
+                if (result != null) {
+                  setState(() {
+                    selectedItems = List<dynamic>.from(result);
+                  });
+
+                  // Do something with the selected items
+                }
               },
-              child: const FlexTwoArrowWithText(
+              child: FlexTwoArrowWithText(
                   title: "Items",
-                  // textData: _branch,
+                  textData: "(${selectedItems.length})",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
@@ -297,7 +391,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
             const SizedBox(
               height: 30,
             ),
-             FlexTwoArrow(
+            FlexTwoArrow(
               title: "Reference Documents ",
             ),
             const SizedBox(
@@ -307,5 +401,143 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
         ),
       ),
     );
+  }
+
+  num indexEmployeeSeleted = -1;
+  Future<void> _navigateEmployeeSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => EmployeeSelect(
+                indBack: indexEmployeeSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _employee = {"name": result["name"], "value": result["value"]};
+      indexEmployeeSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_employee["name"] == null
+              ? "Unselected"
+              : "Selected ${_employee["name"]}")));
+  }
+
+  num indexShipToSeleted = -1;
+  Future<void> _navigateShipToSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => WarehouseSelect(
+                indBack: indexShipToSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _shipTo = {"name": result["name"], "value": result["value"]};
+      indexShipToSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_warehouse["name"] == null
+              ? "Unselected"
+              : "Selected ${_warehouse["name"]}")));
+  }
+
+  num indexRevenueLineSeleted = -1;
+  Future<void> _navigateRevenueLineSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => RevenueLineSelect(
+                indBack: indexRevenueLineSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _revenueLine = {"name": result["name"], "value": result["value"]};
+      indexRevenueLineSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_revenueLine["name"] == null
+              ? "Unselected"
+              : "Selected ${_revenueLine["name"]}")));
+  }
+
+  num indexBranchSeleted = -1;
+  Future<void> _navigateBranchSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BranchSelect(
+                indBack: indexBranchSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _branch = {"name": result["name"], "value": result["value"]};
+      indexBranchSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_branch["name"] == null
+              ? "Unselected"
+              : "Selected ${_branch["name"]}")));
+  }
+
+  num indexWarehouseSeleted = -1;
+  Future<void> _navigateWarehouseSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => WarehouseSelect(
+                indBack: indexWarehouseSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _warehouse = {"name": result["name"], "value": result["value"]};
+      indexWarehouseSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_warehouse["name"] == null
+              ? "Unselected"
+              : "Selected ${_warehouse["name"]}")));
+  }
+
+  num indexGISeleted = -1;
+  Future<void> _navigateGISelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => GoodReceiptTypeSelect(
+                indBack: indexGISeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _giType = {"name": result["name"], "value": result["value"]};
+      indexGISeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_giType["name"] == null
+              ? "Unselected"
+              : "Selected ${_giType["name"]}")));
   }
 }

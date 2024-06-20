@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/presentations/inventory/good_issue/component/general.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_create_screen.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/component/general.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_create_screen.dart';
 
 /// Flutter code sample for [TabBar].
 
 class GoodReceiptDetailScreens extends StatefulWidget {
-  final Map<String, dynamic> grById;
-  const GoodReceiptDetailScreens({super.key, required this.grById});
+  final Map<String, dynamic> giById;
+  const GoodReceiptDetailScreens({super.key, required this.giById});
   @override
   State<GoodReceiptDetailScreens> createState() =>
       _GoodReceiptDetailScreensState();
@@ -286,7 +286,7 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
       ),
       body: Stack(
         children: [
-          General(gHeader: widget.grById),
+          General(gHeader: widget.giById),
           Positioned(
               bottom: 30,
               right: 30,
@@ -295,7 +295,10 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => GoodReceiptCreateScreen()),
+                        builder: (context) => GoodReceiptCreateScreen(
+                          id: true,
+                          dataById: widget.giById,
+                        )),
                   );
                 },
                 child: Container(

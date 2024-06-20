@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_item_create_screen.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_create_screen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_item_create_screen.dart';
 
 class ListItems extends StatefulWidget {
   const ListItems({super.key});
@@ -159,7 +160,7 @@ class _ListItemsState extends State<ListItems> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                   GoodIssueItemCreateScreen(updateItem: {},)),
+                                   GoodIssueCreateScreen(dataById: {},)),
                         );
                       },
                       child: const Icon(
