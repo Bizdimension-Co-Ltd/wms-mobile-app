@@ -64,42 +64,45 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
                 "ItemCode": e["ItemCode"],
                 "ItemDescription": e["ItemName"],
                 "Quantity": e["Quantity"],
-                "WarehouseCode":e["WarehouseCode"],
+                "WarehouseCode": e["WarehouseCode"],
                 "UnitPrice": e["UnitPrice"],
                 "GrossPrice": e["GrossPrice"],
                 "UoMCode": e["InventoryUOM"] ?? e["UoMCode"]
               })
           .toList()
     };
-    try {
-      MaterialDialog.loading(context, barrierDismissible: false);
+    setState(() {
+      print(payload);
+    });
+    // try {
+    //   MaterialDialog.loading(context, barrierDismissible: false);
 
-      final response = widget.id
-          ? await dio.patch("/PurchaseOrders('${_vendor["cardCode"]}')",
-              data: payload)
-          : await dio.post('/PurchaseOrders', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
-          MaterialDialog.close(context);
-          MaterialDialog.success(context,
-              title: 'Success',
-              body: widget.id
-                  ? "Updated Sccessfully !"
-                  : "Created Sccessfully !");
-        }
-      } else {
-        MaterialDialog.close(context);
-        throw ServerFailure(message: response.data['msg']);
-      }
-    } catch (e) {
-      print(e);
-      MaterialDialog.close(context);
-      MaterialDialog.success(context, title: 'Error', body: "");
-    }
+    //   final response = widget.id
+    //       ? await dio.patch("/PurchaseOrders('${_vendor["cardCode"]}')",
+    //           data: payload)
+    //       : await dio.post('/PurchaseOrders', data: payload);
+    //   if (response.statusCode == 200) {
+    //     if (mounted) {
+    //       setState(() {
+    //         check = 1;
+    //         // series.addAll(response.data['value']);
+    //       });
+    //       MaterialDialog.close(context);
+    //       MaterialDialog.success(context,
+    //           title: 'Success',
+    //           body: widget.id
+    //               ? "Updated Sccessfully !"
+    //               : "Created Sccessfully !");
+    //     }
+    //   } else {
+    //     MaterialDialog.close(context);
+    //     throw ServerFailure(message: response.data['msg']);
+    //   }
+    // } catch (e) {
+    //   print(e);
+    //   MaterialDialog.close(context);
+    //   MaterialDialog.success(context, title: 'Error', body: "Something went wrong ...");
+    // }
   }
 
   Future<void> getListSeries() async {
@@ -209,7 +212,10 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => {
-                          Navigator.pop(context, 'Cancel'),
+                          setState(() {
+                            print(selectedItems);
+                          })
+                          // Navigator.pop(context, 'Cancel'),
                         },
                         child: const Text('Save Offline Draft',
                             style: TextStyle(color: Colors.black)),

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+<<<<<<< HEAD:lib/presentations/rma/good_return_request/good_return_request_list.dart
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/listDocument.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/listOffLineDocument.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_create_screen.dart';
 
+=======
+import 'package:wms_mobile/purchase/direct_put_away/component/listDocument.dart';
+import 'package:wms_mobile/purchase/direct_put_away/component/listOffLineDocument.dart';
+import 'package:wms_mobile/purchase/direct_put_away/create_screen/directPutAwayCreateScreen.dart';
+// import 'package:pull_to_refresh/pull_to_refresh.dart';
+>>>>>>> 75b7bee3d689a012d365b5aa04f4ca67015a2211:lib/purchase/direct_put_away/directPutAwayList.dart
 /// Flutter code sample for [TabBar].
 
 class GoodReturnRequestListScreen extends StatefulWidget {

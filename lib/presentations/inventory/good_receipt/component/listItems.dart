@@ -159,7 +159,7 @@ class _ListItemsState extends State<ListItems> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const GoodIssueItemCreateScreen()),
+                                   GoodIssueItemCreateScreen(updateItem: {},)),
                         );
                       },
                       child: const Icon(

@@ -15,7 +15,11 @@ class _ListItemsState extends State<ListItems> {
   void initState() {
     // TODO: implement initState
     super.initState();
+     setState(() {
+      widget.quantity.text = widget.item["Quantity"] ?? "";
+    });
   }
+  
 
 
 

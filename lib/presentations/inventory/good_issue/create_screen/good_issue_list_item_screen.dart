@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/component/itemsSelect.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_item_create_screen.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/listItems.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
@@ -103,8 +104,27 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                 shrinkWrap: true,
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return ListItems(
-                    item: selectedItems[index], quantity: _quantity,
+                  return GestureDetector(
+                      onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              GoodIssueItemCreateScreen(
+                                  updateItem: selectedItems[index]),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          selectedItems[index] = result;
+                          _quantity.text =
+                              selectedItems[index]["Quantity"] ?? "";
+                        });
+                      }
+                    },
+                    child: ListItems(
+                      item: selectedItems[index], quantity: _quantity,
+                    ),
                   );
                 },
               ),

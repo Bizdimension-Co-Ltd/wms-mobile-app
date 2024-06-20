@@ -18,9 +18,12 @@ class _PurchaseOrderListItemsScreenState
   List<dynamic> selectedItems = [];
   final _quantity = TextEditingController();
   @override
+
+
   void initState() {
     // TODO: implement initState
     super.initState();
+
     if (widget.dataFromPrev.length > 0) {
       selectedItems.addAll(widget.dataFromPrev);
     }
@@ -119,7 +122,8 @@ class _PurchaseOrderListItemsScreenState
                       if (result != null) {
                         setState(() {
                           selectedItems[index] = result;
-                          _quantity.text = selectedItems[index]["Quantity"] ?? "";
+                          _quantity.text =
+                              selectedItems[index]["Quantity"] ?? "";
                         });
                       }
                     },

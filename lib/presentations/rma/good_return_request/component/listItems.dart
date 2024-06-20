@@ -13,6 +13,15 @@ class ListItems extends StatefulWidget {
 
 class _ListItemsState extends State<ListItems> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+     super.initState();
+    setState(() {
+      widget.quantity.text = widget.item["Quantity"] ?? "";
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -158,16 +167,7 @@ class _ListItemsState extends State<ListItems> {
                       height: 13,
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  GoodReturnRequestItemCreateScreen(
-                                    updateItem: widget.item,
-                                  )),
-                        );
-                      },
+                     
                       child: const Icon(
                         Icons.arrow_forward_ios,
                         color: Color.fromARGB(255, 122, 119, 119),
