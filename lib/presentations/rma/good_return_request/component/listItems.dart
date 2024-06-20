@@ -4,9 +4,8 @@ import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/p
 import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_item_create_screen.dart';
 
 class ListItems extends StatefulWidget {
-  ListItems({super.key, required this.item,required this.quantity});
+  ListItems({super.key, required this.item});
   Map<String, dynamic> item;
-  TextEditingController quantity;
   @override
   State<ListItems> createState() => _ListItemsState();
 }
@@ -17,9 +16,7 @@ class _ListItemsState extends State<ListItems> {
     // TODO: implement initState
     super.initState();
      super.initState();
-    setState(() {
-      widget.quantity.text = widget.item["Quantity"] ?? "";
-    });
+   
   }
   @override
   Widget build(BuildContext context) {
@@ -109,7 +106,7 @@ class _ListItemsState extends State<ListItems> {
                         ),
                         // child: const Center(child: Text("5")),
                         child:  TextField(
-                          controller: widget.quantity,
+                        
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),

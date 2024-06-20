@@ -3,9 +3,8 @@ import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/go
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderItemCreateScreen.dart';
 
 class ListItems extends StatefulWidget {
-  ListItems({super.key, required this.item, required this.quantity});
+  ListItems({super.key, required this.item});
   Map<String, dynamic> item;
-  TextEditingController quantity;
   @override
   State<ListItems> createState() => _ListItemsState();
 }
@@ -15,9 +14,7 @@ class _ListItemsState extends State<ListItems> {
   void initState() {
     // TODO: implement initState
     super.initState();
-     setState(() {
-      widget.quantity.text = widget.item["Quantity"] ?? "";
-    });
+   
   }
   
 
@@ -111,7 +108,6 @@ class _ListItemsState extends State<ListItems> {
                         ),
                         // child: const Center(child: Text("5")),
                         child: TextField(
-                          controller: widget.quantity,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),

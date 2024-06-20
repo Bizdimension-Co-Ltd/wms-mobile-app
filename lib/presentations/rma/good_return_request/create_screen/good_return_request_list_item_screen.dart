@@ -16,7 +16,6 @@ class GoodReturnRequestListItemsScreen extends StatefulWidget {
 class _GoodReturnRequestListItemsScreenState
     extends State<GoodReturnRequestListItemsScreen> {
   List<dynamic> selectedItems = [];
-  final _quantity = TextEditingController();
 
   @override
   void initState() {
@@ -121,14 +120,12 @@ class _GoodReturnRequestListItemsScreenState
                       if (result != null) {
                         setState(() {
                           selectedItems[index] = result;
-                          _quantity.text =
-                              selectedItems[index]["Quantity"] ?? "";
+                        
                         });
                       }
                     },
                     child: ListItems(
                       item: selectedItems[index],
-                      quantity: _quantity,
                     ),
                   );
                 },

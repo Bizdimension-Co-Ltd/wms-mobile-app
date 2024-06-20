@@ -123,7 +123,7 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                       }
                     },
                     child: ListItems(
-                      item: selectedItems[index], quantity: _quantity,
+                      item: selectedItems[index],
                     ),
                   );
                 },

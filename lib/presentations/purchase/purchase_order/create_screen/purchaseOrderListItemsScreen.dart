@@ -16,7 +16,6 @@ class PurchaseOrderListItemsScreen extends StatefulWidget {
 class _PurchaseOrderListItemsScreenState
     extends State<PurchaseOrderListItemsScreen> {
   List<dynamic> selectedItems = [];
-  final _quantity = TextEditingController();
   @override
 
 
@@ -122,8 +121,7 @@ class _PurchaseOrderListItemsScreenState
                       if (result != null) {
                         setState(() {
                           selectedItems[index] = result;
-                          _quantity.text =
-                              selectedItems[index]["Quantity"] ?? "";
+                          
                         });
                       }
                     },
@@ -138,7 +136,6 @@ class _PurchaseOrderListItemsScreenState
                     // },
                     child: ListItems(
                       item: selectedItems[index],
-                      quantity: _quantity,
                     ),
                   );
                 },
