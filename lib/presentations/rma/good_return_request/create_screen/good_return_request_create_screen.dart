@@ -112,6 +112,7 @@ class _GoodReturnRequestCreateScreenState
           setState(() {
             check = 1;
             _series["value"] = response.data["Series"];
+            _series["name"] = response.data["Name"];
             // series.addAll(response.data['value']);
           });
         }
@@ -134,7 +135,7 @@ class _GoodReturnRequestCreateScreenState
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-             _series["value"] = widget.dataById["Series"]?.toString() ?? "";
+             _series["value"] = widget.dataById["Series"];
         _vendor["cardCode"] = widget.dataById["CardCode"];
         _vendor["cardName"] = widget.dataById["CardName"];
         _supplierRefNo.text = widget.dataById["NumAtCard"];
@@ -250,7 +251,7 @@ class _GoodReturnRequestCreateScreenState
               },
               child: FlexTwoArrowWithText(
                   title: "Series",
-                  textData: _series["value"]?.toString() ?? "...",
+                  textData: _series["name"] ?? "...",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",

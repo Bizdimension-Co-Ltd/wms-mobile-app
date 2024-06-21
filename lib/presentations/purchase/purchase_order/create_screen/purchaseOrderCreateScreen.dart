@@ -107,7 +107,8 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
         if (mounted) {
           setState(() {
             check = 1;
-            _series["value"] = response.data["Series"]?.toString() ?? "";
+            _series["value"] = response.data["Series"];
+            _series["name"] = response.data["Name"]?.toString() ?? "";
             // series.addAll(response.data['value']);
           });
         }
@@ -130,7 +131,7 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-        _series["value"] = widget.dataById["Series"]?.toString() ?? "";
+        _series["value"] = widget.dataById["Series"];
         _vendor["cardCode"] = widget.dataById["CardCode"];
         _vendor["cardName"] = widget.dataById["CardName"];
         _supplierRefNo.text = widget.dataById["NumAtCard"];
@@ -249,7 +250,7 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
               },
               child: FlexTwoArrowWithText(
                   title: "Series",
-                  textData: _series["value"]?.toString() ?? "...",
+                  textData: _series["name"] ?? "...",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",

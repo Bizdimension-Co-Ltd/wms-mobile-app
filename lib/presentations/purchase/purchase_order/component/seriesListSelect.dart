@@ -105,7 +105,7 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["Series"].toString(),
+                                desc: data[index]["Name"].toString(),
                                 code: "");
                           },
                         ),
@@ -125,7 +125,7 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["Series"],
+                      "name": data[selectedRadio]["Name"],
                       "value": data[selectedRadio]["Series"],
                       "index": selectedRadio
                     };

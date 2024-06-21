@@ -3,35 +3,37 @@ import 'package:wms_mobile/component/listItemDrop.dart';
 import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
-class BranchSelect extends StatefulWidget {
-  const BranchSelect({Key? key, this.indBack})
+class SeriesListSelect extends StatefulWidget {
+  const SeriesListSelect({Key? key, this.indBack})
       : super(
           key: key,
         );
   final indBack;
   @override
-  State<BranchSelect> createState() => _BranchSelectState();
+  State<SeriesListSelect> createState() => _SeriesListSelectState();
 }
 
-class _BranchSelectState extends State<BranchSelect> {
+class _SeriesListSelectState extends State<SeriesListSelect> {
   int a = 1;
   int selectedRadio = -1;
   final DioClient dio = DioClient();
   int check = 0;
   List<dynamic> data = [];
 
-  Future<void> getList() async {
+  Future<void> getListSeries() async {
+   Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '59'},
+    };
     try {
-      final response = await dio.get('/BusinessPlaces', query: {
-        '\$select': "BPLID,BPLName,Address,DefaultWarehouseID",
-      });
-
+      final response =
+          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             check = 1;
             data.addAll(response.data['value']);
           });
+          // print(response.data["value"]);
         }
       } else {
         throw ServerFailure(message: response.data['msg']);
@@ -45,7 +47,7 @@ class _BranchSelectState extends State<BranchSelect> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getList();
+    getListSeries();
     setState(() {
       selectedRadio = widget.indBack;
     });
@@ -58,7 +60,7 @@ class _BranchSelectState extends State<BranchSelect> {
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
         title: const Text(
-          'Branch',
+          'Series',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         actions: const [
@@ -103,7 +105,7 @@ class _BranchSelectState extends State<BranchSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["BPLName"] ?? "",
+                                desc: data[index]["Name"].toString(),
                                 code: "");
                           },
                         ),
@@ -123,9 +125,8 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["BPLName"],
-                      "value": data[selectedRadio]["BPLID"],
-                      "defaultWH": data[selectedRadio]["DefaultWarehouseID"],
+                      "name": data[selectedRadio]["Name"],
+                      "value": data[selectedRadio]["Series"],
                       "index": selectedRadio
                     };
                     if (selectedRadio != -1) {

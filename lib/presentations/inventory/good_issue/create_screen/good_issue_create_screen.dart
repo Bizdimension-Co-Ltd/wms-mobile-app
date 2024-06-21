@@ -8,6 +8,7 @@ import 'package:wms_mobile/form/goodIssueTypeSelect.dart';
 import 'package:wms_mobile/form/revenueLine.dart';
 import 'package:wms_mobile/form/textFlexTwo.dart';
 import 'package:wms_mobile/form/warehouseSelect.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/component/seriesListSelect.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_list_item_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -23,7 +24,7 @@ class GoodIssueCreateScreen extends StatefulWidget {
 
 class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   final TextEditingController _supplier = TextEditingController();
-  String? _serie;
+  Map<String, dynamic> _series = {};
   Map<String, dynamic> _employee = {};
   final TextEditingController _transportationNo = TextEditingController();
   final TextEditingController _truckNo = TextEditingController();
@@ -33,7 +34,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   Map<String, dynamic> _warehouse = {};
   Map<String, dynamic> _giType = {};
   List<dynamic> selectedItems = [];
-  final TextEditingController _remark = TextEditingController( );
+  final TextEditingController _remark = TextEditingController();
 
   final DioClient dio = DioClient();
   final String _responseMessage = '';
@@ -131,7 +132,9 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
         if (mounted) {
           setState(() {
             check = 1;
-            _serie = response.data["Series"].toString();
+            _series["value"] = response.data["Series"];
+            _series["name"] = response.data["Name"].toString();
+
             // series.addAll(response.data['value']);
           });
         }
@@ -153,10 +156,10 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-        _serie = widget.dataById["Series"].toString();
+        _series["value"] = widget.dataById["Series"];
         _employee["value"] = widget.dataById["U_tl_grempl"];
         _transportationNo.text = widget.dataById["U_tl_grtrano"] ?? "";
-        _truckNo.text = widget.dataById["U_tl_grtruno"] ??"";
+        _truckNo.text = widget.dataById["U_tl_grtruno"] ?? "";
         _shipTo["value"] = widget.dataById["U_tl_branc"];
         _revenueLine["value"] = widget.dataById["U_ti_revenue"];
         _branch["value"] = widget.dataById["BPL_IDAssignedToInvoice"];
@@ -250,13 +253,18 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
             const SizedBox(
               height: 30,
             ),
-            FlexTwoArrowWithText(
-                title: "Series",
-                textData: _serie,
-                textColor: Color.fromARGB(255, 129, 134, 140),
-                simple: FontWeight.normal,
-                req: "true",
-                requried: "requried"),
+            GestureDetector(
+                 onTap: () {
+                _navigateSeriesSelect(context);
+              },
+              child: FlexTwoArrowWithText(
+                  title: "Series",
+                  textData: _series["name"] ?? "---",
+                  textColor: Color.fromARGB(255, 129, 134, 140),
+                  simple: FontWeight.normal,
+                  req: "true",
+                  requried: "requried"),
+            ),
             GestureDetector(
               onTap: () {
                 _navigateEmployeeSelect(context);
@@ -402,7 +410,31 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       ),
     );
   }
-
+  num indexSeriesSeleted = -1;
+  Future<void> _navigateSeriesSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SeriesListSelect(
+                indBack: indexSeriesSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _series = {
+        "name": result["name"].toString(),
+        "value": result["value"].toString()
+      };
+      indexSeriesSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_series["value"] == null
+              ? "Unselected"
+              : "Selected ${_series["value"]}")));
+  }
   num indexEmployeeSeleted = -1;
   Future<void> _navigateEmployeeSelect(BuildContext context) async {
     final result = await Navigator.push(
@@ -502,6 +534,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
                 indBack: indexWarehouseSeleted,
+                branchId: _branch["value"],
               )),
     );
     if (!mounted) return;

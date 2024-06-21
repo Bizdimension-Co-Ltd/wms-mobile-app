@@ -83,14 +83,14 @@ class _FlexTwoArrowWithTextState extends State<FlexTwoArrowWithText> {
                       ),
                       if (widget.textData == null)
                         // Check if textData is null
-                            TextSpan(
-                              text: widget.requried ??
-                                  '', // Add asterisk or any symbol indicating it's required
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color.fromARGB(255, 162, 167, 171),
-                              ),
-                            )
+                        TextSpan(
+                          text: widget.requried ??
+                              '', // Add asterisk or any symbol indicating it's required
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color.fromARGB(255, 162, 167, 171),
+                          ),
+                        )
                     ],
                   ),
                 ),

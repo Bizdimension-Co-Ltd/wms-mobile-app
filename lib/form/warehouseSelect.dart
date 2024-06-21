@@ -4,11 +4,13 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class WarehouseSelect extends StatefulWidget {
-  const WarehouseSelect({Key? key, this.indBack})
+  const WarehouseSelect({Key? key, this.indBack, this.branchId})
       : super(
           key: key,
         );
   final indBack;
+  final branchId;
+
   @override
   State<WarehouseSelect> createState() => _WarehouseSelectState();
 }
@@ -23,14 +25,21 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
   Future<void> getList() async {
     try {
       final response = await dio.get('/Warehouses', query: {
-        '\$select': "WarehouseCode,WarehouseName",
+        '\$select': "WarehouseCode,WarehouseName,BusinessPlaceID",
       });
 
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             check = 1;
-            data.addAll(response.data['value']);
+            List<dynamic> responseData = response.data['value'];
+            if (widget.branchId != null) {
+              data = responseData
+                  .where((e) => e['BusinessPlaceID'] == widget.branchId)
+                  .toList();
+            } else {
+              data = [];
+            }
           });
         }
       } else {
@@ -43,11 +52,11 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getList();
     setState(() {
       selectedRadio = widget.indBack;
+      print(widget.branchId);
     });
   }
 
@@ -57,7 +66,8 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text('Warehouse',
+        title: const Text(
+          'Warehouse',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         actions: const [
@@ -80,7 +90,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                         strokeWidth: 2.5,
                       ),
                     )
-                  : data.length == 0
+                  : data.isEmpty
                       ? Container(
                           child: Center(
                               child: Text(
@@ -102,7 +112,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["WarehouseName"] ?? "",
+                                desc:data[index]["WarehouseCode"]+' - '+ data[index]["WarehouseName"] ?? "",
                                 code: "");
                           },
                         ),
@@ -122,7 +132,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["WarehouseName"],
+                      "name": data[selectedRadio]["WarehouseCode"] + ' - ' +data[selectedRadio]["WarehouseName"],
                       "value": data[selectedRadio]["WarehouseCode"],
                       "index": selectedRadio
                     };
