@@ -250,7 +250,7 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
               },
               child: FlexTwoArrowWithText(
                   title: "Series",
-                  textData: _series["name"] ?? "...",
+                  textData: _series["name"] ?? _series["value"]?? "...",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",

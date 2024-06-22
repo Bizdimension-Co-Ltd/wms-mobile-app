@@ -19,6 +19,24 @@ class _BranchSelectState extends State<BranchSelect> {
   final DioClient dio = DioClient();
   int check = 0;
   List<dynamic> data = [];
+  List<dynamic> branchAss = [];
+  Future<void> getUser() async {
+    try {
+      final response = await dio.get('/UsersService_GetCurrentUser');
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            branchAss.addAll(response.data["UserBranchAssignment"]);
+            // print(response.data["UserBranchAssignment"]);
+          });
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
+  }
 
   Future<void> getList() async {
     try {
@@ -28,10 +46,19 @@ class _BranchSelectState extends State<BranchSelect> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          setState(() {
-            check = 1;
-            data.addAll(response.data['value']);
-          });
+          if (branchAss.isNotEmpty) {
+            setState(() {
+              check = 1;
+              data = response.data['value']
+                  .where((b) => branchAss.any((a) => a["BPLID"] == b["BPLID"]))
+                  .toList();
+            });
+          } else {
+            setState(() {
+              check = 1;
+              data = [];
+            });
+          }
         }
       } else {
         throw ServerFailure(message: response.data['msg']);
@@ -45,6 +72,7 @@ class _BranchSelectState extends State<BranchSelect> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    getUser();
     getList();
     setState(() {
       selectedRadio = widget.indBack;
@@ -94,10 +122,10 @@ class _BranchSelectState extends State<BranchSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
-                                bool isLastIndex = index == data.length - 1;
+                            bool isLastIndex = index == data.length - 1;
 
                             return ListItem(
-                               lastIndex: isLastIndex,
+                                lastIndex: isLastIndex,
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,

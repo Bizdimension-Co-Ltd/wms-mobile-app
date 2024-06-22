@@ -93,9 +93,14 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                             Color.fromARGB(255, 106, 103, 103)),
                                   ),
                                   Text(
-                                    replaceStringStatus(widget.poHeader["DocumentStatus"]),
+                                    replaceStringStatus(
+                                        widget.poHeader["DocumentStatus"]),
                                     style: TextStyle(
-                                      color:widget.poHeader["DocumentStatus"]=="bost_Close"?Colors.red: Colors.blue,
+                                      color:
+                                          widget.poHeader["DocumentStatus"] ==
+                                                  "bost_Close"
+                                              ? Colors.red
+                                              : Colors.blue,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -178,9 +183,11 @@ class _HeaderScreenState extends State<HeaderScreen> {
               ],
             ),
           ),
-          FlexTwo(
-            title: "Series",
-            values: widget.poHeader["Series"] ?? "",
+          GestureDetector(
+            child: FlexTwo(
+              title: "Series",
+              values: widget.poHeader["Series"] ?? "",
+            ),
           ),
           FlexTwo(
             title: "Document Number",
