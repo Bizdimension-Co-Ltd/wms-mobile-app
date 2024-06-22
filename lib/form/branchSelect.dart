@@ -46,17 +46,16 @@ class _BranchSelectState extends State<BranchSelect> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          if (branchAss.isNotEmpty) {
+          if (branchAss.isEmpty) {
+            setState(() {
+              check = 0;
+            });
+          } else {
             setState(() {
               check = 1;
               data = response.data['value']
                   .where((b) => branchAss.any((a) => a["BPLID"] == b["BPLID"]))
                   .toList();
-            });
-          } else {
-            setState(() {
-              check = 1;
-              data = [];
             });
           }
         }
