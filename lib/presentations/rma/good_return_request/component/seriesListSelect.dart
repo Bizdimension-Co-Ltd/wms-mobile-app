@@ -96,7 +96,9 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
+                            bool isLastIndex = index == data.length - 1;
                             return ListItem(
+                                lastIndex: isLastIndex, 
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,

@@ -111,7 +111,9 @@ class _GoodReceiptListItemsScreenState extends State<GoodReceiptListItemsScreen>
                         MaterialPageRoute(
                           builder: (context) =>
                               GoodReceiptItemCreateScreen(
-                                  updateItem: selectedItems[index]),
+                                  updateItem: selectedItems[index],
+                                  ind:index
+                          ),
                         ),
                       );
                       if (result != null) {

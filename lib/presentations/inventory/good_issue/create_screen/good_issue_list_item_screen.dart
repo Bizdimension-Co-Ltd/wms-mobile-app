@@ -15,7 +15,7 @@ class GoodIssueListItemsScreen extends StatefulWidget {
 
 class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
   List<dynamic> selectedItems = [];
-      final _quantity = TextEditingController();
+  final _quantity = TextEditingController();
 
   @override
   void initState() {
@@ -105,13 +105,12 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                      onTap: () async {
+                    onTap: () async {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              GoodIssueItemCreateScreen(
-                                  updateItem: selectedItems[index]),
+                          builder: (context) => GoodIssueItemCreateScreen(
+                              updateItem: selectedItems[index], ind: index),
                         ),
                       );
                       if (result != null) {

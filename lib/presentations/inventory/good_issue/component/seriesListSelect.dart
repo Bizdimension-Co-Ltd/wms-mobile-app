@@ -4,11 +4,12 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class SeriesListSelect extends StatefulWidget {
-  const SeriesListSelect({Key? key, this.indBack})
+  const SeriesListSelect({Key? key, this.indBack, this.branchId})
       : super(
           key: key,
         );
   final indBack;
+  final branchId;
   @override
   State<SeriesListSelect> createState() => _SeriesListSelectState();
 }
@@ -31,7 +32,17 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
         if (mounted) {
           setState(() {
             check = 1;
-            data.addAll(response.data['value']);
+            List<dynamic> responseData = response.data['value'];
+            if (widget.branchId == null) {
+              String currentYear = DateTime.now().year.toString();
+              data = responseData
+                  .where((e) => e['PeriodIndicator'] == currentYear)
+                  .toList();
+            } else {
+              data = responseData
+                  .where((e) => e['BPLID'] == widget.branchId)
+                  .toList();
+            }
           });
           // print(response.data["value"]);
         }
@@ -96,7 +107,9 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
+                             bool isLastIndex = index == data.length - 1;
                             return ListItem(
+                                lastIndex: isLastIndex, 
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,

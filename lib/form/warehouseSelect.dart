@@ -4,13 +4,13 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class WarehouseSelect extends StatefulWidget {
-  const WarehouseSelect({Key? key, this.indBack, this.branchId})
+  WarehouseSelect({Key? key, this.indBack, this.branchId, this.allWH})
       : super(
           key: key,
         );
   final indBack;
   final branchId;
-
+  final allWH;
   @override
   State<WarehouseSelect> createState() => _WarehouseSelectState();
 }
@@ -37,6 +37,8 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
               data = responseData
                   .where((e) => e['BusinessPlaceID'] == widget.branchId)
                   .toList();
+            } else if (widget.allWH == "true") {
+              data = response.data['value'];
             } else {
               data = [];
             }
@@ -103,7 +105,9 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
+                             bool isLastIndex = index == data.length - 1;
                             return ListItem(
+                                lastIndex: isLastIndex, 
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,
@@ -112,7 +116,10 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc:data[index]["WarehouseCode"]+' - '+ data[index]["WarehouseName"] ?? "",
+                                desc: data[index]["WarehouseCode"] +
+                                        ' - ' +
+                                        data[index]["WarehouseName"] ??
+                                    "",
                                 code: "");
                           },
                         ),
@@ -132,7 +139,9 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["WarehouseCode"] + ' - ' +data[selectedRadio]["WarehouseName"],
+                      "name": data[selectedRadio]["WarehouseCode"] +
+                          ' - ' +
+                          data[selectedRadio]["WarehouseName"],
                       "value": data[selectedRadio]["WarehouseCode"],
                       "index": selectedRadio
                     };

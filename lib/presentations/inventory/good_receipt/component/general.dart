@@ -108,19 +108,19 @@ class _GeneralState extends State<General> {
           ),
           FlexTwo(
             title: "Employee No",
-            values: widget.gHeader["U_tl_empl"] ?? "",
+            values: widget.gHeader["U_tl_grempl"] ?? "",
           ),
           FlexTwo(
             title: "Transportation No",
-            values: widget.gHeader["U_tl_trano"] ?? "",
+            values: widget.gHeader["U_tl_grtrano"] ?? "",
           ),
           FlexTwo(
             title: "Truck No",
-            values: widget.gHeader["U_tl_truno"] ?? "",
+            values: widget.gHeader["U_tl_grtruno"] ?? "",
           ),
           FlexTwo(
-            title: "Ship To",
-            values: widget.gHeader["ShipToCode"] ?? "",
+            title: "Ship From",
+            values: widget.gHeader["U_tl_grsuppo"] ?? "",
           ),
           FlexTwo(
             title: "Revenue Line",
@@ -139,7 +139,7 @@ class _GeneralState extends State<General> {
           ),
           FlexTwo(
             title: "Good Issue Type",
-            values: widget.gHeader["U_tl_gitype"] ??"",
+            values: widget.gHeader["U_tl_grtype"] ??"",
           ),
           SizedBox(
             height: 30,

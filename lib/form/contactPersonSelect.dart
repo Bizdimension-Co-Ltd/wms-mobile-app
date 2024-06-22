@@ -81,7 +81,9 @@ class _ContactPersonSelectState extends State<ContactPersonSelect> {
                       shrinkWrap: true,
                       itemCount: widget.data.length,
                       itemBuilder: (BuildContext context, int index) {
+                         bool isLastIndex = index == widget.data.length - 1;
                         return ListItem(
+                           lastIndex: isLastIndex, 
                             twoRow: false,
                             index: index,
                             selectedRadio: selectedRadio,

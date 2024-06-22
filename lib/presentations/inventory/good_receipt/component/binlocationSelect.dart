@@ -3,43 +3,54 @@ import 'package:wms_mobile/component/listItemDrop.dart';
 import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
-class SeriesListSelect extends StatefulWidget {
-  const SeriesListSelect({Key? key, this.indBack})
+class BinlocationSelect extends StatefulWidget {
+  const BinlocationSelect({Key? key, this.indBack, required this.whCode})
       : super(
           key: key,
         );
   final indBack;
+  final whCode;
   @override
-  State<SeriesListSelect> createState() => _SeriesListSelectState();
+  State<BinlocationSelect> createState() => _BinlocationSelectState();
 }
 
-class _SeriesListSelectState extends State<SeriesListSelect> {
+class _BinlocationSelectState extends State<BinlocationSelect> {
   int a = 1;
   int selectedRadio = -1;
   final DioClient dio = DioClient();
   int check = 0;
   List<dynamic> data = [];
 
-    Future<void> getListSeries() async {
-    Map<String, dynamic> payload = {
-      'DocumentTypeParams': {'Document': '22'},
-    };
-    try {
-      final response =
-          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            data.addAll(response.data['value']);
-          });
-          // print(response.data["value"]);
+  Future<void> getList() async {
+    setState(() {
+      print(widget.whCode);
+    });
+    if (widget.whCode != null) {
+      try {
+        final response = await dio.get(
+            "/BinLocations?\$filter=Warehouse eq '${widget.whCode}'",
+            query: {
+              '\$select': "AbsEntry,Warehouse,BinCode",
+            });
+
+        if (response.statusCode == 200) {
+          if (mounted) {
+            setState(() {
+              check = 1;
+              data.addAll(response.data['value']);
+            });
+          }
+        } else {
+          throw ServerFailure(message: response.data['msg']);
         }
-      } else {
-        throw ServerFailure(message: response.data['msg']);
+      } on Failure {
+        rethrow;
       }
-    } on Failure {
-      rethrow;
+    } else {
+      setState(() {
+        check = 1;
+        data = [];
+      });
     }
   }
 
@@ -47,7 +58,7 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getListSeries();
+    getList();
     setState(() {
       selectedRadio = widget.indBack;
     });
@@ -60,7 +71,7 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
         title: const Text(
-          'Series',
+          'BinLocations',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         actions: const [
@@ -97,8 +108,9 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
                             bool isLastIndex = index == data.length - 1;
+
                             return ListItem(
-                                lastIndex: isLastIndex, 
+                                lastIndex: isLastIndex,
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,
@@ -107,7 +119,7 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["Name"].toString(),
+                                desc: data[index]["BinCode"] ?? "",
                                 code: "");
                           },
                         ),
@@ -127,8 +139,8 @@ class _SeriesListSelectState extends State<SeriesListSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["Name"],
-                      "value": data[selectedRadio]["Series"],
+                      "name": data[selectedRadio]["BinCode"],
+                      "value": data[selectedRadio]["AbsEntry"],
                       "index": selectedRadio
                     };
                     if (selectedRadio != -1) {

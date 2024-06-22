@@ -42,81 +42,73 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   int check = 0;
   Future<void> _postData() async {
     Map<String, dynamic> payload = {
-      // "Series": int.parse(series),
-      // "CardCode": _vendor["cardCode"],
-      // "CardName": _vendor["cardName"],
-      // "ContactPersonCode": 0,
-      // "NumAtCard": _supplierRefNo.text,
-      // "BPL_IDAssignedToInvoice": _branch["BplId"],
-      // "JournalMemo": "Purchase Orders - ${_vendor["cardCode"]}",
-      // "Comments": _remark.text,
-      // "DocDate": _postingDate.toString(),
-      // "DocDueDate": _dueDate.toString(),
-      // "Taxdate": _documentDate.toString(),
-      // "Address2": _shipTo,
-      // "Address": _vendor["address"],
-      "DocumentLines": selectedItems
-          .map((e) => {
-                "ItemCode": e["ItemCode"],
-                "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
-                "Quantity": 10,
-                // "WarehouseCode":
-                "UnitPrice": 0,
-                "GrossBuyPrice": 0,
-                "UoMCode": e["InventoryUOM"]
-              })
-          .toList()
+      "Series": _series["value"],
+      "BPL_IDAssignedToInvoice": _branch["value"],
+      "U_tl_whsdesc": _warehouse["value"],
+      "U_tl_grempl": _employee["value"],
+      "U_tl_grtrano": _transportationNo.text,
+      "U_tl_grtruno": _truckNo.text,
+      "U_ti_revenue": _revenueLine["value"],
+      "U_tl_branc": _shipTo["value"],
+      "U_tl_gitype": _giType["value"],
+      "Comments": _remark.text,
+      "DocumentLines": selectedItems.map((e) {
+        var documentLinesBinAllocations =
+            (e["DocumentLinesBinAllocations"] != null &&
+                    e["DocumentLinesBinAllocations"].isNotEmpty)
+                ? e["DocumentLinesBinAllocations"][0]
+                : null;
+
+        return {
+          "ItemCode": e["ItemCode"],
+          "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
+          "Quantity": e["Quantity"],
+          "WarehouseCode": e["WarehouseCode"],
+          "UnitPrice": e["UnitPrice"],
+          "GrossPrice": e["GrossPrice"],
+          "UoMCode": e["UoMCode"],
+          "CostingCode": e["CostingCode"],
+          "CostingCode2": e["CostingCode2"],
+          "CostingCode3": e["CostingCode3"],
+          "DocumentLinesBinAllocations": [
+            if (documentLinesBinAllocations != null)
+              {
+                "Quantity": documentLinesBinAllocations["Quantity"] ?? "",
+                "BinAbsEntry": documentLinesBinAllocations["BinAbsEntry"] ?? "",
+                "BaseLineNumber":
+                    documentLinesBinAllocations["BaseLineNumber"] ?? "",
+                "AllowNegativeQuantity":
+                    documentLinesBinAllocations["AllowNegativeQuantity"] ?? "",
+                "SerialAndBatchNumbersBaseLine": documentLinesBinAllocations[
+                        "SerialAndBatchNumbersBaseLine"] ??
+                    ""
+              }
+          ]
+        };
+      }).toList()
     };
     try {
       MaterialDialog.loading(context, barrierDismissible: false);
-
-      final response = widget.id
-          ? await dio.patch("/InventoryGenExits('')", data: payload)
-          : await dio.post('/InventoryGenExits', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
+      if (widget.id) {
+        final response = await dio.patch(
+            '/InventoryGenExits(${widget.dataById["DocEntry"]})',
+            data: payload);
+        if (response.statusCode == 204) {
           MaterialDialog.close(context);
           MaterialDialog.success(context,
-              title: 'Success',
-              body: widget.id
-                  ? "Updated Sccessfully !"
-                  : "Created Sccessfully !");
+              title: 'Success', body: "Updated Successfully !");
         }
       } else {
-        MaterialDialog.close(context);
-        throw ServerFailure(message: response.data['msg']);
+        final response = await dio.post('/InventoryGenExits', data: payload);
+        if (response.statusCode == 201) {
+          MaterialDialog.close(context);
+          MaterialDialog.success(context,
+              title: 'Success', body: "Created Successfully !");
+        }
       }
     } catch (e) {
-      print(e);
       MaterialDialog.close(context);
-      MaterialDialog.success(context, title: 'Error', body: "");
-    }
-  }
-
-  Future<void> getListSeries() async {
-    Map<String, dynamic> payload = {
-      'DocumentTypeParams': {'Document': '60'},
-    };
-    try {
-      final response =
-          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
-          // print(response.data["value"]);
-        }
-      } else {
-        throw ServerFailure(message: response.data['msg']);
-      }
-    } on Failure {
-      rethrow;
+      MaterialDialog.success(context, title: 'Error', body: e.toString());
     }
   }
 
@@ -146,27 +138,58 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    init();
-    getDefaultSeries();
+  List<dynamic> series = [];
+
+  Future<void> getListSeries() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '60'},
+    };
+    try {
+      final response =
+          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            series.addAll(response.data['value']);
+          });
+          // print(response.data["value"]);
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
   }
 
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-        _series["value"] = widget.dataById["Series"];
-        _employee["value"] = widget.dataById["U_tl_grempl"];
-        _transportationNo.text = widget.dataById["U_tl_grtrano"] ?? "";
-        _truckNo.text = widget.dataById["U_tl_grtruno"] ?? "";
-        _shipTo["value"] = widget.dataById["U_tl_branc"];
-        _revenueLine["value"] = widget.dataById["U_ti_revenue"];
-        _branch["value"] = widget.dataById["BPL_IDAssignedToInvoice"];
-        _warehouse["value"] = widget.dataById["U_tl_whsdesc"];
-        _giType["value"] = widget.dataById["U_tl_gitype"];
+        _series["value"] = widget.dataById["Series"].toString();
+        _employee["value"] = widget.dataById["U_tl_grempl"]?.toString();
+        _transportationNo.text =
+            widget.dataById["U_tl_grtrano"]?.toString() ?? "";
+        _truckNo.text = widget.dataById["U_tl_grtruno"]?.toString() ?? "";
+        _shipTo["value"] = widget.dataById["U_tl_branc"]?.toString();
+        _revenueLine["value"] = widget.dataById["U_ti_revenue"]?.toString();
+        _branch["value"] =
+            widget.dataById["BPL_IDAssignedToInvoice"];
+        _branch["name"] = widget.dataById["BPLName"]?.toString();
+        _warehouse["value"] = widget.dataById["U_tl_whsdesc"]?.toString();
+        _giType["value"] = widget.dataById["U_tl_gitype"]?.toString();
+        _remark.text = widget.dataById["Comments"] ?? "";
+        selectedItems = widget.dataById["DocumentLines"];
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+    getDefaultSeries();
+    getListSeries();
   }
 
   @override
@@ -209,10 +232,8 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
                         style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                                 const Color.fromARGB(255, 17, 18, 48))),
-                        onPressed: () async => {
-                          Navigator.pop(context, 'ok'),
-                          // await _postData()
-                        },
+                        onPressed: () async =>
+                            {Navigator.pop(context, 'ok'), await _postData()},
                         child: Container(
                           width: 90,
                           // height: 30,
@@ -235,12 +256,16 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
                 color: const Color.fromARGB(255, 17, 18, 48),
                 borderRadius: BorderRadius.circular(50)),
             width: double.infinity,
-            child: const Center(
-              child: Text(
-                "POST",
-                style: TextStyle(color: Colors.white, fontSize: 15),
-              ),
-            ),
+            child: Center(
+                child: widget.id
+                    ? Text(
+                        "UPDATE",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      )
+                    : Text(
+                        "POST",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      )),
           ),
         ),
       ),
@@ -254,12 +279,12 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
               height: 30,
             ),
             GestureDetector(
-                 onTap: () {
+              onTap: () {
                 _navigateSeriesSelect(context);
               },
               child: FlexTwoArrowWithText(
                   title: "Series",
-                  textData: _series["name"] ?? "---",
+                  textData: _series["name"] ?? _series["value"] ?? "---",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
@@ -374,7 +399,16 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => GoodIssueListItemsScreen(
-                      dataFromPrev: selectedItems,
+                      dataFromPrev: selectedItems.map((e) {
+                        var newMap = Map<String, dynamic>.from(e);
+                        String? warehouseCode = _warehouse["value"] ??
+                            widget.dataById?["DocumentLines"]?[0]
+                                ?["WarehouseCode"] ??
+                            "";
+
+                        newMap["WarehouseCode"] = warehouseCode;
+                        return newMap;
+                      }).toList(),
                     ),
                   ),
                 );
@@ -410,6 +444,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       ),
     );
   }
+
   num indexSeriesSeleted = -1;
   Future<void> _navigateSeriesSelect(BuildContext context) async {
     final result = await Navigator.push(
@@ -417,6 +452,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       MaterialPageRoute(
           builder: (context) => SeriesListSelect(
                 indBack: indexSeriesSeleted,
+                branchId: _branch["value"],
               )),
     );
     if (!mounted) return;
@@ -435,6 +471,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
               ? "Unselected"
               : "Selected ${_series["value"]}")));
   }
+
   num indexEmployeeSeleted = -1;
   Future<void> _navigateEmployeeSelect(BuildContext context) async {
     final result = await Navigator.push(
@@ -465,6 +502,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
                 indBack: indexShipToSeleted,
+                allWH: "true",
               )),
     );
     if (!mounted) return;
@@ -514,11 +552,30 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
               )),
     );
     if (!mounted) return;
+    String currentYear = DateTime.now().year.toString();
     setState(() {
       if (result == null) return;
+
       _branch = {"name": result["name"], "value": result["value"]};
+
+      var seriesItem = series.firstWhere(
+        (e) =>
+            e["PeriodIndicator"] == currentYear &&
+            e["BPLID"] == _branch["value"],
+        orElse: () => null,
+      );
+
+      if (seriesItem != null) {
+        _series["value"] = seriesItem["Series"];
+        _series["name"] = seriesItem["Name"];
+      } else {
+        _series["value"] = null; // or some default value
+        _series["name"] = null; // or some default value
+      }
+
       indexBranchSeleted = result["index"];
     });
+
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(
@@ -534,7 +591,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
                 indBack: indexWarehouseSeleted,
-                branchId: _branch["value"],
+                branchId: _branch["value"] ,
               )),
     );
     if (!mounted) return;

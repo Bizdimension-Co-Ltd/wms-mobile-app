@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/presentations/inventory/good_Receipt/component/general.dart';
 import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_create_screen.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 /// Flutter code sample for [TabBar].
 
@@ -15,15 +18,46 @@ class GoodReceiptDetailScreens extends StatefulWidget {
 
 class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
     with TickerProviderStateMixin {
+  final DioClient dio = DioClient();
+  int check = 0;
+  Map<String, dynamic> data = {};
+  Future<void> getById() async {
+    try {
+      final response =
+          await dio.get('/InventoryGenEntries(${widget.giById["DocEntry"]})');
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            data.addAll(response.data);
+          });
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getById();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text(
-          'Good Receipt',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: GestureDetector(
+          child: const Text(
+            'Good Receipt',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
         ),
         actions: [
           IconButton(
@@ -209,7 +243,7 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
                               Navigator.pop(context);
                             },
                             child: Container(
-                              width: double.infinity, 
+                              width: double.infinity,
                               height: 50,
                               decoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 255, 255, 255),
@@ -284,45 +318,51 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          General(gHeader: widget.giById),
-          Positioned(
-              bottom: 30,
-              right: 30,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GoodReceiptCreateScreen(
-                          id: true,
-                          dataById: widget.giById,
+      body: check == 0
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(
+                strokeWidth: 2.5,
+              ),
+            )
+          : Stack(
+              children: [
+                General(gHeader: widget.giById),
+                Positioned(
+                    bottom: 30,
+                    right: 30,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GoodReceiptCreateScreen(
+                                    id: true,
+                                    dataById: data,
+                                  )),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color.fromARGB(255, 111, 115, 119),
+                                blurRadius: 10,
+                                offset: Offset(2, 5), // Shadow position
+                              ),
+                            ],
+                            color: const Color.fromARGB(255, 17, 18, 48),
+                            borderRadius: BorderRadius.circular(100.0)),
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                            child: SvgPicture.asset(
+                          "images/svg/edit.svg",
+                          color: Colors.white,
                         )),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromARGB(255, 111, 115, 119),
-                          blurRadius: 10,
-                          offset: Offset(2, 5), // Shadow position
-                        ),
-                      ],
-                      color: const Color.fromARGB(255, 17, 18, 48),
-                      borderRadius: BorderRadius.circular(100.0)),
-                  width: 60,
-                  height: 60,
-                  child: Center(
-                      child: SvgPicture.asset(
-                    "images/svg/edit.svg",
-                    color: Colors.white,
-                  )),
-                ),
-              ))
-        ],
-      ),
+                      ),
+                    ))
+              ],
+            ),
     );
   }
 }

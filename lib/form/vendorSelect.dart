@@ -154,7 +154,9 @@ class _VendorSelectState extends State<VendorSelect> {
                         shrinkWrap: true,
                         itemCount: data.length,
                         itemBuilder: (BuildContext context, int index) {
+                         bool isLastIndex = index == data.length - 1;
                           return ListItem(
+                            lastIndex: isLastIndex, 
                             twoRow: true,
                             index: index,
                             selectedRadio: selectedRadio,

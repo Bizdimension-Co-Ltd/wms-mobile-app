@@ -333,8 +333,12 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
                     builder: (context) => PurchaseOrderListItemsScreen(
                       dataFromPrev: selectedItems.map((e) {
                         var newMap = Map<String, dynamic>.from(e);
-                        newMap["WarehouseCode"] =
-                            "${_branch["defaultWH"] ?? widget.dataById["DocumentLines"][0]["WarehouseCode"]}";
+                        String? warehouseCode = _branch["defaultWH"] ??
+                            widget.dataById?["DocumentLines"]?[0]
+                                ?["WarehouseCode"] ??
+                            "";
+
+                        newMap["WarehouseCode"] = warehouseCode;
                         return newMap;
                       }).toList(),
                     ),

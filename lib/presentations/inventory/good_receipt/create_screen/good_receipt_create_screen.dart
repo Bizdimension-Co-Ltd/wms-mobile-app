@@ -29,7 +29,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
   Map<String, dynamic> _employee = {};
   final TextEditingController _transportationNo = TextEditingController();
   final TextEditingController _truckNo = TextEditingController();
-  Map<String, dynamic> _shipTo = {};
+  Map<String, dynamic> _shipFrom = {};
   Map<String, dynamic> _revenueLine = {};
   Map<String, dynamic> _branch = {};
   Map<String, dynamic> _warehouse = {};
@@ -43,58 +43,73 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
   int check = 0;
   Future<void> _postData() async {
     Map<String, dynamic> payload = {
-      // "Series": int.parse(series),
-      // "CardCode": _vendor["cardCode"],
-      // "CardName": _vendor["cardName"],
-      // "ContactPersonCode": 0,
-      // "NumAtCard": _supplierRefNo.text,
-      // "BPL_IDAssignedToInvoice": _branch["BplId"],
-      // "JournalMemo": "Purchase Orders - ${_vendor["cardCode"]}",
-      // "Comments": _remark.text,
-      // "DocDate": _postingDate.toString(),
-      // "DocDueDate": _dueDate.toString(),
-      // "Taxdate": _documentDate.toString(),
-      // "Address2": _shipTo,
-      // "Address": _vendor["address"],
-      "DocumentLines": selectedItems
-          .map((e) => {
-                "ItemCode": e["ItemCode"],
-                "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
-                "Quantity": 10,
-                // "WarehouseCode":
-                "UnitPrice": 0,
-                "GrossBuyPrice": 0,
-                "UoMCode": e["InventoryUOM"]
-              })
-          .toList()
+      "Series": _series["value"],
+      "BPL_IDAssignedToInvoice": _branch["value"],
+      "U_tl_whsdesc": _warehouse["value"],
+      "U_tl_grempl": _employee["value"],
+      "U_tl_grtrano": _transportationNo.text,
+      "U_tl_grtruno": _truckNo.text,
+      "U_ti_revenue": _revenueLine["value"],
+      "U_tl_grsuppo": _shipFrom["value"],
+      "U_tl_grtype": _giType["value"],
+      "Comments": _remark.text,
+      "DocumentLines": selectedItems.map((e) {
+        var documentLinesBinAllocations =
+            (e["DocumentLinesBinAllocations"] != null &&
+                    e["DocumentLinesBinAllocations"].isNotEmpty)
+                ? e["DocumentLinesBinAllocations"][0]
+                : null;
+
+        return {
+          "ItemCode": e["ItemCode"],
+          "ItemDescription": e["ItemName"] ?? e["ItemDescription"],
+          "Quantity": e["Quantity"],
+          "WarehouseCode": e["WarehouseCode"],
+          "UnitPrice": e["UnitPrice"],
+          "GrossPrice": e["GrossPrice"],
+          "UoMCode": e["UoMCode"],
+          "CostingCode": e["CostingCode"] ?? "",
+          "CostingCode2": e["CostingCode2"] ?? "",
+          "CostingCode3": e["CostingCode3"] ?? "",
+          "DocumentLinesBinAllocations": [
+            if (documentLinesBinAllocations != null)
+              {
+                "Quantity": documentLinesBinAllocations["Quantity"] ?? "",
+                "BinAbsEntry": documentLinesBinAllocations["BinAbsEntry"] ?? "",
+                "BaseLineNumber":
+                    documentLinesBinAllocations["BaseLineNumber"] ?? "",
+                "AllowNegativeQuantity":
+                    documentLinesBinAllocations["AllowNegativeQuantity"] ?? "",
+                "SerialAndBatchNumbersBaseLine": documentLinesBinAllocations[
+                        "SerialAndBatchNumbersBaseLine"] ??
+                    ""
+              }
+          ]
+        };
+      }).toList()
     };
     try {
       MaterialDialog.loading(context, barrierDismissible: false);
-
-      final response = widget.id
-          ? await dio.patch("/InventoryGenEntries('')", data: payload)
-          : await dio.post('/InventoryGenEntries', data: payload);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            // series.addAll(response.data['value']);
-          });
+      if (widget.id) {
+        final response = await dio.patch(
+            '/InventoryGenEntries(${widget.dataById["DocEntry"]})',
+            data: payload);
+        if (response.statusCode == 204) {
           MaterialDialog.close(context);
           MaterialDialog.success(context,
-              title: 'Success',
-              body: widget.id
-                  ? "Updated Sccessfully !"
-                  : "Created Sccessfully !");
+              title: 'Success', body: "Updated Successfully !");
         }
       } else {
-        MaterialDialog.close(context);
-        throw ServerFailure(message: response.data['msg']);
+        final response = await dio.post('/InventoryGenEntries', data: payload);
+        if (response.statusCode == 201) {
+          MaterialDialog.close(context);
+          MaterialDialog.success(context,
+              title: 'Success', body: "Created Successfully !");
+        }
       }
     } catch (e) {
-      print(e);
       MaterialDialog.close(context);
-      MaterialDialog.success(context, title: 'Error', body: "");
+      MaterialDialog.success(context, title: 'Error', body: e.toString());
     }
   }
 
@@ -111,7 +126,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
           setState(() {
             check = 1;
             _series["value"] = response.data["Series"];
-             _series["name"] = response.data["Name"].toString();
+            _series["name"] = response.data["Name"].toString();
             // series.addAll(response.data['value']);
           });
         }
@@ -123,27 +138,58 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    init();
-    getDefaultSeries();
+  List<dynamic> series = [];
+
+  Future<void> getListSeries() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '59'},
+    };
+    try {
+      final response =
+          await dio.post('/SeriesService_GetDocumentSeries', data: payload);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            series.addAll(response.data['value']);
+          });
+          // print(response.data["value"]);
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
   }
 
   Future<void> init() async {
     if (widget.id) {
       setState(() {
-        _series["value"] = widget.dataById["Series"];
-        _employee["value"] = widget.dataById["U_tl_grempl"];
-        _transportationNo.text = widget.dataById["U_tl_grtrano"] ?? "";
-        _truckNo.text = widget.dataById["U_tl_grtruno"] ?? "";
-        _shipTo["value"] = widget.dataById["U_tl_branc"];
-        _revenueLine["value"] = widget.dataById["U_ti_revenue"];
-        _branch["value"] = widget.dataById["BPL_IDAssignedToInvoice"];
-        _warehouse["value"] = widget.dataById["U_tl_whsdesc"];
-        _giType["value"] = widget.dataById["U_tl_gitype"];
+        _series["value"] = widget.dataById["Series"].toString();
+        _employee["value"] = widget.dataById["U_tl_grempl"]?.toString();
+        _transportationNo.text =
+            widget.dataById["U_tl_grtrano"]?.toString() ?? "";
+        _truckNo.text = widget.dataById["U_tl_grtruno"]?.toString() ?? "";
+        _shipFrom["value"] = widget.dataById["U_tl_grsuppo"]?.toString();
+        _revenueLine["value"] = widget.dataById["U_ti_revenue"]?.toString();
+        _branch["value"] =
+            widget.dataById["BPL_IDAssignedToInvoice"];
+        _branch["name"] = widget.dataById["BPLName"]?.toString();
+        _warehouse["value"] = widget.dataById["U_tl_whsdesc"]?.toString();
+        _giType["value"] = widget.dataById["U_tl_grtype"]?.toString();
+        _remark.text = widget.dataById["Comments"] ?? "";
+        selectedItems =widget.dataById["DocumentLines"];
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+    getDefaultSeries();
+    getListSeries();
   }
 
   @override
@@ -152,9 +198,11 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text(
-          'Good Receipt',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: GestureDetector(
+          child: const Text(
+            'Good Receipt',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
         ),
       ),
       bottomNavigationBar: GestureDetector(
@@ -186,10 +234,8 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                         style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                                 const Color.fromARGB(255, 17, 18, 48))),
-                        onPressed: () async => {
-                          Navigator.pop(context, 'ok'),
-                          // await _postData()
-                        },
+                        onPressed: () async =>
+                            {Navigator.pop(context, 'ok'), await _postData()},
                         child: Container(
                           width: 90,
                           // height: 30,
@@ -212,12 +258,16 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                 color: const Color.fromARGB(255, 17, 18, 48),
                 borderRadius: BorderRadius.circular(50)),
             width: double.infinity,
-            child: const Center(
-              child: Text(
-                "POST",
-                style: TextStyle(color: Colors.white, fontSize: 15),
-              ),
-            ),
+            child: Center(
+                child: widget.id
+                    ? Text(
+                        "UPDATE",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      )
+                    : Text(
+                        "POST",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      )),
           ),
         ),
       ),
@@ -231,12 +281,12 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               height: 30,
             ),
             GestureDetector(
-                onTap: () {
+              onTap: () {
                 _navigateSeriesSelect(context);
               },
               child: FlexTwoArrowWithText(
                   title: "Series",
-                  textData: _series["name"] ?? "---",
+                  textData: _series["name"] ?? _series["value"] ?? "---",
                   textColor: Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
@@ -266,11 +316,11 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
             ),
             GestureDetector(
               onTap: () {
-                _navigateShipToSelect(context);
+                _navigateShipFromSelect(context);
               },
               child: FlexTwoArrowWithText(
-                  title: "Ship To",
-                  textData: _shipTo["name"] ?? _shipTo["value"],
+                  title: "Ship From",
+                  textData: _shipFrom["name"] ?? _shipFrom["value"],
                   textColor: const Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
@@ -297,7 +347,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               },
               child: FlexTwoArrowWithText(
                   title: "Branch",
-                  textData: _branch["name"],
+                  textData: _branch["name"] ?? _branch["value"],
                   textColor: const Color.fromARGB(255, 129, 134, 140),
                   simple: FontWeight.normal,
                   req: "true",
@@ -351,7 +401,20 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => GoodReceiptListItemsScreen(
-                      dataFromPrev: selectedItems,
+                      dataFromPrev: selectedItems.map((e) {
+                        var newMap = Map<String, dynamic>.from(e);
+                        String? warehouseCode = _warehouse["value"] ??
+                            widget.dataById?["DocumentLines"]?[0]
+                                ?["WarehouseCode"] ??
+                            "";
+                        String? rev = _revenueLine["value"] ??
+                            widget.dataById?["DocumentLines"]?[0]
+                                ?["CostingCode2"] ??
+                            "";
+                        newMap["WarehouseCode"] = warehouseCode;
+                        newMap["U_ti_revenue"] = rev;
+                        return newMap;
+                      }).toList(),
                     ),
                   ),
                 );
@@ -395,12 +458,16 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       MaterialPageRoute(
           builder: (context) => SeriesListSelect(
                 indBack: indexSeriesSeleted,
+                branchId: _branch["value"],
               )),
     );
     if (!mounted) return;
     setState(() {
       if (result == null) return;
-      _series = {"name": result["name"].toString(), "value": result["value"].toString()};
+      _series = {
+        "name": result["name"].toString(),
+        "value": result["value"].toString()
+      };
       indexSeriesSeleted = result["index"];
     });
     ScaffoldMessenger.of(context)
@@ -434,20 +501,21 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               : "Selected ${_employee["name"]}")));
   }
 
-  num indexShipToSeleted = -1;
-  Future<void> _navigateShipToSelect(BuildContext context) async {
+  num indexShipFromSeleted = -1;
+  Future<void> _navigateShipFromSelect(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
-                indBack: indexShipToSeleted,
+                indBack: indexShipFromSeleted,
+                allWH: "true",
               )),
     );
     if (!mounted) return;
     setState(() {
       if (result == null) return;
-      _shipTo = {"name": result["name"], "value": result["value"]};
-      indexShipToSeleted = result["index"];
+      _shipFrom = {"name": result["name"], "value": result["value"]};
+      indexShipFromSeleted = result["index"];
     });
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
@@ -490,11 +558,30 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               )),
     );
     if (!mounted) return;
+    String currentYear = DateTime.now().year.toString();
     setState(() {
       if (result == null) return;
+
       _branch = {"name": result["name"], "value": result["value"]};
+
+      var seriesItem = series.firstWhere(
+        (e) =>
+            e["PeriodIndicator"] == currentYear &&
+            e["BPLID"] == _branch["value"],
+        orElse: () => null,
+      );
+
+      if (seriesItem != null) {
+        _series["value"] = seriesItem["Series"];
+        _series["name"] = seriesItem["Name"];
+      } else {
+        _series["value"] = null; // or some default value
+        _series["name"] = null; // or some default value
+      }
+
       indexBranchSeleted = result["index"];
     });
+
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(

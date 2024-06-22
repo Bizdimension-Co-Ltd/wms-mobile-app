@@ -106,21 +106,21 @@ class _GeneralState extends State<General> {
             title: "Document Number",
             values: widget.gHeader["DocNum"],
           ),
-          FlexTwo(
+           FlexTwo(
             title: "Employee No",
-            values: widget.gHeader["U_tl_empl"] ?? "",
+            values: widget.gHeader["U_tl_grempl"] ?? "",
           ),
           FlexTwo(
             title: "Transportation No",
-            values: widget.gHeader["U_tl_trano"] ?? "",
+            values: widget.gHeader["U_tl_grtrano"] ?? "",
           ),
           FlexTwo(
             title: "Truck No",
-            values: widget.gHeader["U_tl_truno"] ?? "",
+            values: widget.gHeader["U_tl_grtruno"] ?? "",
           ),
           FlexTwo(
             title: "Ship To",
-            values: widget.gHeader["ShipToCode"] ?? "",
+            values: widget.gHeader["U_tl_branc"] ?? "",
           ),
           FlexTwo(
             title: "Revenue Line",
