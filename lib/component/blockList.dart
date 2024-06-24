@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/constant/style.dart';
 
 class BlockList extends StatefulWidget {
+  final String name;
+  final String date;
+  final String status;
+  final String qty;
+  final Color colorStatus;
   const BlockList(
       {super.key,
+      required this.colorStatus,
       required this.name,
       required this.date,
       required this.status,
       required this.qty});
-
-  final name;
-  final date;
-  final status;
-  final qty;
   @override
   State<BlockList> createState() => _BlockListState();
 }
@@ -56,16 +57,21 @@ class _BlockListState extends State<BlockList> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              Container(
+                                width: 255,
+                                child:  Text(
                                 "${widget.name}",
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 15),
+                                    fontWeight: FontWeight.bold, fontSize: 14),
                               ),
+                              ),
+                             
                               Text(
                                 "${widget.status}",
                                 style: TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: size(context).width * 0.035),
+                                    color: widget.colorStatus,
+                                    fontSize: size(context).width * 0.034),
                               )
                             ],
                           ),
@@ -79,6 +85,7 @@ class _BlockListState extends State<BlockList> {
                               Text(
                                 "${widget.date}",
                                 style: const TextStyle(
+                                    fontSize: 13.5,
                                     color: Color.fromARGB(255, 106, 103, 103)),
                               ),
                               Text(

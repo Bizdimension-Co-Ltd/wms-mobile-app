@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class TextFlexTwo extends StatefulWidget {
-  const TextFlexTwo({super.key, required this.title, this.textData});
+  const TextFlexTwo({super.key, required this.title, this.textData, this.req});
   final textData;
   final title;
+  final req;
   @override
   State<TextFlexTwo> createState() => _TextFlexTwoState();
 }
@@ -43,11 +44,31 @@ class _TextFlexTwoState extends State<TextFlexTwo> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: 2,
-            child: Text(
-              "${widget.title}",
-              style: const TextStyle(color: Color.fromARGB(255, 116, 113, 113)),
-            ),
+            flex: 3,
+            child: widget.req == "true"
+                ? Row(
+                    children: [
+                      Text(
+                        "${widget.title}",
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 116, 113, 113)),
+                      ),
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      const Text(
+                        "*",
+                        style: TextStyle(
+                            fontSize: 17,
+                            color: Color.fromARGB(255, 255, 0, 0)),
+                      ),
+                    ],
+                  )
+                : Text(
+                    "${widget.title}",
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 116, 113, 113)),
+                  ),
           ),
           // Text(
           //   "${widget.values}",
@@ -64,8 +85,7 @@ class _TextFlexTwoState extends State<TextFlexTwo> {
               style: const TextStyle(
                   color: Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.3
-                  ),
+                  fontSize: 14.3),
               decoration: const InputDecoration(
                 hintStyle:
                     TextStyle(fontWeight: FontWeight.normal, fontSize: 14),

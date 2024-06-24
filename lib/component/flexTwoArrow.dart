@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class FlexTwoArrow extends StatefulWidget {
-  const FlexTwoArrow({super.key, required this.title});
   final title;
+  final textData;
+  const FlexTwoArrow({super.key, required this.title, this.textData});
   @override
   State<FlexTwoArrow> createState() => _FlexTwoArrowState();
 }
@@ -37,11 +38,23 @@ class _FlexTwoArrowState extends State<FlexTwoArrow> {
             "${widget.title}",
             style: const TextStyle(color: Color.fromARGB(255, 116, 113, 113)),
           ),
-          const Icon(
-            Icons.arrow_forward_ios,
-           color: Colors.grey,
-            size: 18,
-          ),
+          widget.textData == null
+              ? const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey,
+                  size: 18,
+                )
+              : Container(
+                  width: 250,
+                  child: Text(
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    "${widget.textData}",
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 8, 8, 8),
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
         ],
       ),
     );

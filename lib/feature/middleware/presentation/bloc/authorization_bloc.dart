@@ -16,12 +16,11 @@ class AuthorizationBloc extends Bloc<AuthorizationEvent, AuthorizationState> {
       // on submit to sap
       if (event is RequestLoginOnlineEvent) {
         final response = await useCase.call(event.entity);
-        response.fold((error) {
+        await response.fold((error) {
           emit(RequestLoginFailedState(message: error.message));
         }, (success) async {
           await LocalStorageManger.removeString('SessionId');
           await LocalStorageManger.setString('SessionId', success);
-
           emit(AuthorizationSuccess());
         });
       }

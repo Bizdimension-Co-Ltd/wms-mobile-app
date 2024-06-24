@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
-import 'package:wms_mobile/feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
-import 'package:wms_mobile/purchase/direct_put_away/directPutAwayList.dart';
-import 'package:wms_mobile/purchase/purchase_order/purchaseOrderListScreen.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_List.dart';
+import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderListScreen.dart';
 
 import '../constant/style.dart';
 
@@ -85,33 +84,6 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
                                   builder: (context) =>
                                       const PurchaseOrderListScreen(
                                         title: 'Purchase Order',
-                                      )),
-                            );
-                          } else if (index == 1) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const GoodReceiptListScreen(
-                                        title: 'Good Receipt',
-                                      )),
-                            );
-                          } else if (index == 2) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const GoodReceiptListScreen(
-                                        title: 'Good Receipt PO',
-                                      )),
-                            );
-                          } else if (index == 3) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const GoodReceiptListScreen(
-                                        title: 'Direct Put Away',
                                       )),
                             );
                           }
