@@ -21,10 +21,15 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
   final DioClient dio = DioClient();
   int check = 0;
   Map<String, dynamic> data = {};
+  List<dynamic> _seriesList = [];
+  List<dynamic> _employee = [];
+  List<dynamic> _grTypeList = [];
+  List<dynamic> _binLocationList = [];
   Future<void> getById() async {
     try {
       final response =
           await dio.get('/InventoryGenEntries(${widget.giById["DocEntry"]})');
+      await getLabelApi();
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -38,6 +43,56 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
     } on Failure {
       rethrow;
     }
+  }
+
+  Future<void> getLabelApi() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '59'},
+    };
+    await dio
+        .post('/SeriesService_GetDocumentSeries', data: payload)
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _seriesList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/EmployeesInfo?\$select=EmployeeID,LastName,FirstName')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _employee.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/TL_OGIN?\$select=Name,Code')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _grTypeList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/BIZ_BIN_QUERY?\$select=BinCode,BinID')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _binLocationList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
   }
 
   @override
@@ -326,7 +381,13 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
             )
           : Stack(
               children: [
-                General(gHeader: widget.giById),
+                General(
+                  gHeader: data,
+                  grTypeList: _grTypeList,
+                  employee: _employee,
+                  seriesList: _seriesList,
+                  binlocationList: _binLocationList
+                ),
                 Positioned(
                     bottom: 30,
                     right: 30,
@@ -336,9 +397,12 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
                           context,
                           MaterialPageRoute(
                               builder: (context) => GoodReceiptCreateScreen(
-                                    id: true,
-                                    dataById: data,
-                                  )),
+                                  id: true,
+                                  dataById: data,
+                                  seriesList: _seriesList,
+                                  listIssueType: _grTypeList,
+                                  employeeList: _employee,
+                                  binlocationList: _binLocationList)),
                         );
                       },
                       child: Container(

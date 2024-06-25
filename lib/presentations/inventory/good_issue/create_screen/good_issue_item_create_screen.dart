@@ -8,8 +8,12 @@ import 'package:wms_mobile/presentations/inventory/good_Issue/component/binlocat
 
 class GoodIssueItemCreateScreen extends StatefulWidget {
   GoodIssueItemCreateScreen(
-      {super.key, required this.updateItem, required this.ind});
+      {super.key,
+      required this.updateItem,
+      required this.ind,
+      required this.binList});
   Map<String, dynamic> updateItem;
+  List<dynamic> binList;
   final int ind;
   @override
   State<GoodIssueItemCreateScreen> createState() =>
@@ -45,7 +49,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
         widget.updateItem["DocumentLinesBinAllocations"].isNotEmpty) {
       var firstAllocation = widget.updateItem["DocumentLinesBinAllocations"][0];
       _uoMCode["quantity"] = firstAllocation?["Quantity"] ?? "0";
-      _binLocation["value"] = firstAllocation?["BinAbsEntry"].toString() ?? "";
+      _binLocation["value"] = firstAllocation?["BinAbsEntry"];
       _binLocation["allowNegativeQuantity"] =
           firstAllocation?["AllowNegativeQuantity"] ?? "";
       _binLocation["serialAndBatchNumbersBaseLine"] =
@@ -55,6 +59,17 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
       _binLocation["value"] = "";
       _binLocation["allowNegativeQuantity"] = "";
       _binLocation["serialAndBatchNumbersBaseLine"] = "";
+    }
+    if (_binLocation["value"] != null || _binLocation["value"] != "") {
+      var bin = widget.binList.firstWhere(
+        (e) => e["BinID"] == _binLocation["value"],
+        orElse: () => null,
+      );
+      if (bin == null) {
+        _binLocation["name"] = null;
+      } else {
+        _binLocation["name"] = bin["BinCode"];
+      }
     }
   }
 
@@ -74,7 +89,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
               "ItemCode": _itemCode.text,
               "ItemDescription": _itemDesc.text,
               "Quantity": _quantity.text,
-               "UnitPrice": widget.updateItem["UnitPrice"],
+              "UnitPrice": widget.updateItem["UnitPrice"],
               "WarehouseCode": _warehouse["value"],
               "UoMCode": _uoMCode["name"],
               "UoMEntry": _uoMCode["value"],
@@ -85,7 +100,6 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
               "DocumentLinesBinAllocations": [
                 {
                   "Quantity": _uoMCode["quantity"],
-                 
                   "BinAbsEntry": _binLocation["value"],
                   "BaseLineNumber": widget.ind,
                   "AllowNegativeQuantity":
@@ -120,9 +134,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
               height: 30,
             ),
             GestureDetector(
-              onTap: () {
-                print(widget.updateItem);
-              },
+              onTap: () {},
               child: TextFlexTwo(
                 title: "Item Code",
                 textData: _itemCode,
@@ -149,7 +161,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
               },
               child: FlexTwoArrowWithText(
                 title: "Bin Location",
-                textData: _binLocation["name"] ?? _binLocation["value"],
+                textData: _binLocation["name"],
                 simple: FontWeight.normal,
                 req: "true",
               ),
@@ -208,6 +220,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
 
   num indexWarehouseSeleted = -1;
   Future<void> _navigateWarehouseSelect(BuildContext context) async {
+    return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -235,7 +248,7 @@ class _GoodIssueItemCreateScreenState extends State<GoodIssueItemCreateScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => BinlocationSelect(
-            itemCode: widget.updateItem["ItemCode"],
+                itemCode: widget.updateItem["ItemCode"],
                 indBack: indexBINSeleted,
                 whCode: widget.updateItem["WarehouseCode"],
                 // branchId: _branch["value"],

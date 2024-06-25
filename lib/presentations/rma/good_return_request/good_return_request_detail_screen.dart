@@ -5,12 +5,14 @@ import 'package:wms_mobile/presentations/rma/good_return_request/component/conte
 import 'package:wms_mobile/presentations/rma/good_return_request/component/header.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/component/logistics.dart';
 import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_create_screen.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 /// Flutter code sample for [TabBar].
 
 class GoodReturnRequestDetailScreens extends StatefulWidget {
   final Map<String, dynamic> goodReturnReqById;
-  const GoodReturnRequestDetailScreens({super.key, required this.goodReturnReqById});
+  const GoodReturnRequestDetailScreens(
+      {super.key, required this.goodReturnReqById});
   @override
   State<GoodReturnRequestDetailScreens> createState() =>
       _GoodReturnRequestDetailScreensState();
@@ -19,6 +21,46 @@ class GoodReturnRequestDetailScreens extends StatefulWidget {
 class _GoodReturnRequestDetailScreensState
     extends State<GoodReturnRequestDetailScreens>
     with TickerProviderStateMixin {
+  final DioClient dio = DioClient();
+  final List<dynamic> _seriesList = [];
+  final List<dynamic> _paymentTermList = [];
+  int check = 0;
+  void init() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '1250000025', "DocumentSubType": "S"},
+    };
+    await dio
+        .post('/SeriesService_GetDocumentSeries', data: payload)
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _seriesList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/PaymentTermsTypes?\$select=PaymentTermsGroupName,GroupNumber')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _paymentTermList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    check = 1;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
+
   TabBar get _tabBar => const TabBar(
         indicatorColor: Color.fromARGB(255, 17, 18, 48),
         unselectedLabelStyle: TextStyle(fontWeight: null),
@@ -351,61 +393,70 @@ class _GoodReturnRequestDetailScreensState
             ),
           ),
         ),
-        body: Stack(
-          children: [
-            TabBarView(
-              // controller: _tabController,
-              children: <Widget>[
-                HeaderScreen(
-                  grrHeader: widget.goodReturnReqById,
+        body: check == 0
+            ? const Center(
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 2.5,
                 ),
-                ContentScreen(
-                  grrContent: widget.goodReturnReqById,
-                ),
-                LogisticScreen(
-                    grrLogistic: widget.goodReturnReqById,
-                ),
-                AccountScreen(
-                  grrAccount: widget.goodReturnReqById,
-                )
-              ],
-            ),
-            Positioned(
-                bottom: 30,
-                right: 30,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GoodReturnRequestCreateScreen(
-                                dataById: widget.goodReturnReqById,
-                                id:true
-                              )),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color.fromARGB(255, 111, 115, 119),
-                            blurRadius: 10,
-                            offset: Offset(2, 5), // Shadow position
-                          ),
-                        ],
-                        color: const Color.fromARGB(255, 17, 18, 48),
-                        borderRadius: BorderRadius.circular(100.0)),
-                    width: 60,
-                    height: 60,
-                    child: Center(
-                        child: SvgPicture.asset(
-                      "images/svg/edit.svg",
-                      color: Colors.white,
-                    )),
+              )
+            : Stack(
+                children: [
+                  TabBarView(
+                    // controller: _tabController,
+                    children: <Widget>[
+                      HeaderScreen(
+                        seriesList: _seriesList,
+                        grrHeader: widget.goodReturnReqById,
+                      ),
+                      ContentScreen(
+                        grrContent: widget.goodReturnReqById,
+                      ),
+                      LogisticScreen(
+                        grrLogistic: widget.goodReturnReqById,
+                      ),
+                      AccountScreen(
+                        paymentTermList: _paymentTermList,
+                        grrAccount: widget.goodReturnReqById,
+                      )
+                    ],
                   ),
-                ))
-          ],
-        ),
+                  Positioned(
+                      bottom: 30,
+                      right: 30,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    GoodReturnRequestCreateScreen(
+                                        dataById: widget.goodReturnReqById,
+                                        id: true,
+                                        seriesList: _seriesList)),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromARGB(255, 111, 115, 119),
+                                  blurRadius: 10,
+                                  offset: Offset(2, 5), // Shadow position
+                                ),
+                              ],
+                              color: const Color.fromARGB(255, 17, 18, 48),
+                              borderRadius: BorderRadius.circular(100.0)),
+                          width: 60,
+                          height: 60,
+                          child: Center(
+                              child: SvgPicture.asset(
+                            "images/svg/edit.svg",
+                            color: Colors.white,
+                          )),
+                        ),
+                      ))
+                ],
+              ),
       ),
     );
   }

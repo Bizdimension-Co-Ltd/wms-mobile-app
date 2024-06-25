@@ -184,7 +184,7 @@ class _ListItemsState extends State<ListItems> {
                       height: 11,
                     ),
                     Text(
-                      "${widget.item["WarehouseCode"] ?? ""} - WH03 - KST01",
+                     "Wh - ${widget.item["WarehouseCode"] == "" || widget.item["WarehouseCode"] == null ? "N/A" : widget.item["WarehouseCode"] ?? "N/A"}",
                       style: TextStyle(
                           fontSize: 14, color: Color.fromARGB(255, 72, 72, 81)),
                     ),

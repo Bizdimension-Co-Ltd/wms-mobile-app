@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/component/good_issue_item_detail_screen.dart';
-import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodIssueListItemDetailScreen extends StatefulWidget {
-  GoodIssueListItemDetailScreen({super.key, required this.itemList});
+  GoodIssueListItemDetailScreen(
+      {super.key, required this.itemList, required this.binList});
   Map<String, dynamic> itemList;
+  List<dynamic> binList;
   @override
   State<GoodIssueListItemDetailScreen> createState() =>
       _GoodIssueListItemDetailScreenState();
@@ -37,7 +38,7 @@ class _GoodIssueListItemDetailScreenState
           ),
         ],
       ),
-      body:  Container(
+      body: Container(
         color: const Color.fromARGB(255, 236, 233, 233),
         height: double.infinity,
         width: double.infinity,
@@ -52,8 +53,8 @@ class _GoodIssueListItemDetailScreenState
                     context,
                     MaterialPageRoute(
                         builder: (context) => GoodIssueItemDetailScreen(
-                            itemDetail: widget.itemList["DocumentLines"]
-                                [index])),
+                            itemDetail: widget.itemList["DocumentLines"][index],
+                            binList: widget.binList)),
                   );
                 },
                 child: Container(
@@ -121,7 +122,7 @@ class _GoodIssueListItemDetailScreenState
                                                   255, 106, 103, 103)),
                                         ),
                                         Text(
-                                          "${widget.itemList["DocumentLines"][index]["WarehouseCode"]} - WH03-KST01",
+                                          "Wh - ${widget.itemList["DocumentLines"][index]["WarehouseCode"]}",
                                           style: TextStyle(
                                               color: Color.fromARGB(
                                                   255, 106, 103, 103)),
@@ -147,7 +148,6 @@ class _GoodIssueListItemDetailScreenState
               );
             }),
       ),
-      
     );
   }
 }

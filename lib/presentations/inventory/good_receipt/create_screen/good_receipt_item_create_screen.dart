@@ -9,9 +9,14 @@ import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCo
 
 class GoodReceiptItemCreateScreen extends StatefulWidget {
   GoodReceiptItemCreateScreen(
-      {super.key, required this.updateItem, required this.ind});
+      {super.key,
+      required this.updateItem,
+      required this.ind,
+      required this.binList});
   Map<String, dynamic> updateItem;
+  List<dynamic> binList;
   final int ind;
+
   @override
   State<GoodReceiptItemCreateScreen> createState() =>
       _GoodReceiptItemCreateScreenState();
@@ -49,7 +54,7 @@ class _GoodReceiptItemCreateScreenState
         widget.updateItem["DocumentLinesBinAllocations"].isNotEmpty) {
       var firstAllocation = widget.updateItem["DocumentLinesBinAllocations"][0];
       _uoMCode["quantity"] = firstAllocation?["Quantity"] ?? "0";
-      _binLocation["value"] = firstAllocation?["BinAbsEntry"].toString() ?? "";
+      _binLocation["value"] = firstAllocation?["BinAbsEntry"];
       _binLocation["allowNegativeQuantity"] =
           firstAllocation?["AllowNegativeQuantity"] ?? "";
       _binLocation["serialAndBatchNumbersBaseLine"] =
@@ -60,6 +65,16 @@ class _GoodReceiptItemCreateScreenState
       _binLocation["allowNegativeQuantity"] = "";
       _binLocation["serialAndBatchNumbersBaseLine"] = "";
     }
+    var bin = widget.binList.firstWhere(
+      (e) => e["BinID"] == _binLocation["value"],
+      orElse: () => null,
+    );
+    if (bin == null) {
+      _binLocation["name"] = null;
+    } else {
+      _binLocation["name"] = bin["BinCode"];
+    }
+   
   }
 
   void initState() {
@@ -147,7 +162,7 @@ class _GoodReceiptItemCreateScreenState
               },
               child: FlexTwoArrowWithText(
                 title: "Bin Location",
-                textData: _binLocation["name"] ?? _binLocation["value"],
+                textData: _binLocation["name"],
                 simple: FontWeight.normal,
                 req: "true",
               ),
@@ -211,6 +226,7 @@ class _GoodReceiptItemCreateScreenState
 
   num indexWarehouseSeleted = -1;
   Future<void> _navigateWarehouseSelect(BuildContext context) async {
+    return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(

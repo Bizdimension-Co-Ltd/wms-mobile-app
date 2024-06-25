@@ -6,8 +6,9 @@ import 'package:wms_mobile/utilies/formart.dart';
 
 class HeaderScreen extends StatefulWidget {
   final Map<String, dynamic> poHeader;
-
-  const HeaderScreen({super.key, required this.poHeader});
+  final List<dynamic> seriesList;
+  const HeaderScreen(
+      {super.key, required this.poHeader, required this.seriesList});
   @override
   State<HeaderScreen> createState() => _HeaderScreenState();
 }
@@ -186,7 +187,13 @@ class _HeaderScreenState extends State<HeaderScreen> {
           GestureDetector(
             child: FlexTwo(
               title: "Series",
-              values: widget.poHeader["Series"] ?? "",
+              values: (() {
+                var value = widget.seriesList.firstWhere(
+                  (e) => e["Series"] == widget.poHeader["Series"],
+                  orElse: () => null,
+                );
+                return value != null ? value["Name"] : "";
+              })(),
             ),
           ),
           FlexTwo(

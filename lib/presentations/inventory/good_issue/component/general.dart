@@ -5,7 +5,17 @@ import 'package:wms_mobile/utilies/formart.dart';
 
 class General extends StatefulWidget {
   final Map<String, dynamic> gHeader;
-  const General({super.key, required this.gHeader});
+  final List<dynamic> seriesList;
+  final List<dynamic> employee;
+  final List<dynamic> giTypeList;
+  final List<dynamic> binlocationList;
+  const General(
+      {super.key,
+      required this.gHeader,
+      required this.seriesList,
+      required this.employee,
+      required this.giTypeList,
+      required this.binlocationList});
 
   @override
   State<General> createState() => _GeneralState();
@@ -21,12 +31,14 @@ class _GeneralState extends State<General> {
       child: ListView(
         children: [
           GestureDetector(
-            onTap: ()=>  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GoodIssueListItemDetailScreen(
-                            itemList: widget.gHeader)),
-                  ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => GoodIssueListItemDetailScreen(
+                        itemList: widget.gHeader,
+                        binList: widget.binlocationList,
+                      )),
+            ),
             child: Container(
               margin: const EdgeInsets.fromLTRB(0, 20, 0, 30),
               decoration: const BoxDecoration(
@@ -100,15 +112,29 @@ class _GeneralState extends State<General> {
           ),
           FlexTwo(
             title: "Series",
-            values: widget.gHeader["Series"],
+            values: (() {
+              var value = widget.seriesList.firstWhere(
+                (e) => e["Series"] == widget.gHeader["Series"],
+                orElse: () => null,
+              );
+              return value != null ? value["Name"] : "";
+            })(),
           ),
           FlexTwo(
             title: "Document Number",
             values: widget.gHeader["DocNum"],
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Employee No",
-            values: widget.gHeader["U_tl_grempl"] ?? "",
+            values: (() {
+              var value = widget.employee.firstWhere(
+                (e) => e["EmployeeID"] == widget.gHeader["U_tl_grempl"],
+                orElse: () => null,
+              );
+              return value != null
+                  ? value["FirstName"] + ' ' + value["LastName"]
+                  : "";
+            })(),
           ),
           FlexTwo(
             title: "Transportation No",
@@ -139,7 +165,13 @@ class _GeneralState extends State<General> {
           ),
           FlexTwo(
             title: "Good Issue Type",
-            values: widget.gHeader["U_tl_gitype"] ??"",
+            values: (() {
+              var value = widget.giTypeList.firstWhere(
+                (e) => e["Code"] == widget.gHeader["U_tl_gitype"],
+                orElse: () => null,
+              );
+              return value != null ? value["Name"] : "";
+            })(),
           ),
           SizedBox(
             height: 30,

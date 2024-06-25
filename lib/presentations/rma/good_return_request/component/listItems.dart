@@ -51,7 +51,7 @@ class _ListItemsState extends State<ListItems> {
                   Container(
                     margin: const EdgeInsets.fromLTRB(13, 7, 0, 9),
                     child: Text(
-                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"] ?? ""}",
+                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"] ?? "N/A"}",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
@@ -59,7 +59,7 @@ class _ListItemsState extends State<ListItems> {
                   Container(
                       margin: const EdgeInsets.only(left: 13),
                       child: Text(
-                        "${widget.item["ItemCode"]}",
+                        "${widget.item["ItemCode"] ?? "N/A"}",
                         style: TextStyle(fontSize: 14.5, color: Colors.grey),
                       )),
                   Row(
@@ -184,7 +184,7 @@ class _ListItemsState extends State<ListItems> {
                       height: 11,
                     ),
                     Text(
-                      "${widget.item["WarehouseCode"] ?? "N/A"} - WH03 - KST01",
+                      "Wh - ${widget.item["WarehouseCode"]=="" || widget.item["WarehouseCode"]==null ? "N/A": widget.item["WarehouseCode"]}",
                       style: TextStyle(
                           fontSize: 14, color: Color.fromARGB(255, 72, 72, 81)),
                     ),

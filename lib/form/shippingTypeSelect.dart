@@ -3,58 +3,33 @@ import 'package:wms_mobile/component/listItemDrop.dart';
 import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
-class BranchSelect extends StatefulWidget {
-  const BranchSelect({Key? key, this.indBack})
+class ShippingTypes extends StatefulWidget {
+  const ShippingTypes({Key? key, this.indBack})
       : super(
           key: key,
         );
   final indBack;
   @override
-  State<BranchSelect> createState() => _BranchSelectState();
+  State<ShippingTypes> createState() => _ShippingTypesState();
 }
 
-class _BranchSelectState extends State<BranchSelect> {
+class _ShippingTypesState extends State<ShippingTypes> {
   int a = 1;
   int selectedRadio = -1;
   final DioClient dio = DioClient();
   int check = 0;
   List<dynamic> data = [];
-  List<dynamic> branchAss = [];
-  Future<void> getUser() async {
-    try {
-      final response = await dio.get('/UsersService_GetCurrentUser');
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            branchAss.addAll(response.data["UserBranchAssignment"]);
-            // print(response.data["UserBranchAssignment"]);
-          });
-        }
-      } else {
-        throw ServerFailure(message: response.data['msg']);
-      }
-    } on Failure {
-      rethrow;
-    }
-  }
 
   Future<void> getList() async {
     try {
-      await getUser();
-      final response = await dio.get('/BusinessPlaces', query: {
-        '\$select': "BPLID,BPLName",
-      });
+      final response = await dio.get('/ShippingTypes');
 
       if (response.statusCode == 200) {
         if (mounted) {
-          if (branchAss.isNotEmpty) {
-            setState(() {
-              check = 1;
-              data = response.data['value']
-                  .where((b) => branchAss.any((a) => a["BPLID"] == b["BPLID"]))
-                  .toList();
-            });
-          }
+          setState(() {
+            check = 1;
+            data = response.data['value'] ?? [];
+          });
         }
       } else {
         throw ServerFailure(message: response.data['msg']);
@@ -81,7 +56,7 @@ class _BranchSelectState extends State<BranchSelect> {
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
         title: const Text(
-          'Branch',
+          'Shipping Type',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         actions: const [
@@ -129,7 +104,7 @@ class _BranchSelectState extends State<BranchSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["BPLName"] ?? "",
+                                desc: data[index]["Name"] ?? "",
                                 code: "");
                           },
                         ),
@@ -149,9 +124,8 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["BPLName"],
-                      "value": data[selectedRadio]["BPLID"],
-                      "defaultWH": data[selectedRadio]["DefaultWarehouseID"],
+                      "name": data[selectedRadio]["Name"],
+                      "value": data[selectedRadio]["Code"],
                       "index": selectedRadio
                     };
                     if (selectedRadio != -1) {

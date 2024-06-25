@@ -26,11 +26,11 @@ class _LogisticScreenState extends State<LogisticScreen> {
           ),
           FlexTwo(
             title: "Ship To",
-            values:  "${widget.poLogistics["AddressExtension"]["ShipToStreet"] ?? ""}",
+            values:  "${widget.poLogistics["Address2"] ?? ""}",
           ),
           FlexTwo(
             title: "Bill To",
-            values:  "${widget.poLogistics["AddressExtension"]["BillToStreet"] ?? ""}",
+            values:  "${widget.poLogistics["Address"] ?? ""}",
           ),
         ],
       ),

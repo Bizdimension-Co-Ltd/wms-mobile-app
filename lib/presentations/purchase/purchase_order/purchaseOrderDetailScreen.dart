@@ -9,6 +9,7 @@ import 'package:wms_mobile/presentations/purchase/purchase_order/component/heade
 import 'package:wms_mobile/presentations/purchase/purchase_order/component/logistics.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderCreateScreen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 const borderStyle = BoxDecoration(
   color: Color.fromARGB(255, 255, 255, 255),
@@ -48,12 +49,45 @@ class PurchaseOrderDetailScreen extends StatefulWidget {
 class _PurchaseOrderDetailScreenState extends State<PurchaseOrderDetailScreen>
     with TickerProviderStateMixin {
   // late final TabController _tabController;
+  final DioClient dio = DioClient();
+  final List<dynamic> _seriesList = [];
+  final List<dynamic> _paymentTermList = [];
+  int check = 0;
+  void init() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '22'},
+    };
+    await dio
+        .post('/SeriesService_GetDocumentSeries', data: payload)
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _seriesList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/PaymentTermsTypes?\$select=PaymentTermsGroupName,GroupNumber')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _paymentTermList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    check = 1;
+  }
 
   @override
-  // void initState() {
-  //   super.initState();
-  //   _tabController = TabController(length: 4, vsync: this);
-  // }
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
 
   @override
   // void dispose() {
@@ -150,15 +184,25 @@ class _PurchaseOrderDetailScreenState extends State<PurchaseOrderDetailScreen>
             ),
           ),
         ),
-        body: TabBarView(
-          // controller: _tabController,
-          children: <Widget>[
-            HeaderScreen(poHeader: widget.purchaseOrderById),
-            ContentScreen(poContent: widget.purchaseOrderById),
-            LogisticScreen(poLogistics: widget.purchaseOrderById),
-            AccountScreen(poAccount: widget.purchaseOrderById)
-          ],
-        ),
+        body: check == 0
+            ? const Center(
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 2.5,
+                ),
+              )
+            : TabBarView(
+                // controller: _tabController,
+                children: <Widget>[
+                  HeaderScreen(
+                      seriesList: _seriesList,
+                      poHeader: widget.purchaseOrderById),
+                  ContentScreen(poContent: widget.purchaseOrderById),
+                  LogisticScreen(poLogistics: widget.purchaseOrderById),
+                  AccountScreen(
+                      paymentTermList: _paymentTermList,
+                      poAccount: widget.purchaseOrderById)
+                ],
+              ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: PRIMARY_COLOR,
           onPressed: () => createDocument(),
@@ -172,7 +216,6 @@ class _PurchaseOrderDetailScreenState extends State<PurchaseOrderDetailScreen>
   }
 
   Future<void> createDocument() async {
-   
     if (mounted) MaterialDialog.loading(context, barrierDismissible: false);
     // await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
@@ -180,7 +223,10 @@ class _PurchaseOrderDetailScreenState extends State<PurchaseOrderDetailScreen>
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>  PurchaseOrderCreateScreen(id:true,dataById:widget.purchaseOrderById)),
+            builder: (context) => PurchaseOrderCreateScreen(
+              seriesList:_seriesList,
+              paymentTermList:_paymentTermList,
+                id: true, dataById: widget.purchaseOrderById)),
       );
       // MaterialDialog.success(context,
       //     title: 'Oop', body: 'Internal Error Occur(1)');

@@ -19,7 +19,7 @@ class _PurchaseOrderItemCreateScreenState
   final _itemDesc = TextEditingController();
   final _quantity = TextEditingController();
   final _unitPrice = TextEditingController();
-  final _crossPrice = TextEditingController();
+  final _grossPrice = TextEditingController();
   final _itemPerUnit = TextEditingController();
   final _unitOfMeas = TextEditingController();
   Map<String, dynamic> _warehouse = {};
@@ -29,7 +29,7 @@ class _PurchaseOrderItemCreateScreenState
     _itemDesc.text = widget.updateItem["ItemDescription"] ?? widget.updateItem["ItemName"] ?? "";
     _quantity.text =(widget.updateItem["Quantity"])?.toString() ?? "0";
 _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
-    _crossPrice.text = widget.updateItem["CrossPrice"]?.toString() ?? "";
+    _grossPrice.text = widget.updateItem["GrossPrice"]?.toString() ?? "";
     _itemPerUnit.text = widget.updateItem["ItemPerUnit"]?.toString() ?? "";
     _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
     _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"]?.toString() ?? "";
@@ -53,7 +53,7 @@ _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
               "Quantity": _quantity.text,
               "WarehouseCode": _warehouse["value"],
               "UnitPrice": _unitPrice.text,
-              "GrossPrice": _crossPrice.text,
+              "GrossPrice": _grossPrice.text,
               "UnitsOfMeasurment": _unitOfMeas.text
             });
           },
@@ -87,9 +87,9 @@ _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
               textData: _itemDesc,
             ),
             GestureDetector(
-              onTap: () {
-                _navigateWarehouseSelect(context);
-              },
+              // onTap: () {
+              //   _navigateWarehouseSelect(context);
+              // },
               child: FlexTwoArrowWithText(
                 title: "Warehouse",
                 textData: _warehouse["name"] ?? _warehouse["value"],
@@ -108,7 +108,7 @@ _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
             ),
             TextFlexTwo(
               title: "Gross Price",
-              textData: _crossPrice,
+              textData: _grossPrice,
             ),
             SizedBox(
               height: 30,
