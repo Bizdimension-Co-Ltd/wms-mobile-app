@@ -8,13 +8,16 @@ class FlexTwoArrowWithText extends StatefulWidget {
       this.textColor,
       this.simple,
       this.req,
-      this.requried});
+      this.requried,
+      this.disable
+      });
   final title;
   final textData;
   final Color? textColor;
   final FontWeight? simple;
   final req;
   final requried;
+   final disable;
   @override
   State<FlexTwoArrowWithText> createState() => _FlexTwoArrowWithTextState();
 }
@@ -76,9 +79,9 @@ class _FlexTwoArrowWithTextState extends State<FlexTwoArrowWithText> {
                     children: [
                       TextSpan(
                         text: widget.textData,
-                        style: const TextStyle(
+                        style:  TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color:widget.disable == "true"? Color.fromARGB(255, 176, 179, 181): Color.fromARGB(255, 0, 0, 0),
                             fontSize: 12),
                       ),
                       if (widget.textData == null)

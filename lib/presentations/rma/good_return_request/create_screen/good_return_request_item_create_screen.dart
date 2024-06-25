@@ -26,10 +26,10 @@ class _PurchaseOrderItemCreateScreenState
   @override
   void init() async {
     _itemCode.text = widget.updateItem["ItemCode"] ?? "";
-    _itemDesc.text = widget.updateItem["ItemDescription"] ?? "";
+    _itemDesc.text = widget.updateItem["ItemDescription"] ?? widget.updateItem["ItemName"] ?? "";
     _quantity.text = widget.updateItem["Quantity"]?.toString() ?? "";
     _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
-    _crossPrice.text = widget.updateItem["CrossPrice"]?.toString() ?? "";
+    _crossPrice.text = widget.updateItem["GrossPrice"]?.toString() ?? "";
     _itemPerUnit.text = widget.updateItem["ItemPerUnit"]?.toString() ?? "";
     _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
     _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"]?.toString() ?? "";
@@ -87,9 +87,9 @@ class _PurchaseOrderItemCreateScreenState
               textData: _itemDesc,
             ),
             GestureDetector(
-              onTap: () {
-                _navigateWarehouseSelect(context);
-              },
+              // onTap: () {
+              //   _navigateWarehouseSelect(context);
+              // },
               child: FlexTwoArrowWithText(
                 title: "Warehouse",
                 textData: _warehouse["name"] ?? _warehouse["value"],

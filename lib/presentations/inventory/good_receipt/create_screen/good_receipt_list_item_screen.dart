@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/inventory/good_Receipt/component/itemsSelect.dart';
 import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_item_create_screen.dart';
-import 'package:wms_mobile/presentations/rma/good_return_request/component/listItems.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/component/listItems.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodReceiptListItemsScreen extends StatefulWidget {
-  GoodReceiptListItemsScreen({super.key, required this.dataFromPrev});
+  GoodReceiptListItemsScreen(
+      {super.key, required this.dataFromPrev, required this.binList});
   List<dynamic> dataFromPrev;
+  List<dynamic> binList;
 
   @override
   State<GoodReceiptListItemsScreen> createState() =>
       _GoodReceiptListItemsScreenState();
 }
 
-class _GoodReceiptListItemsScreenState extends State<GoodReceiptListItemsScreen> {
+class _GoodReceiptListItemsScreenState
+    extends State<GoodReceiptListItemsScreen> {
   List<dynamic> selectedItems = [];
-      final _quantity = TextEditingController();
+  final _quantity = TextEditingController();
 
   @override
   void initState() {
@@ -105,14 +108,14 @@ class _GoodReceiptListItemsScreenState extends State<GoodReceiptListItemsScreen>
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                      onTap: () async {
+                    onTap: () async {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              GoodReceiptItemCreateScreen(
-                                  updateItem: selectedItems[index],
-                                  ind:index
+                          builder: (context) => GoodReceiptItemCreateScreen(
+                            binList: widget.binList,
+                            updateItem: selectedItems[index],
+                            ind: index,
                           ),
                         ),
                       );

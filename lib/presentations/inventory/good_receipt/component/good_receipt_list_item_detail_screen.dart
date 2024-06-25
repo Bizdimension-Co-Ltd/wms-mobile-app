@@ -5,8 +5,9 @@ import 'package:wms_mobile/presentations/inventory/good_Receipt/component/good_R
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodReceiptListItemDetailScreen extends StatefulWidget {
-  GoodReceiptListItemDetailScreen({super.key, required this.itemList});
+  GoodReceiptListItemDetailScreen({super.key, required this.itemList, required this.binList});
   Map<String, dynamic> itemList;
+  List<dynamic> binList;
   @override
   State<GoodReceiptListItemDetailScreen> createState() =>
       _GoodReceiptListItemDetailScreenState();
@@ -37,7 +38,7 @@ class _GoodReceiptListItemDetailScreenState
           ),
         ],
       ),
-      body:  Container(
+      body: Container(
         color: const Color.fromARGB(255, 236, 233, 233),
         height: double.infinity,
         width: double.infinity,
@@ -53,7 +54,9 @@ class _GoodReceiptListItemDetailScreenState
                     MaterialPageRoute(
                         builder: (context) => GoodReceiptItemDetailScreen(
                             itemDetail: widget.itemList["DocumentLines"]
-                                [index])),
+                                [index],
+                                binList:widget.binList
+                                )),
                   );
                 },
                 child: Container(
@@ -121,7 +124,7 @@ class _GoodReceiptListItemDetailScreenState
                                                   255, 106, 103, 103)),
                                         ),
                                         Text(
-                                          "${widget.itemList["DocumentLines"][index]["WarehouseCode"]} - WH03-KST01",
+                                          "Wh - ${widget.itemList["DocumentLines"][index]["WarehouseCode"]}",
                                           style: TextStyle(
                                               color: Color.fromARGB(
                                                   255, 106, 103, 103)),
@@ -147,7 +150,6 @@ class _GoodReceiptListItemDetailScreenState
               );
             }),
       ),
-      
     );
   }
 }

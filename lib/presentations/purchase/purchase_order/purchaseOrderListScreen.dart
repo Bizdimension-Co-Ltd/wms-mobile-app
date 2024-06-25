@@ -217,7 +217,7 @@ class _PurchaseOrderListScreenState extends State<PurchaseOrderListScreen> {
        Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>  PurchaseOrderCreateScreen(dataById: {},id: false,)),
+            builder: (context) =>  PurchaseOrderCreateScreen(dataById: {},id: false, paymentTermList: [], seriesList: [],)),
       );
       // MaterialDialog.success(context,
       //     title: 'Oop', body: 'Internal Error Occur(1)');

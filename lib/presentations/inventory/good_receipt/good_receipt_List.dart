@@ -201,7 +201,7 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => GoodReceiptCreateScreen(id: false, dataById: {},)),
+                          builder: (context) => GoodReceiptCreateScreen(id: false, dataById: {}, seriesList: [], listIssueType: [], employeeList: [], binlocationList: [],)),
                     );
                   },
                   child: Container(

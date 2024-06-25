@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/component/itemsSelect.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/component/listItems.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_item_create_screen.dart';
-import 'package:wms_mobile/presentations/rma/good_return_request/component/listItems.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodIssueListItemsScreen extends StatefulWidget {
-  GoodIssueListItemsScreen({super.key, required this.dataFromPrev});
+  GoodIssueListItemsScreen({super.key, required this.dataFromPrev,required this.binList});
   List<dynamic> dataFromPrev;
-
+  List<dynamic> binList;
   @override
   State<GoodIssueListItemsScreen> createState() =>
       _GoodIssueListItemsScreenState();
@@ -110,6 +110,7 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => GoodIssueItemCreateScreen(
+                            binList:widget.binList,
                               updateItem: selectedItems[index], ind: index),
                         ),
                       );

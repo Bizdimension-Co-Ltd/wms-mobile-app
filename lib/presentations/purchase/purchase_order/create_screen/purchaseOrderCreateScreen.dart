@@ -5,19 +5,26 @@ import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
 import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/form/branchSelect.dart';
+import 'package:wms_mobile/form/shippingTypeSelect.dart';
 import 'package:wms_mobile/form/textFlexTwo.dart';
 import 'package:wms_mobile/form/vendorSelect.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/component/seriesListSelect.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/PurchaseOrderListItemsScreen.dart';
-import 'package:wms_mobile/presentations/purchase/purchase_order/component/purchaseOrderItemsDetailScreen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class PurchaseOrderCreateScreen extends StatefulWidget {
-  PurchaseOrderCreateScreen({super.key, this.id, required this.dataById});
+  PurchaseOrderCreateScreen(
+      {super.key,
+      this.id,
+      required this.dataById,
+      required this.paymentTermList,
+      required this.seriesList});
   // ignore: prefer_typing_uninitialized_variables
   Map<String, dynamic> dataById;
   final id;
+  List<dynamic> seriesList;
+  List<dynamic> paymentTermList;
   @override
   State<PurchaseOrderCreateScreen> createState() =>
       _PurchaseOrderCreateScreenState();
@@ -31,6 +38,8 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
   Map<String, dynamic> _branch = {};
   Map<String, dynamic> _contactPerson = {};
   Map<String, dynamic> _series = {};
+  Map<String, dynamic> _shippingType = {};
+
   DateTime? _postingDate;
   DateTime? _deliveryDate;
   DateTime? _documentDate;
@@ -55,9 +64,10 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
       "Comments": _remark.text,
       "DocDate": _postingDate.toString(),
       "DocDueDate": _deliveryDate.toString(),
-      "Taxdate": _documentDate.toString(),
+      "TaxDate": _documentDate.toString(),
       "Address2": _shipTo,
       "Address": _vendor["address"],
+      "TransportationCode": _shippingType["value"],
       "DocumentLines": selectedItems
           .map((e) => {
                 "ItemCode": e["ItemCode"],
@@ -70,6 +80,10 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
               })
           .toList()
     };
+    // setState(() {
+    //   print(payload["DocumentLines"]);
+    // });
+    // return;
     try {
       MaterialDialog.loading(context, barrierDismissible: false);
       if (widget.id) {
@@ -106,10 +120,10 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
-            check = 1;
             _series["value"] = response.data["Series"];
             _series["name"] = response.data["Name"]?.toString() ?? "";
             // series.addAll(response.data['value']);
+            check = 1;
           });
         }
       } else {
@@ -130,8 +144,15 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
 
   Future<void> init() async {
     if (widget.id) {
+      var serie = widget.seriesList
+          .firstWhere((e) => e["Series"] == widget.dataById["Series"],orElse: ()=>null);
+          if(serie == null){
+             _series["name"] = null;
+          }else{
+            _series["name"]=serie["Name"];
+          }
       setState(() {
-        _series["value"] = widget.dataById["Series"];
+        _series["value"] = widget.dataById["Series"]?.toString() ?? "";
         _vendor["cardCode"] = widget.dataById["CardCode"];
         _vendor["cardName"] = widget.dataById["CardName"];
         _supplierRefNo.text = widget.dataById["NumAtCard"];
@@ -144,7 +165,9 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
         selectedItems = widget.dataById["DocumentLines"];
         _shipTo = widget.dataById["Address2"];
         _vendor["address"] = widget.dataById["Address"];
+        _shippingType["value"] = widget.dataById["TransportationCode"];
       });
+      check = 1;
     } else {
       _postingDate = DateTime.now();
       _deliveryDate = DateTime.now();
@@ -185,9 +208,6 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => {
-                          setState(() {
-                            print(_postingDate);
-                          })
                           // Navigator.pop(context, 'Cancel'),
                         },
                         child: const Text('Save Offline Draft',
@@ -235,153 +255,165 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
           ),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: const Color.fromARGB(255, 236, 233, 233),
-        child: ListView(
-          children: [
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateSeriesSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Series",
-                  textData: _series["name"] ?? _series["value"]?? "...",
-                  textColor: Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateVendorSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Supplier",
-                  textData: _vendor["cardCode"],
-                  textColor: Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-
-            GestureDetector(
-              onTap: () {
-                _navigateContactPersonSelect(context);
-              },
-              child: FlexTwoArrow(
-                title: "Contact Person Code",
-                textData: _contactPerson["contactPerson"],
+      body: check == 0
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(
+                strokeWidth: 2.5,
               ),
-            ),
-            // const FlexTwo(
-            //   title: "Supplier Ref No.",
-            //   values: "S012",
-            // ),
-            TextFlexTwo(
-              title: "Supplier Ref No.",
-              textData: _supplierRefNo,
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateBranchSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Branch",
-                  textData: _branch["bplName"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            TextFlexTwo(
-              title: "Remark",
-              textData: _remark,
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            DatePicker(
-              title: "Posting Date",
-              restorationId: 'main_date_picker',
-              req: 'true',
-              onDateSelected: _selectPostingDate,
-              defaultValue: _postingDate,
-            ),
-            DatePicker(
-              title: "Delivery Date",
-              onDateSelected: _selectDeliveryDate,
-              defaultValue: _deliveryDate,
-            ),
-            DatePicker(
-              title: "Document Date",
-              onDateSelected: _selectDocumentDate,
-              defaultValue: _documentDate,
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PurchaseOrderListItemsScreen(
-                      dataFromPrev: selectedItems.map((e) {
-                        var newMap = Map<String, dynamic>.from(e);
-                        String? warehouseCode = _branch["defaultWH"] ??
-                            widget.dataById?["DocumentLines"]?[0]
-                                ?["WarehouseCode"] ??
-                            "";
+            )
+          : Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: const Color.fromARGB(255, 236, 233, 233),
+              child: ListView(
+                children: [
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateSeriesSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Series",
+                        textData: _series["name"] ?? "...",
+                        textColor: Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateVendorSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Supplier",
+                        textData: _vendor["cardCode"],
+                        textColor: Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
 
-                        newMap["WarehouseCode"] = warehouseCode;
-                        return newMap;
-                      }).toList(),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateContactPersonSelect(context);
+                    },
+                    child: FlexTwoArrow(
+                      title: "Contact Person",
+                      textData: _contactPerson["contactPerson"],
                     ),
                   ),
-                );
+                  // const FlexTwo(
+                  //   title: "Supplier Ref No.",
+                  //   values: "S012",
+                  // ),
+                  TextFlexTwo(
+                    title: "Supplier Ref No.",
+                    textData: _supplierRefNo,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateBranchSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Branch",
+                        textData: _branch["bplName"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  TextFlexTwo(
+                    title: "Remark",
+                    textData: _remark,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  DatePicker(
+                    title: "Posting Date",
+                    restorationId: 'main_date_picker',
+                    req: 'true',
+                    onDateSelected: _selectPostingDate,
+                    defaultValue: _postingDate,
+                  ),
+                  DatePicker(
+                    title: "Delivery Date",
+                    onDateSelected: _selectDeliveryDate,
+                    defaultValue: _deliveryDate,
+                  ),
+                  DatePicker(
+                    title: "Document Date",
+                    onDateSelected: _selectDocumentDate,
+                    defaultValue: _documentDate,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PurchaseOrderListItemsScreen(
+                            dataFromPrev: selectedItems.map((e) {
+                              var newMap = Map<String, dynamic>.from(e);
+                              String? warehouseCode = _branch["defaultWH"] ??
+                                  widget.dataById["DocumentLines"]?[0]
+                                      ?["WarehouseCode"] ??
+                                  "";
 
-                // Handle the result here
-                if (result != null) {
-                  setState(() {
-                    selectedItems = List<dynamic>.from(result);
-                  });
+                              newMap["WarehouseCode"] = warehouseCode;
+                              return newMap;
+                            }).toList(),
+                          ),
+                        ),
+                      );
 
-                  // Do something with the selected items
-                }
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Items",
-                  textData: "(${selectedItems.length.toString()})",
-                  textColor: Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
+                      // Handle the result here
+                      if (result != null) {
+                        setState(() {
+                          selectedItems = List<dynamic>.from(result);
+                        });
+
+                        // Do something with the selected items
+                      }
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Items",
+                        textData: "(${selectedItems.length.toString()})",
+                        textColor: Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  FlexTwoArrow(
+                    title: "Ship To",
+                    textData: _shipTo,
+                  ),
+                  FlexTwoArrow(
+                    title: "Pay to",
+                    textData: _vendor["address"],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateShippingTypeSelect(context);
+                    },
+                    child: FlexTwoArrow(
+                      title: "Shiping Type",
+                      textData: _shippingType["name"],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            FlexTwoArrow(
-              title: "Ship To",
-              textData: _shipTo,
-            ),
-            FlexTwoArrow(
-              title: "Pay to",
-              textData: _vendor["address"],
-            ),
-            FlexTwoArrow(
-              title: "Shiping Type",
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -503,5 +535,28 @@ class _PurchaseOrderCreateScreenState extends State<PurchaseOrderCreateScreen> {
           content: Text(_contactPerson["name"] == null
               ? "Unselected"
               : "Selected ${_contactPerson["name"]}")));
+  }
+
+  num indexShippingTypeSeleted = -1;
+  Future<void> _navigateShippingTypeSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ShippingTypes(
+                indBack: indexShippingTypeSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _shippingType = {"name": result["name"], "value": result["value"]};
+      indexShippingTypeSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_shippingType["name"] == null
+              ? "Unselected"
+              : "Selected ${_shippingType["name"]}")));
   }
 }

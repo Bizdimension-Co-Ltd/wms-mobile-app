@@ -48,14 +48,11 @@ class _GoodReturnRequestListItemsScreenState
         actions: [
           IconButton(
               onPressed: () {
-                setState(() {
-                  print(selectedItems);
-                });
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => PurchaseOrderCodeScreen()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PurchaseOrderCodeScreen()),
+                );
               },
               icon: const Icon(Icons.qr_code_scanner_outlined)),
           const SizedBox(

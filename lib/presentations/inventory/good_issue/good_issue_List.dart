@@ -201,7 +201,7 @@ class _GoodIssueListScreenState extends State<GoodIssueListScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => GoodIssueCreateScreen(id: false, dataById: {},)),
+                          builder: (context) => GoodIssueCreateScreen(id: false, dataById: {}, listIssueType: [], employeeList: [], seriesList: [], binlocationList: [],)),
                     );
                   },
                   child: Container(

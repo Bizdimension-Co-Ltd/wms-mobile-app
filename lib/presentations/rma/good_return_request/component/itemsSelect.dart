@@ -142,7 +142,6 @@ class _ItemsSelectState extends State<ItemsSelect> {
                             } else {
                               selectedItems.add(index);
                             }
-                            print(selectedItems);
                           });
                         },
                         child: Container(

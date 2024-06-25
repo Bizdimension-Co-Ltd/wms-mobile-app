@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
 import 'package:wms_mobile/form/branchSelect.dart';
@@ -14,10 +15,22 @@ import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class GoodIssueCreateScreen extends StatefulWidget {
-  GoodIssueCreateScreen({super.key, this.id, required this.dataById});
-  // ignore: prefer_typing_uninitialized_variables
   final id;
+  List<dynamic> seriesList;
+  List<dynamic> listIssueType;
+  List<dynamic> employeeList;
   Map<String, dynamic> dataById;
+  List<dynamic> binlocationList;
+  GoodIssueCreateScreen(
+      {super.key,
+      this.id,
+      required this.seriesList,
+      required this.dataById,
+      required this.listIssueType,
+      required this.employeeList,
+      required this.binlocationList});
+  // ignore: prefer_typing_uninitialized_variables
+
   @override
   State<GoodIssueCreateScreen> createState() => _GoodIssueCreateScreenState();
 }
@@ -34,6 +47,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   Map<String, dynamic> _warehouse = {};
   Map<String, dynamic> _giType = {};
   List<dynamic> selectedItems = [];
+  List<dynamic> binLocationList = [];
   final TextEditingController _remark = TextEditingController();
 
   final DioClient dio = DioClient();
@@ -139,7 +153,6 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
   }
 
   List<dynamic> series = [];
-
   Future<void> getListSeries() async {
     Map<String, dynamic> payload = {
       'DocumentTypeParams': {'Document': '60'},
@@ -150,7 +163,6 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
-            check = 1;
             series.addAll(response.data['value']);
           });
           // print(response.data["value"]);
@@ -165,24 +177,50 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
 
   Future<void> init() async {
     if (widget.id) {
+      var serie = widget.seriesList.firstWhere(
+          (e) => e["Series"] == widget.dataById["Series"],
+          orElse: () => null);
+      if (serie == null) {
+        _series["name"] = null;
+      } else {
+        _series["name"] = serie["Name"];
+      }
+      var emp = widget.employeeList.firstWhere(
+          (e) => e["EmployeeID"] == widget.dataById["U_tl_grempl"],
+          orElse: () => null);
+      if (emp == null) {
+        _employee["name"] = null;
+      } else {
+        _employee["name"] = emp["FirstName"] + ' ' + emp["LastName"];
+      }
+      var it = widget.listIssueType.firstWhere(
+          (e) => e["Code"] == widget.dataById["U_tl_gitype"],
+          orElse: () => null);
+      if (it == null) {
+        _giType["name"] = null;
+      } else {
+        _giType["name"] = it["Name"];
+      }
       setState(() {
-        _series["value"] = widget.dataById["Series"].toString();
-        _employee["value"] = widget.dataById["U_tl_grempl"]?.toString();
+        _series["value"] = widget.dataById["Series"];
+        _employee["value"] = widget.dataById["U_tl_grempl"];
         _transportationNo.text =
             widget.dataById["U_tl_grtrano"]?.toString() ?? "";
         _truckNo.text = widget.dataById["U_tl_grtruno"]?.toString() ?? "";
         _shipTo["value"] = widget.dataById["U_tl_branc"]?.toString();
         _revenueLine["value"] = widget.dataById["U_ti_revenue"]?.toString();
-        _branch["value"] =
-            widget.dataById["BPL_IDAssignedToInvoice"];
+        _branch["value"] = widget.dataById["BPL_IDAssignedToInvoice"];
         _branch["name"] = widget.dataById["BPLName"]?.toString();
         _warehouse["value"] = widget.dataById["U_tl_whsdesc"]?.toString();
         _giType["value"] = widget.dataById["U_tl_gitype"]?.toString();
         _remark.text = widget.dataById["Comments"] ?? "";
         selectedItems = widget.dataById["DocumentLines"];
       });
+      check = 1;
     }
   }
+
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -269,184 +307,196 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
           ),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: const Color.fromARGB(255, 236, 233, 233),
-        child: ListView(
-          children: [
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateSeriesSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Series",
-                  textData: _series["name"] ?? _series["value"] ?? "---",
-                  textColor: Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateEmployeeSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Employee",
-                  textData: _employee["name"] ?? _employee["value"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            TextFlexTwo(
-              title: "Transportation No",
-              textData: _transportationNo,
-              req: "true",
-            ),
-            TextFlexTwo(
-              title: "Truck No",
-              textData: _truckNo,
-              req: "true",
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateShipToSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Ship To",
-                  textData: _shipTo["name"] ?? _shipTo["value"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateRevenueLineSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Revenue Line",
-                  textData: _revenueLine["name"] ?? _revenueLine["value"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateBranchSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Branch",
-                  textData: _branch["name"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateWarehouseSelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Warehouse",
-                  textData: _warehouse["name"] ?? _warehouse["value"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            GestureDetector(
-              onTap: () {
-                _navigateGISelect(context);
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Good Issue Type",
-                  textData: _giType["name"] ?? _giType["value"],
-                  textColor: const Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            // const DatePicker(
-            //   title: "Posting Date",
-            //   req: "true",
-            // ),
-            // const DatePicker(
-            //   title: "Document Date",
-            //   req: "true",
-            // ),
-            TextFlexTwo(
-              title: "Remark",
-              textData: _remark,
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GoodIssueListItemsScreen(
-                      dataFromPrev: selectedItems.map((e) {
-                        var newMap = Map<String, dynamic>.from(e);
-                        String? warehouseCode = _warehouse["value"] ??
-                            widget.dataById?["DocumentLines"]?[0]
-                                ?["WarehouseCode"] ??
-                            "";
-
-                        newMap["WarehouseCode"] = warehouseCode;
-                        return newMap;
-                      }).toList(),
-                    ),
+      body: check == 0
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(
+                strokeWidth: 2.5,
+              ),
+            )
+          : Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: const Color.fromARGB(255, 236, 233, 233),
+              child: ListView(
+                children: [
+                  const SizedBox(
+                    height: 30,
                   ),
-                );
+                  GestureDetector(
+                    onTap: () {
+                      _navigateSeriesSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                      disable: widget.id ? "true" : "",
+                        title: "Series",
+                        textData: _series["name"]?.toString() ?? "---",
+                        textColor: Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateEmployeeSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                      disable: widget.id ? "true" : "",
+                        title: "Employee",
+                        textData: _employee["name"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  TextFlexTwo(
+                    title: "Transportation No",
+                    textData: _transportationNo,
+                    req: "true",
+                  ),
+                  TextFlexTwo(
+                    title: "Truck No",
+                    textData: _truckNo,
+                    req: "true",
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateShipToSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Ship To",
+                        textData: _shipTo["name"] ?? _shipTo["value"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateRevenueLineSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Revenue Line",
+                        textData: _revenueLine["name"] ?? _revenueLine["value"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateBranchSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        disable: widget.id ? "true" : "",
+                        title: "Branch",
+                        textData: _branch["name"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateWarehouseSelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                       disable: widget.id ? "true" : "",
+                        title: "Warehouse",
+                        textData: _warehouse["name"] ?? _warehouse["value"],
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _navigateGISelect(context);
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Good Issue Type",
+                        textData: _giType["name"] ?? "",
+                        textColor: const Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  // const DatePicker(
+                  //   title: "Posting Date",
+                  //   req: "true",
+                  // ),
+                  // const DatePicker(
+                  //   title: "Document Date",
+                  //   req: "true",
+                  // ),
+                  TextFlexTwo(
+                    title: "Remark",
+                    textData: _remark,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GoodIssueListItemsScreen(
+                            binList: widget.binlocationList,
+                            dataFromPrev: selectedItems.map((e) {
+                              var newMap = Map<String, dynamic>.from(e);
+                              String? warehouseCode = _warehouse["value"] ??
+                                  widget.dataById["DocumentLines"]?[0]
+                                      ?["WarehouseCode"] ??
+                                  "";
 
-                // Handle the result here
-                if (result != null) {
-                  setState(() {
-                    selectedItems = List<dynamic>.from(result);
-                  });
+                              newMap["WarehouseCode"] = warehouseCode;
+                              return newMap;
+                            }).toList(),
+                          ),
+                        ),
+                      );
 
-                  // Do something with the selected items
-                }
-              },
-              child: FlexTwoArrowWithText(
-                  title: "Items",
-                  textData: "(${selectedItems.length})",
-                  textColor: Color.fromARGB(255, 129, 134, 140),
-                  simple: FontWeight.normal,
-                  req: "true",
-                  requried: "requried"),
+                      // Handle the result here
+                      if (result != null) {
+                        setState(() {
+                          selectedItems = List<dynamic>.from(result);
+                        });
+
+                        // Do something with the selected items
+                      }
+                    },
+                    child: FlexTwoArrowWithText(
+                        title: "Items",
+                        textData: "(${selectedItems.length})",
+                        textColor: Color.fromARGB(255, 129, 134, 140),
+                        simple: FontWeight.normal,
+                        req: "true",
+                        requried: "requried"),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  FlexTwoArrow(
+                    title: "Reference Documents ",
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            FlexTwoArrow(
-              title: "Reference Documents ",
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   num indexSeriesSeleted = -1;
   Future<void> _navigateSeriesSelect(BuildContext context) async {
+     if (widget.id) return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -474,6 +524,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
 
   num indexEmployeeSeleted = -1;
   Future<void> _navigateEmployeeSelect(BuildContext context) async {
+       if (widget.id) return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -544,6 +595,7 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
 
   num indexBranchSeleted = -1;
   Future<void> _navigateBranchSelect(BuildContext context) async {
+    if (widget.id) return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -586,12 +638,13 @@ class _GoodIssueCreateScreenState extends State<GoodIssueCreateScreen> {
 
   num indexWarehouseSeleted = -1;
   Future<void> _navigateWarehouseSelect(BuildContext context) async {
+        if (widget.id) return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
                 indBack: indexWarehouseSeleted,
-                branchId: _branch["value"] ,
+                branchId: _branch["value"],
               )),
     );
     if (!mounted) return;

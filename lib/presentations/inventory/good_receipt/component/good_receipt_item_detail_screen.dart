@@ -4,14 +4,44 @@ import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodReceiptItemDetailScreen extends StatefulWidget {
-  GoodReceiptItemDetailScreen({super.key, required this.itemDetail});
+  GoodReceiptItemDetailScreen(
+      {super.key, required this.itemDetail, required this.binList});
   Map<String, dynamic> itemDetail;
+  List<dynamic> binList;
   @override
   State<GoodReceiptItemDetailScreen> createState() =>
       _GoodReceiptItemDetailScreenState();
 }
 
-class _GoodReceiptItemDetailScreenState extends State<GoodReceiptItemDetailScreen> {
+class _GoodReceiptItemDetailScreenState
+    extends State<GoodReceiptItemDetailScreen> {
+  Map<String, dynamic> binLabel = {};
+  @override
+  void init() async {
+    if (widget.itemDetail["DocumentLinesBinAllocations"] != null &&
+        widget.itemDetail["DocumentLinesBinAllocations"].isNotEmpty) {
+      var firstAllocation = widget.itemDetail["DocumentLinesBinAllocations"][0];
+      binLabel["value"] = firstAllocation?["BinAbsEntry"];
+      var bin = widget.binList.firstWhere(
+        (e) => e["BinID"] == binLabel["value"],
+        orElse: () => null,
+      );
+
+      if (bin == null) {
+        binLabel["name"] = '';
+      } else {
+        binLabel["name"] = bin["BinCode"];
+      }
+    } else {}
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,19 +74,18 @@ class _GoodReceiptItemDetailScreenState extends State<GoodReceiptItemDetailScree
                 values: widget.itemDetail["WarehouseCode"] ?? ''
                 // textColor: Color.fromARGB(255, 129, 134, 140),
                 ),
-                 FlexTwo(
-                title: "Bin Location", values:  ''),
             FlexTwo(
-                title: "Quantity", values: widget.itemDetail["Quantity"] ?? ''),
-              SizedBox(
-              height: 30,
+              title: "Bin Location",
+              values: binLabel["name"],
             ),
             FlexTwo(
-                title: "Inventory UoM",
-                values:  ''),
-                 FlexTwo(
-                title: "UoM Code",
-                values: widget.itemDetail["UoMCode"] ?? ''),
+                title: "Quantity", values: widget.itemDetail["Quantity"] ?? ''),
+            SizedBox(
+              height: 30,
+            ),
+            FlexTwo(title: "Inventory UoM", values: ''),
+            FlexTwo(
+                title: "UoM Code", values: widget.itemDetail["UoMCode"] ?? ''),
             SizedBox(
               height: 30,
             ),

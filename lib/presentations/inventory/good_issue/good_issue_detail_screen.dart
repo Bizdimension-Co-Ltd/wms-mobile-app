@@ -12,8 +12,7 @@ class GoodIssueDetailScreens extends StatefulWidget {
   final Map<String, dynamic> giById;
   const GoodIssueDetailScreens({super.key, required this.giById});
   @override
-  State<GoodIssueDetailScreens> createState() =>
-      _GoodIssueDetailScreensState();
+  State<GoodIssueDetailScreens> createState() => _GoodIssueDetailScreensState();
 }
 
 class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
@@ -21,15 +20,21 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
   final DioClient dio = DioClient();
   int check = 0;
   Map<String, dynamic> data = {};
+  List<dynamic> _seriesList = [];
+  List<dynamic> _employee = [];
+  List<dynamic> _giTypeList = [];
+  List<dynamic> _binLocationList = [];
+
   Future<void> getById() async {
     try {
       final response =
           await dio.get('/InventoryGenExits(${widget.giById["DocEntry"]})');
+      await getLabelApi();
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
-            check = 1;
             data.addAll(response.data);
+            check = 1;
           });
         }
       } else {
@@ -38,6 +43,56 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
     } on Failure {
       rethrow;
     }
+  }
+
+  Future<void> getLabelApi() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '60'},
+    };
+    await dio
+        .post('/SeriesService_GetDocumentSeries', data: payload)
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _seriesList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/EmployeesInfo?\$select=EmployeeID,LastName,FirstName')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _employee.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/TL_OIGE?\$select=Name,Code')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _giTypeList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/BIZ_BIN_QUERY?\$select=BinCode,BinID')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _binLocationList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
   }
 
   @override
@@ -326,7 +381,13 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
             )
           : Stack(
               children: [
-                General(gHeader: widget.giById),
+                General(
+                  giTypeList: _giTypeList,
+                  employee: _employee,
+                  seriesList: _seriesList,
+                  gHeader: data,
+                   binlocationList: _binLocationList
+                ),
                 Positioned(
                     bottom: 30,
                     right: 30,
@@ -336,8 +397,12 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
                           context,
                           MaterialPageRoute(
                               builder: (context) => GoodIssueCreateScreen(
-                                    id: true,
-                                    dataById: data,
+                                  id: true,
+                                  dataById: data,
+                                  seriesList: _seriesList,
+                                  listIssueType: _giTypeList,
+                                  employeeList: _employee,
+                                  binlocationList:_binLocationList
                                   )),
                         );
                       },
