@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login.dart';
+import 'package:wms_mobile/mobile_function/dashboard.dart';
 import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import '/feature/middleware/presentation/login_screen.dart';
 import '/mobile_function/dashboard_screen.dart';
@@ -34,9 +36,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
           title: 'Flutter layout demo',
           // home: TestPage(),
-          home: state is AuthorizationSuccess
-              ? const DashboardScreen()
-              : const LoginScreen(),
+           home: Dashboard()
+             
+          // home: state is AuthorizationSuccess
+          //     ? const Dashboard()
+          //     : const LoginScreen(),
         );
       },
     );
