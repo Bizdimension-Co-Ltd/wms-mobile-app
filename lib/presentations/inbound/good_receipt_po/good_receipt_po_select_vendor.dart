@@ -198,13 +198,18 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
             ),
             SizedBox(
               child: check == 0
-                  ? const Center(
-                      child: CircularProgressIndicator.adaptive(
-                        strokeWidth: 2.5,
+                  ? Container(
+                    height: 550,
+                    child: const Center(
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 2.5,
+                        ),
                       ),
-                    )
+                  )
                   : data.length == 0
-                      ? Center(child: Text("No Record"))
+                      ? Container(
+                        height: 550,
+                        child: Center(child: Text("No Record")))
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
                           shrinkWrap: true,
