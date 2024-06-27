@@ -48,15 +48,15 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       "UoM": _uoMCode["name"],
       "Quantity": qty.text,
       "TotalQty": "",
+      "WharehouseCode": whs.text,
       "ItemDescription": _item["name"] ?? "",
       "Bin": [
         {
           "Quantity": _uoMCode["quantity"],
-          // "BinAbsEntry": _binLocation["value"],
-          // "BaseLineNumber": widget.ind,
-          // "AllowNegativeQuantity": _binLocation["allowNegativeQuantity"],
-          // "SerialAndBatchNumbersBaseLine":
-          //     _binLocation["serialAndBatchNumbersBaseLine"]
+          "BinAbsEntry": _bin["value"],
+          "BaseLineNumber": 0,
+          "AllowNegativeQuantity": "tNO",
+          "SerialAndBatchNumbersBaseLine": -1
         }
       ]
     };
