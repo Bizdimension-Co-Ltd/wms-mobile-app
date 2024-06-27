@@ -66,11 +66,10 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
           'Warehouse',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,color: Colors.white),
         ),
         actions: const [
           Icon(Icons.search),
@@ -139,9 +138,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["WarehouseCode"] +
-                          ' - ' +
-                          data[selectedRadio]["WarehouseName"],
+                      "name": data[selectedRadio]["WarehouseCode"] ,
                       "value": data[selectedRadio]["WarehouseCode"],
                       "index": selectedRadio
                     };

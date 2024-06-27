@@ -100,6 +100,17 @@ flutter:
     - images/svg/arrow-down-left.svg
     - images/svg/shopping-cart-arrow-up.svg
     - images/svg/history-solid.svg
+    - images/svg/menu.svg
+    - images/svg/download.svg
+    - images/svg/upload.svg
+    - images/svg/heigth.svg
+    - images/svg/transfer.svg
+    - images/svg/counting1.svg
+    - images/svg/look.svg
+    - images/svg/logout1.svg
+    - images/svg/book.svg
+    - images/svg/search.svg
+    - images/svg/barcode.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
