@@ -33,7 +33,6 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
           title: 'Flutter layout demo',
-          // home: TestPage(),
           home: state is AuthorizationSuccess
               ? const DashboardScreen()
               : const LoginScreen(),

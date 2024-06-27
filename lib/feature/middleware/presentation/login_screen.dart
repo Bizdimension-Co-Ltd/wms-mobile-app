@@ -6,7 +6,6 @@ import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
-
 import '../../../utilies/dialog/dialog.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -42,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool _obscureText = true;
-
   void _isSuccess() {
     if (mounted) {
       MaterialDialog.close(context);
@@ -64,6 +62,8 @@ class _LoginScreenState extends State<LoginScreen> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               flex: 5,
@@ -86,13 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const SizedBox(
                               height: 100,
-                            ),
-                            Text(
-                              "Warehouse Management System mobile",
-                              style: TextStyle(
-                                  fontSize: size(context).width * 0.07,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.7),
                             ),
                             SizedBox(height: spaceY(context)),
                             const Row(
@@ -117,9 +110,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   hintText: 'Enter Name',
                                   isDense: true),
                             ),
-                            const SizedBox(
-                              height: 25,
+                            const SizedBox(height: 25),
+                            TextField(
+                              controller: _userName,
+                              decoration: const InputDecoration(
+                                labelText: 'Warehouse Code',
+                                border: OutlineInputBorder(),
+                                hintText: 'Warehouse Code',
+                                isDense: true,
+                              ),
                             ),
+                            const SizedBox(height: 25),
                             TextField(
                               obscureText: _obscureText,
                               controller: _password,
