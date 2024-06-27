@@ -36,11 +36,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
           title: 'Flutter layout demo',
           // home: TestPage(),
-           home: Dashboard()
+          //  home: Dashboard()
              
-          // home: state is AuthorizationSuccess
-          //     ? const Dashboard()
-          //     : const LoginScreen(),
+          home: state is AuthorizationSuccess
+              ? const Dashboard()
+              : const LoginScreen(),
         );
       },
     );

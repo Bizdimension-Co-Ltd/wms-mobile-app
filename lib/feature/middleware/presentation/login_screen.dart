@@ -5,6 +5,7 @@ import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
+import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
 
 import '../../../utilies/dialog/dialog.dart';
@@ -49,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const DashboardScreen(),
+          builder: (context) => const Dashboard(),
         ),
       );
     }

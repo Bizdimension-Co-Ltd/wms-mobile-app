@@ -5,6 +5,7 @@ import 'package:wms_mobile/injector.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt_po/component/listSelectComponent.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt_po/good_receipt_po_create_screen.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
+import 'package:wms_mobile/utilies/formart.dart';
 
 class GoodReceiptPOSelectVendor extends StatefulWidget {
   const GoodReceiptPOSelectVendor({
@@ -79,7 +80,9 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GoodReceiptPOCreateScreen(),
+                        builder: (context) => GoodReceiptPOCreateScreen(
+                          data: {},
+                        ),
                       ));
                 },
                 child: Container(
@@ -196,27 +199,42 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
                 ],
               ),
             ),
-            SizedBox(
+            Container(
+              height: 538,
               child: check == 0
                   ? Container(
-                    height: 550,
-                    child: const Center(
+                      height: 550,
+                      child: const Center(
                         child: CircularProgressIndicator.adaptive(
                           strokeWidth: 2.5,
                         ),
                       ),
-                  )
+                    )
                   : data.length == 0
-                      ? Container(
-                        height: 550,
-                        child: Center(child: Text("No Record")))
+                      ? Center(child: Text("No Record"))
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
                             return GestureDetector(
-                                onTap: () {}, child: BlockList());
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            GoodReceiptPOCreateScreen(
+                                                data: data[index]),
+                                      ));
+                                },
+                                child: BlockList(
+                                  number: data[index]["DocNum"],
+                                  desc: data[index]["Comments"] == ""
+                                      ? "N/A"
+                                      : data[index]["Comments"],
+                                  date: splitDate(data[index]["DocDate"]),
+                                  date2: splitDate(data[index]["DocDueDate"]),
+                                ));
                           },
                         ),
             )

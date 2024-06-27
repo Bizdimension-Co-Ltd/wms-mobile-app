@@ -7,18 +7,19 @@ import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';
 import 'package:wms_mobile/mobile_function/rmaScreen.dart';
+import 'package:wms_mobile/presentations/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
+import 'package:wms_mobile/presentations/inbound/good_receipt/good_receipt_create_screen.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
+import 'package:wms_mobile/presentations/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
 
 import '../constant/style.dart';
 
 const gridList = [
   {"name": "Good Receipt PO", "img": "download.svg"},
-  {"name": "Quik Goods Receipt", "img": "upload.svg"},
-  {"name": "Customer", "img": "heigth.svg"},
-  {"name": "Transfer", "img": "transfer.svg"},
-  {"name": "Counting", "img": "counting1.svg"},
-  {"name": "Lookup", "img": "look.svg"},
-  {"name": "Log Out", "img": "logout1.svg"}
+  {"name": "Quik Goods Receipt", "img": "download.svg"},
+  {"name": "Customer Return Receipt", "img": "return.svg"},
+  {"name": "Goods Receipt", "img": "transfer.svg"},
+  {"name": "Put Away", "img": "counting1.svg"},
 ];
 
 class Inbound extends StatefulWidget {
@@ -70,12 +71,35 @@ class _InboundState extends State<Inbound> {
                   itemCount: gridList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
-                         onTap: () {
+                        onTap: () {
                           if (index == 0) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => GoodReceiptPOSelectVendor()),
+                                  builder: (context) =>
+                                      GoodReceiptPOSelectVendor()),
+                            );
+                          } else if (index == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      QuickGoodReceiptCreateScreen(data: {})),
+                            );
+                          } else if (index == 2) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      CustomerReturnReceiptCreateScreen(
+                                          data: {})),
+                            );
+                          } else if (index == 3) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      GoodReceiptCreateScreen(data: {})),
                             );
                           }
                         },

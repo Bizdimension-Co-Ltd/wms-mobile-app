@@ -110,6 +110,7 @@ flutter:
     - images/svg/logout1.svg
     - images/svg/book.svg
     - images/svg/search.svg
+    - images/svg/barcode.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
