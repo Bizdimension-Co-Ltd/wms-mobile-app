@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/mobile_function/countingScreen.dart';
 import 'package:wms_mobile/mobile_function/inbound.dart';
 import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
@@ -29,6 +30,18 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  void onPressMenu(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        goTo(context, const Inbound());
+        break;
+      case 6:
+        goTo(context, const LoginScreen());
+        break;
+      default:
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,21 +49,22 @@ class _DashboardState extends State<Dashboard> {
         elevation: 0.2,
         automaticallyImplyLeading: false,
         leading: Container(
-          padding: EdgeInsets.all(12), // Add some padding if necessary
+          padding: EdgeInsets.all(14), // Add some padding if necessary
           child: SvgPicture.asset(
             "images/svg/menu.svg",
+            color: Colors.white,
             fit: BoxFit.contain, // Ensure the SVG fits within the container
           ),
         ),
         iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
         ),
-        backgroundColor: Color.fromARGB(238, 16, 50, 171),
-        title: const Text(
+        backgroundColor: PRIMARY_COLOR,
+        title: Text(
           "Main Menu",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 19,
+            fontSize: size(context).width * 0.045,
           ),
         ),
       ),
@@ -68,54 +82,20 @@ class _DashboardState extends State<Dashboard> {
                   shrinkWrap: true,
                   itemCount: gridList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                        onTap: () {
-                           if (index == 0) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const Inbound()),
-                            );
-                          } 
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(20),
-                          height: 80,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey, // Set the desired color
-                                width: 1.0, // Set the desired width
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: SvgPicture.asset(
-                                  color: Color.fromARGB(235, 28, 60, 176),
-                                  "images/svg/${gridList[index]["img"]}",
-                                  width: size(context).width * 0.09,
-                                  height: size(context).width * 0.09,
-                                ),
-                              ),
-                              Expanded(
-                                  flex: 5,
-                                  child: Container(
-                                    margin: EdgeInsets.only(left: 15),
-                                    child: Text(
-                                      "${gridList[index]["name"]}",
-                                      style: TextStyle(
-                                          fontSize: 17.0, color: Colors.black),
-                                    ),
-                                  ))
-                            ],
-                          ),
-                        ));
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0)),
+                      child: ListTile(
+                        onTap: () => onPressMenu(context, index),
+                        leading: SvgPicture.asset(
+                          color: Color.fromARGB(235, 28, 60, 176),
+                          "images/svg/${gridList[index]["img"]}",
+                          width: size(context).width * 0.08,
+                          height: size(context).width * 0.08,
+                        ),
+                        title: Text('${gridList[index]['name']}'),
+                      ),
+                    );
                   },
                 ),
               )
