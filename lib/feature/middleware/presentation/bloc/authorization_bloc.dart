@@ -15,6 +15,8 @@ class AuthorizationBloc extends Bloc<AuthorizationEvent, AuthorizationState> {
     on<AuthorizationEvent>((event, emit) async {
       // on submit to sap
       if (event is RequestLoginOnlineEvent) {
+        emit(RequestingAuthorization());
+        // 
         final response = await useCase.call(event.entity);
         await response.fold((error) {
           emit(RequestLoginFailedState(message: error.message));

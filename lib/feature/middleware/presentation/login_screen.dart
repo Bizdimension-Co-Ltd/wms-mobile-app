@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/constant/api.dart';
 import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
-import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
+import '../../../helper/helper.dart';
 import '../../../utilies/dialog/dialog.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _postData() async {
     try {
-      MaterialDialog.loading(context);
       if (mounted) {
         // MaterialDialog.close(context);
         final loginEntity = LoginEntity(
@@ -44,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   void _isSuccess() {
     if (mounted) {
-      MaterialDialog.close(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -147,49 +146,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(
                               height: 40,
                             ),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 47.0,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await _postData();
-                                }, // Replace null with your actual callback function
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color.fromARGB(255, 17, 18, 48)),
-                                ),
-                                child: const Text(
-                                  "SIGN IN",
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                            Button(
+                              loading: state is RequestingAuthorization,
+                              onPressed: _postData,
+                              child: Text(
+                                'SIGN IN',
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 47.0,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SettingScreen()),
-                                  );
-                                }, // Replace null with your actual callback function
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color.fromARGB(255, 255, 255, 255)),
-                                ),
-                                child: const Text(
-                                  'Setting',
-                                  style: TextStyle(
-                                      color: Color.fromARGB(255, 1, 1, 1)),
-                                ),
+                            const SizedBox(height: 10),
+                            Button(
+                              variant: ButtonVariant.ghost,
+                              loading: state is RequestingAuthorization,
+                              child: Text(
+                                'Setting',
+                                style: TextStyle(color: PRIMARY_COLOR),
                               ),
-                            )
+                              onPressed: () =>
+                                  goTo(context, const SettingScreen()),
+                            ),
                           ],
                         ),
                       ));

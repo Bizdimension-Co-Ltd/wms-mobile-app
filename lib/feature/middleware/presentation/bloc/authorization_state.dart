@@ -17,4 +17,6 @@ class RequestLoginFailedState extends AuthorizationState {
 
 class UnAuthorization extends AuthorizationState {}
 
+class RequestingAuthorization extends AuthorizationState {}
+
 class AuthorizationSuccess extends AuthorizationState {}
