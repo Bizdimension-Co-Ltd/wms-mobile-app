@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:wms_mobile/component/flex_two_field.dart';
 import 'package:wms_mobile/form/goodReceiptTypeSelect.dart';
-import 'package:wms_mobile/form/itemSelect.dart';
 import 'package:wms_mobile/form/warehouseSelect.dart';
-import 'package:wms_mobile/injector.dart';
+import 'package:wms_mobile/presentations/inbound/good_receipt/component/itemSelect.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt_po/component/list_to_do_item.dart';
 import 'package:wms_mobile/presentations/inventory/component/uomSelect.dart';
 import 'package:wms_mobile/presentations/inventory/good_receipt/component/binlocationSelect.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 class GoodReceiptCreateScreen extends StatefulWidget {
   GoodReceiptCreateScreen({super.key, required this.data});
@@ -33,10 +32,38 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
   Map<String, dynamic> _item = {};
   Map<String, dynamic> _bin = {};
   List<dynamic> document = [];
+  final DioClient dio = DioClient();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  Future<void> _postData() async {
+    Map<String, dynamic> payload = {
+      "BPL_IDAssignedToInvoice": 1,
+      "U_tl_whsdesc": whs.text,
+      "U_tl_grtype": _grType["value"],
+      "DocumentLines": document.toList()
+    };
+    // setState(() {
+    //   print(payload);
+    // });
+    // return;
+    try {
+      MaterialDialog.loading(context, barrierDismissible: false);
+
+      final response = await dio.post('/InventoryGenEntries', data: payload);
+      if (response.statusCode == 201) {
+        MaterialDialog.close(context);
+        MaterialDialog.success(context,
+            title: 'Success', body: "Created Successfully !");
+      }
+    } catch (e) {
+      MaterialDialog.close(context);
+      MaterialDialog.success(context, title: 'Error', body: e.toString());
+    }
   }
 
   void addDocument() {
@@ -45,23 +72,23 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
 
     Map<String, dynamic> newRow = {
       "ItemCode": item.text,
-      "UoM": _uoMCode["name"],
+      "UoMCode": _uoMCode["name"],
+      "UoMEntry": _uoMCode["value"],
       "Quantity": qty.text,
-      "TotalQty": "",
-      "WharehouseCode": whs.text,
+      "WarehouseCode": whs.text,
       "ItemDescription": _item["name"] ?? "",
-      "Bin": [
+      "DocumentLinesBinAllocations": [
         {
           "Quantity": _uoMCode["quantity"],
           "BinAbsEntry": _bin["value"],
-          "BaseLineNumber": 0,
+          "BaseLineNumber": document.length,
           "AllowNegativeQuantity": "tNO",
           "SerialAndBatchNumbersBaseLine": -1
         }
       ]
     };
     setState(() {
-      print(newRow);
+      print(_uoMCode);
     });
 
     setState(() {
@@ -69,9 +96,6 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
         newRow,
         ...document,
       ];
-      item.text = "";
-      uom.text = "";
-      qty.text = "";
     });
   }
 
@@ -111,15 +135,20 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                   ),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                    color: Color.fromARGB(238, 16, 50, 171),
-                    borderRadius: BorderRadius.circular(5)),
-                width: 110,
-                child: Center(
-                  child: Text(
-                    "Finish",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+              GestureDetector(
+                onTap: () async {
+                  await _postData();
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Color.fromARGB(238, 16, 50, 171),
+                      borderRadius: BorderRadius.circular(5)),
+                  width: 110,
+                  child: Center(
+                    child: Text(
+                      "Finish",
+                      style: TextStyle(color: Colors.white, fontSize: 15),
+                    ),
                   ),
                 ),
               ),
@@ -192,6 +221,10 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               SizedBox(
                 height: 10,
               ),
+              FlexTwoField(title: "Qty", values: qty),
+              SizedBox(
+                height: 10,
+              ),
               FlexTwoField(
                 title: "UOM",
                 values: uom,
@@ -200,10 +233,6 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                   _navigateUOMSelect(context);
                 },
               ),
-              SizedBox(
-                height: 10,
-              ),
-              FlexTwoField(title: "Qty", values: qty),
               SizedBox(
                 height: 20,
               ),
@@ -216,16 +245,20 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: const [
                     Expanded(flex: 7, child: Text("Item Number")),
                     Expanded(flex: 2, child: Text("UoM")),
                     Expanded(flex: 2, child: Text("Qty/Open")),
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 300,
-                child: ListView.builder(
+                child: document.length == 0
+                    ? Center(
+                        child: Text("No Record"),
+                      )
+                    : ListView.builder(
                   // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
                   shrinkWrap: true,
                   itemCount: document.length,
@@ -235,7 +268,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                         child: ListToDoItem(
                           itemCode: document[index]["ItemCode"],
                           desc: document[index]["ItemDescription"],
-                          uom: document[index]["UoM"],
+                          uom: document[index]["UoMCode"],
                           qty: document[index]["Quantity"],
                           openQty: document[index]["TotalQty"],
                         ));
@@ -284,13 +317,15 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => WarehouseSelect(
-                allWH: "true",
+                branchId: 1,
                 indBack: indexWarehouseSeleted,
               )),
     );
     if (!mounted) return;
     setState(() {
       if (result == null) return;
+      bin.text = "";
+      indexBINSeleted = -1;
       whs.text = result["name"];
       indexWarehouseSeleted = result["index"];
     });
@@ -307,6 +342,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => ItemsSelect(
+                type: 'tYES',
                 indBack: indexItemsSeleted,
               )),
     );

@@ -5,9 +5,9 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class VendorSelect extends StatefulWidget {
-  const VendorSelect({Key? key, this.indBack}) : super(key: key);
+  const VendorSelect({Key? key, this.indBack, this.type}) : super(key: key);
   final indBack;
-
+  final type;
   @override
   State<VendorSelect> createState() => _VendorSelectState();
 }
@@ -25,12 +25,14 @@ class _VendorSelectState extends State<VendorSelect> {
 
   Future<void> getList(filter) async {
     try {
-      final response = await dio.get("/BusinessPartners?\$filter=CardType eq 'cSupplier'${filter != "" ? " and CardCode eq '$filter'" : ''}", query: {
-        '\$top': top,
-        '\$skip': skip,
-        // '\$filter': "CardType eq 'cSupplier' and CardCode eq 'BFL0001'"
-        // '\$filter': "CardType eq 'cSupplier' ${filter != "" ? "and CardCode eq '$filter'":""}"
-      });
+      final response = await dio.get(
+          "/BusinessPartners?\$filter=CardType eq '${widget.type}'${filter != "" ? " and CardCode eq '$filter'" : ''}",
+          query: {
+            '\$top': top,
+            '\$skip': skip,
+            // '\$filter': "CardType eq 'cSupplier' and CardCode eq 'BFL0001'"
+            // '\$filter': "CardType eq 'cSupplier' ${filter != "" ? "and CardCode eq '$filter'":""}"
+          });
 
       if (response.statusCode == 200) {
         if (mounted) {
@@ -79,7 +81,7 @@ class _VendorSelectState extends State<VendorSelect> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: _isSearching
             ? TextField(
                 cursorColor: Colors.white, // Set the cursor color to white
@@ -154,9 +156,9 @@ class _VendorSelectState extends State<VendorSelect> {
                         shrinkWrap: true,
                         itemCount: data.length,
                         itemBuilder: (BuildContext context, int index) {
-                         bool isLastIndex = index == data.length - 1;
+                          bool isLastIndex = index == data.length - 1;
                           return ListItem(
-                            lastIndex: isLastIndex, 
+                            lastIndex: isLastIndex,
                             twoRow: true,
                             index: index,
                             selectedRadio: selectedRadio,
@@ -179,7 +181,7 @@ class _VendorSelectState extends State<VendorSelect> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 17, 18, 48),
+                  backgroundColor: Color.fromARGB(238, 16, 50, 171),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),

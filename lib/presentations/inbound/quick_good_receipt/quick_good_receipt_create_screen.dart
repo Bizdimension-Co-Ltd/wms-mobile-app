@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:wms_mobile/component/flex_two_field.dart';
-import 'package:wms_mobile/presentations/inbound/quick_good_receipt/component/list_to_do_item.dart';
+import 'package:wms_mobile/form/goodReceiptTypeSelect.dart';
+import 'package:wms_mobile/form/itemSelect.dart';
+import 'package:wms_mobile/form/vendorSelect.dart';
+import 'package:wms_mobile/form/warehouseSelect.dart';
+import 'package:wms_mobile/injector.dart';
+import 'package:wms_mobile/presentations/inbound/good_receipt_po/component/list_to_do_item.dart';
+import 'package:wms_mobile/presentations/inventory/component/uomSelect.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/component/binlocationSelect.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 class QuickGoodReceiptCreateScreen extends StatefulWidget {
-  QuickGoodReceiptCreateScreen({super.key, required this.data});
-  Map<String, dynamic> data;
+  QuickGoodReceiptCreateScreen({super.key});
   // ignore: prefer_typing_uninitialized_variables
 
   @override
@@ -15,46 +24,142 @@ class QuickGoodReceiptCreateScreen extends StatefulWidget {
 class _QuickGoodReceiptCreateScreenState
     extends State<QuickGoodReceiptCreateScreen> {
   // start form field
+
   TextEditingController whs = TextEditingController();
-  TextEditingController sub = TextEditingController();
+  TextEditingController sup = TextEditingController();
   TextEditingController item = TextEditingController();
   TextEditingController uom = TextEditingController();
+  TextEditingController bin = TextEditingController();
+
   TextEditingController qty = TextEditingController();
+  Map<String, dynamic> _sup = {};
+  Map<String, dynamic> _item = {};
+  Map<String, dynamic> _uoMCode = {};
+  Map<String, dynamic> _bin = {};
+  final totalQty = 0;
+  final DioClient dio = DioClient();
+
   List<dynamic> document = [];
   @override
+  Future<void> _postData() async {
+    Map<String, dynamic> payload = {
+      "BPL_IDAssignedToInvoice": 1,
+      "CardCode": _sup["cardCode"],
+      "CardName": _sup["cardName"],
+      "WarehouseCode": whs.text,
+      "DocumentLines": document.toList()
+    };
+    // setState(() {
+    //   print(payload);
+    // });
+    // return;
+    try {
+      MaterialDialog.loading(context, barrierDismissible: false);
+
+      final response = await dio.post('/PurchaseDeliveryNotes', data: payload);
+      if (response.statusCode == 201) {
+        MaterialDialog.close(context);
+        MaterialDialog.success(context,
+            title: 'Success', body: "Created Successfully !");
+      }
+    } catch (e) {
+      MaterialDialog.close(context);
+      MaterialDialog.success(context, title: 'Error', body: e.toString());
+    }
+  }
+
   void initState() {
     // TODO: implement initState
     super.initState();
-    init();
+    // init();
   }
 
-  void init() async {
-    whs.text = "1";
-    if (widget.data.isNotEmpty) {
-      sub.text = widget.data["DocNum"]?.toString() ?? "";
-    }
-  }
+  // void init() async {
+  //   if (widget.data.isNotEmpty) {
+  //     poNumber.text = widget.data["DocNum"]?.toString() ?? "";
+  //   }
+  // }
 
+  // void addDocument() {
+  //   if (item.text.isEmpty) return;
+  //   int total = 0;
+
+  //   Map<String, dynamic> newRow = {
+  //     "ItemCode": item.text,
+  //     "UoMCode": _uoMCode["name"],
+  //     "UoMEntry": _uoMCode["value"],
+  //     "Quantity": qty.text,
+  //     "ItemDescription": _item["name"],
+  //     "DocumentLinesBinAllocations": [
+  //       // {
+  //       //   "Quantity": _uoMCode["quantity"],
+  //       //   // "BinAbsEntry": _binLocation["value"],
+  //       //   // "BaseLineNumber": widget.ind,
+  //       //   // "AllowNegativeQuantity": _binLocation["allowNegativeQuantity"],
+  //       //   // "SerialAndBatchNumbersBaseLine":
+  //       //   //     _binLocation["serialAndBatchNumbersBaseLine"]
+  //       // }
+  //     ]
+  //   };
+  //   if (item.text.isNotEmpty) {
+  //     try {
+  //       var documentLine = widget.data["DocumentLines"]
+  //           .firstWhere((e) => e["ItemCode"] == item.text);
+  //       newRow["TotalQty"] = documentLine["Quantity"];
+  //       newRow["ItemDescription"] = documentLine["ItemDescription"];
+  //     } catch (e) {
+  //       MaterialDialog.success(context,
+  //           title: 'Error', body: "ItemCode not found $e");
+  //       return;
+  //     }
+  //   }
+
+  //   setState(() {
+  //     document = [
+  //       newRow,
+  //       ...document,
+  //     ];
+  //   });
+  // }
   void addDocument() {
-    int total = 0;
+    if (item.text.isEmpty) return;
 
+    // Prepare the new row data
     Map<String, dynamic> newRow = {
       "ItemCode": item.text,
-      "UoM": uom.text,
-      "Quantity": qty.text,
-      "TotalQty": "",
-      "ItemDescription": "",
+      "UoMCode": _uoMCode["name"],
+      "UoMEntry": _uoMCode["value"],
+      "Quantity": int.parse(qty.text), // Ensure Quantity is an integer
+      "ItemDescription": _item["name"],
+      "WarehouseCode": whs.text,
+      "DocumentLinesBinAllocations": [
+        {
+          "Quantity": _uoMCode["quantity"],
+          "BinAbsEntry": _bin["value"],
+          "BaseLineNumber": document.length,
+          "AllowNegativeQuantity": "tNO",
+          "SerialAndBatchNumbersBaseLine": -1
+        }
+      ]
     };
-    if (item.text != "") {
-      newRow["TotalQty"] = widget.data["DocumentLines"]
-          .firstWhere((e) => e["ItemCode"] == item.text)["Quantity"];
-      newRow["ItemDescription"] = widget.data["DocumentLines"]
-          .firstWhere((e) => e["ItemCode"] == item.text)["ItemDescription"];
-    }
-
-    setState(() {
-      document = [...document, newRow];
-    });
+    // if (item.text.isNotEmpty) {
+    //   try {
+    //     var documentLine = widget.data["DocumentLines"]
+    //         .firstWhere((e) => e["ItemCode"] == item.text);
+    //     newRow["TotalQty"] = documentLine["Quantity"];
+    //     newRow["ItemDescription"] = documentLine["ItemDescription"];
+    //   } catch (e) {
+    //     MaterialDialog.success(context,
+    //         title: 'Error', body: "ItemCode not found $e");
+    //     return;
+    //   }
+    // }
+        setState(() {
+        document = [
+          newRow,
+          ...document,
+        ];
+      });
   }
 
   @override
@@ -63,7 +168,7 @@ class _QuickGoodReceiptCreateScreenState
       appBar: AppBar(
         backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
-          'Quick Receipt',
+          'Quick Receipt ',
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
@@ -93,15 +198,20 @@ class _QuickGoodReceiptCreateScreenState
                   ),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                    color: Color.fromARGB(238, 16, 50, 171),
-                    borderRadius: BorderRadius.circular(5)),
-                width: 110,
-                child: Center(
-                  child: Text(
-                    "Finish",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+              GestureDetector(
+                onTap: () async {
+                  await _postData();
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Color.fromARGB(238, 16, 50, 171),
+                      borderRadius: BorderRadius.circular(5)),
+                  width: 110,
+                  child: Center(
+                    child: Text(
+                      "Finish",
+                      style: TextStyle(color: Colors.white, fontSize: 15),
+                    ),
                   ),
                 ),
               ),
@@ -128,25 +238,66 @@ class _QuickGoodReceiptCreateScreenState
           color: Color.fromARGB(255, 255, 255, 255),
           child: ListView(
             children: [
-              FlexTwoField(title: "Whs", values: whs),
+              FlexTwoField(
+                title: "Whs",
+                values: whs,
+                menu: "true",
+                onMenuClick: () {
+                  _navigateWarehouseSelect(context);
+                },
+              ),
               SizedBox(
                 height: 10,
               ),
-              FlexTwoField(title: "Sup", values: sub),
+              FlexTwoField(
+                title: "Sup",
+                values: sup,
+                menu: "true",
+                onMenuClick: () {
+                  _navigateVendorSelect(context);
+                },
+              ),
               SizedBox(
                 height: 10,
               ),
-              FlexTwoField(title: "Item", values: item),
+              FlexTwoField(
+                title: "Bin",
+                values: bin,
+                barcode: "true",
+                menu: "true",
+                onMenuClick: () {
+                  _navigateBINSelect(context);
+                },
+              ),
               SizedBox(
                 height: 10,
               ),
-              FlexTwoField(title: "UOM", values: uom),
+              FlexTwoField(
+                title: "Item",
+                values: item,
+                menu: "true",
+                barcode: "true",
+                onMenuClick: () {
+                  _navigateItemsSelect(context);
+                },
+              ),
               SizedBox(
                 height: 10,
               ),
               FlexTwoField(title: "Qty", values: qty),
               SizedBox(
-                height: 20,
+                height: 10,
+              ),
+              FlexTwoField(
+                title: "UOM",
+                values: uom,
+                menu: "true",
+                onMenuClick: () {
+                  _navigateUOMSelect(context);
+                },
+              ),
+              SizedBox(
+                height: 10,
               ),
               Container(
                 height: 40,
@@ -157,16 +308,20 @@ class _QuickGoodReceiptCreateScreenState
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: const [
                     Expanded(flex: 7, child: Text("Item Number")),
                     Expanded(flex: 2, child: Text("UoM")),
                     Expanded(flex: 2, child: Text("Qty/Open")),
                   ],
                 ),
               ),
-              Container(
-                // height: d,
-                child: ListView.builder(
+              SizedBox(
+                height: 300,
+                child: document.length == 0
+                    ? Center(
+                        child: Text("No Record"),
+                      )
+                    : ListView.builder(
                   // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
                   shrinkWrap: true,
                   itemCount: document.length,
@@ -176,7 +331,7 @@ class _QuickGoodReceiptCreateScreenState
                         child: ListToDoItem(
                           itemCode: document[index]["ItemCode"],
                           desc: document[index]["ItemDescription"],
-                          uom: document[index]["UoM"],
+                          uom: document[index]["UoMCode"],
                           qty: document[index]["Quantity"],
                           openQty: document[index]["TotalQty"],
                         ));
@@ -185,62 +340,150 @@ class _QuickGoodReceiptCreateScreenState
               ),
             ],
           )),
-
-      // Column(
-      //   children: [
-      //     Expanded(
-      //         flex: 3,
-      //         child: ListView(
-      //           children: [
-      //             FlexTwoField(title: "Whs", values: ''),
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             FlexTwoField(title: "PO. #", values: ''),
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             FlexTwoField(title: "Item", values: ''),
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             FlexTwoField(title: "UOM", values: ''),
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             FlexTwoField(title: "Qty", values: ''),
-      //           ],
-      //         )),
-      //     Expanded(
-      //       flex: 4,
-      //       child: Container(
-      //         height: double.infinity,
-      //           child: Column(
-      //         children: [
-      //           Expanded(
-      //               flex: 1,
-      //               child: Container(
-      //                 width: double.infinity,
-      //                 height: 100,
-      //                 color: Colors.red,
-      //                 child: Text("12"),
-      //               )),
-      //           Expanded(
-      //             flex: 6,
-      //             child: ListView.builder(
-      //               padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
-      //               shrinkWrap: true,
-      //               itemCount: 400,
-      //               itemBuilder: (BuildContext context, int index) {
-      //                 return GestureDetector(onTap: () {}, child: Text("11"));
-      //               },
-      //             ),
-      //           ),
-      //         ],
-      //       )),
-      //     ),
-      //   ],
-      // ),
     );
+  }
+
+  num indexWarehouseSeleted = -1;
+  Future<void> _navigateWarehouseSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => WarehouseSelect(
+                branchId: 1,
+                indBack: indexWarehouseSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      bin.text = "";
+      indexBINSeleted = -1;
+      whs.text = result["name"];
+      indexWarehouseSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content:
+              Text(whs.text == null ? "Unselected" : "Selected ${whs.text}")));
+  }
+
+  num indexItemsSeleted = -1;
+  Future<void> _navigateItemsSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ItemsSelect(
+            type: 'tYES',
+                indBack: indexItemsSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      item.text = result["value"];
+      _item = {"name": result["name"], "value": result["value"]};
+      indexItemsSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(
+              item.text == null ? "Unselected" : "Selected ${item.text}")));
+  }
+
+  num indexUOMSeleted = -1;
+  Future<void> _navigateUOMSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => UoMSelect(
+              indBack: indexUOMSeleted,
+              item: item.text,
+              qty: double.tryParse(qty.text) ?? 0.00
+              // branchId: _branch["value"],
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      uom.text = result["name"].toString();
+      _uoMCode = {
+        "name": result["name"],
+        "value": result["value"],
+        "quantity": result["quantity"],
+        "useBaseUnits": "tNO"
+      };
+      print(_uoMCode);
+      indexUOMSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_uoMCode["name"] == null
+              ? "Unselected"
+              : "Selected ${_uoMCode["name"]}")));
+  }
+
+  num indexBINSeleted = -1;
+  Future<void> _navigateBINSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BinlocationSelect(
+                indBack: indexBINSeleted,
+                whCode: whs.text,
+                // branchId: _branch["value"],
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      bin.text = result["name"];
+      _bin = {
+        "name": result["name"],
+        "value": result["value"],
+        "allowNegativeQuantity": "tNO",
+        "serialAndBatchNumbersBaseLine": -1
+      };
+      indexBINSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_bin["name"] == null
+              ? "Unselected"
+              : "Selected ${_bin["name"]}")));
+  }
+
+  num indexVendorSeleted = -1;
+  Future<void> _navigateVendorSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => VendorSelect(
+                type: "cSupplier",
+                indBack: indexVendorSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      sup.text = result["cardName"];
+      _sup = {
+        "cardCode": result["cardCode"],
+        "cardName": result["cardName"],
+        "address": result["address"],
+        "contactPersonList": result["contactPersonList"]
+      };
+      indexVendorSeleted = result["index"];
+      print(sup.text);
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_sup["cardCode"] == null
+              ? "Unselected"
+              : "Selected ${_sup["cardCode"]}")));
   }
 }

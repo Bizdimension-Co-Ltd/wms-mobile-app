@@ -69,7 +69,8 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
         backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
           'Warehouse',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,color: Colors.white),
+          style: TextStyle(
+              fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: const [
           Icon(Icons.search),
@@ -104,9 +105,9 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
-                             bool isLastIndex = index == data.length - 1;
+                            bool isLastIndex = index == data.length - 1;
                             return ListItem(
-                                lastIndex: isLastIndex, 
+                                lastIndex: isLastIndex,
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,
@@ -115,9 +116,8 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["WarehouseCode"] +
-                                        ' - ' +
-                                        data[index]["WarehouseName"] ??
+                                desc:
+                                    "${data[index]["WarehouseCode"] + ' - ' + data[index]["WarehouseName"].toString()}"
                                     "",
                                 code: "");
                           },
@@ -131,14 +131,14 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 17, 18, 48),
+                    backgroundColor: Color.fromARGB(238, 16, 50, 171),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["WarehouseCode"] ,
+                      "name": data[selectedRadio]["WarehouseCode"],
                       "value": data[selectedRadio]["WarehouseCode"],
                       "index": selectedRadio
                     };

@@ -19,7 +19,6 @@ const gridList = [
   {"name": "Quik Goods Receipt", "img": "download.svg"},
   {"name": "Customer Return Receipt", "img": "return.svg"},
   {"name": "Goods Receipt", "img": "transfer.svg"},
-  {"name": "Put Away", "img": "counting1.svg"},
 ];
 
 class Inbound extends StatefulWidget {
@@ -84,22 +83,21 @@ class _InboundState extends State<Inbound> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      QuickGoodReceiptCreateScreen(data: {})),
+                                      QuickGoodReceiptCreateScreen()),
                             );
                           } else if (index == 2) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      CustomerReturnReceiptCreateScreen(
-                                          data: {})),
+                                      CustomerReturnReceiptCreateScreen()),
                             );
                           } else if (index == 3) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      GoodReceiptCreateScreen(data: {})),
+                                      GoodReceiptCreateScreen(data: const {})),
                             );
                           }
                         },

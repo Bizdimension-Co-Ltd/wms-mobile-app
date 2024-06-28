@@ -69,7 +69,7 @@ class _BinlocationSelectState extends State<BinlocationSelect> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
           'BinLocations',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -132,7 +132,7 @@ class _BinlocationSelectState extends State<BinlocationSelect> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 17, 18, 48),
+                    backgroundColor: Color.fromARGB(238, 16, 50, 171),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),

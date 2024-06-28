@@ -35,7 +35,7 @@ class _ItemsSelectState extends State<ItemsSelect> {
   Future<void> getListItems(filter) async {
     try {
       final response = await dio.get(
-          '/Items?\$select=ItemCode,ItemName,PurchaseItem ${widget.type == "" || widget.type == null ? "" : "& \$filter=PurchaseItem eq '${widget.type}'${filter != "" ? " and ItemCode eq '$filter'" : ''}"}',
+          '/Items?\$select=ItemCode,ItemName,SalesItem ${widget.type == "" || widget.type == null ? "" : "& \$filter=SalesItem eq '${widget.type}'${filter != "" ? " and ItemCode eq '$filter'" : ''}"}',
           query: {
             '\$top': top,
             '\$skip': skip,
@@ -160,24 +160,24 @@ class _ItemsSelectState extends State<ItemsSelect> {
                   },
                 ),
                 SizedBox(width: 10),
-                  IconButton(
-                      onPressed: () {
-                        final op = {
-                          "name": data[selectedRadio]["ItemName"],
-                          "value": data[selectedRadio]["ItemCode"],
-                          "index": selectedRadio
-                        };
-                        if (selectedRadio != -1) {
-                          Navigator.pop(context, op);
-                        } else {
-                          Navigator.pop(context, null);
-                        }
-                      },
-                      icon: const Text(
-                        "Done",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
-                      ),
-                    ),
+                IconButton(
+                  onPressed: () {
+                    final op = {
+                      "name": data[selectedRadio]["ItemName"],
+                      "value": data[selectedRadio]["ItemCode"],
+                      "index": selectedRadio
+                    };
+                    if (selectedRadio != -1) {
+                      Navigator.pop(context, op);
+                    } else {
+                      Navigator.pop(context, null);
+                    }
+                  },
+                  icon: const Text(
+                    "Done",
+                    style: TextStyle(fontSize: 15, color: Colors.white),
+                  ),
+                ),
                 SizedBox(width: 10),
               ],
       ),

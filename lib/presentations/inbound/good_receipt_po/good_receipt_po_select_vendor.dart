@@ -37,10 +37,10 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
     try {
       setState(() {
         check = 0;
+        data.clear();
       });
-      final response = await dio
-          .get("/PurchaseOrders?\$filter=CardCode eq '${filter.text}'");
-      print(response);
+      final response = await dio.get(
+          "/PurchaseOrders?\$filter=CardCode eq '${filter.text}' and DocumentStatus eq 'bost_Open'");
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {

@@ -56,7 +56,7 @@ class _GoodReceiptTypeSelectState extends State<GoodReceiptTypeSelect> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
           'Good Receipt Type',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -119,7 +119,7 @@ class _GoodReceiptTypeSelectState extends State<GoodReceiptTypeSelect> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 17, 18, 48),
+                    backgroundColor: Color.fromARGB(238, 16, 50, 171),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),

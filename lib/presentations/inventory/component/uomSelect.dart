@@ -5,7 +5,7 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class UoMSelect extends StatefulWidget {
-  const UoMSelect({Key? key, this.indBack, this.item,this.qty})
+  const UoMSelect({Key? key, this.indBack, this.item, this.qty})
       : super(
           key: key,
         );
@@ -87,6 +87,14 @@ class _UoMSelectState extends State<UoMSelect> {
 
   Future<void> getAll() async {
     try {
+      if (widget.item == "") {
+        setState(() {
+          check = 1;
+          data = [];
+        });
+
+        return;
+      }
       await getUoMGroup(widget.item);
       await getUoMList();
       if (widget.item != null && groups.isNotEmpty && uomLists.isNotEmpty) {
@@ -122,7 +130,7 @@ class _UoMSelectState extends State<UoMSelect> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
           'UoM',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -184,7 +192,7 @@ class _UoMSelectState extends State<UoMSelect> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 17, 18, 48),
+                    backgroundColor: Color.fromARGB(238, 16, 50, 171),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -200,7 +208,7 @@ class _UoMSelectState extends State<UoMSelect> {
                       "name": data[selectedRadio]["Code"],
                       "value": data[selectedRadio]["AbsEntry"],
                       "quantity": calculateUOM(selectedUoM["BaseQuantity"],
-                          selectedUoM["AlternateQuantity"],widget.qty),
+                          selectedUoM["AlternateQuantity"], widget.qty),
                       "index": selectedRadio
                     };
                     if (selectedRadio != -1) {

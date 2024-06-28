@@ -84,9 +84,13 @@ class _BlockListState extends State<BlockList> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              "${widget.desc}",
-                              style: TextStyle(fontSize: 14),
+                            Container(
+                              width: 150,
+                              child: Text(
+                                "${widget.desc}",
+                                 overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 14),
+                              ),
                             ),
                             SizedBox(
                               child: Row(
