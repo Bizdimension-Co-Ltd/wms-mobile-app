@@ -55,7 +55,7 @@ class _FlexTwoFieldState extends State<FlexTwoField> {
               "${widget.title}:",
               style: TextStyle(fontSize: 16),
             ),
-          ),
+          ), 
           Expanded(
             flex: widget.barcode == "true" ? 6 : 7,
             child: Stack(

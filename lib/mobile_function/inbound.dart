@@ -10,6 +10,7 @@ import 'package:wms_mobile/mobile_function/rmaScreen.dart';
 import 'package:wms_mobile/presentations/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt/good_receipt_create_screen.dart';
 import 'package:wms_mobile/presentations/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
+import 'package:wms_mobile/presentations/inbound/put_away/put_away_create_screen.dart';
 import 'package:wms_mobile/presentations/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
 
 import '../constant/style.dart';
@@ -19,6 +20,8 @@ const gridList = [
   {"name": "Quik Goods Receipt", "img": "download.svg"},
   {"name": "Customer Return Receipt", "img": "return.svg"},
   {"name": "Goods Receipt", "img": "transfer.svg"},
+    {"name": "Put Away", "img": "transfer.svg"},
+
 ];
 
 class Inbound extends StatefulWidget {
@@ -98,6 +101,13 @@ class _InboundState extends State<Inbound> {
                               MaterialPageRoute(
                                   builder: (context) =>
                                       GoodReceiptCreateScreen(data: const {})),
+                            );
+                          } else if (index == 4) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      PutWayCreateScreen(data: const {})),
                             );
                           }
                         },
