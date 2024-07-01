@@ -25,7 +25,7 @@ class _GoodReceiptPOCreateScreenState extends State<GoodReceiptPOCreateScreen> {
   // start form field
 
   TextEditingController whs = TextEditingController();
-  TextEditingController poNumber = TextEditingController(text: "1234");
+  TextEditingController poNumber = TextEditingController();
   TextEditingController item = TextEditingController();
   TextEditingController uom = TextEditingController();
   TextEditingController bin = TextEditingController();
@@ -320,26 +320,26 @@ class _GoodReceiptPOCreateScreenState extends State<GoodReceiptPOCreateScreen> {
               ),
               SizedBox(
                 height: 300,
-                child:document.length == 0 ?
-                Center(
-                  child: Text("No Record"),
-                )
-                : ListView.builder(
-                  // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
-                  shrinkWrap: true,
-                  itemCount: document.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                        onTap: () {},
-                        child: ListToDoItem(
-                          itemCode: document[index]["ItemCode"],
-                          desc: document[index]["ItemDescription"],
-                          uom: document[index]["UoMCode"],
-                          qty: document[index]["Quantity"],
-                          openQty: document[index]["TotalQty"],
-                        ));
-                  },
-                ),
+                child: document.length == 0
+                    ? Center(
+                        child: Text("No Record"),
+                      )
+                    : ListView.builder(
+                        // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
+                        shrinkWrap: true,
+                        itemCount: document.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                              onTap: () {},
+                              child: ListToDoItem(
+                                itemCode: document[index]["ItemCode"],
+                                desc: document[index]["ItemDescription"],
+                                uom: document[index]["UoMCode"],
+                                qty: document[index]["Quantity"],
+                                openQty: document[index]["TotalQty"],
+                              ));
+                        },
+                      ),
               ),
             ],
           )),

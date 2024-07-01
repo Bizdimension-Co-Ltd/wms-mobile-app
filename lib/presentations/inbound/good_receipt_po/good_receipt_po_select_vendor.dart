@@ -77,13 +77,13 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
             children: [
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GoodReceiptPOCreateScreen(
-                          data: {},
-                        ),
-                      ));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => GoodReceiptPOCreateScreen(
+                  //         data: {},
+                  //       ),
+                  //     ));
                 },
                 child: Container(
                   decoration: BoxDecoration(
