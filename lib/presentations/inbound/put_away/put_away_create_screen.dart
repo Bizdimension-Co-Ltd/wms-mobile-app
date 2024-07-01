@@ -98,7 +98,7 @@ class _PutWayCreateScreenState extends State<PutWayCreateScreen> {
           "AllowNegativeQuantity": "tNO",
           "SerialAndBatchNumbersBaseLine": -1,
           "BinActionType": "batToWarehouse",
-          "BaseLineNumber": 0
+          "BaseLineNumber": document.length
         }
       ]
     };
