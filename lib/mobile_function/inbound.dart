@@ -19,8 +19,8 @@ const gridList = [
   {"name": "Good Receipt PO", "img": "download.svg"},
   {"name": "Quik Goods Receipt", "img": "download.svg"},
   {"name": "Customer Return Receipt", "img": "return.svg"},
-  {"name": "Goods Receipt", "img": "transfer.svg"},
-    {"name": "Put Away", "img": "transfer.svg"},
+  {"name": "Goods Receipt", "img": "receipt_long.svg"},
+    {"name": "Put Away", "img": "putaway.svg"},
 
 ];
 
