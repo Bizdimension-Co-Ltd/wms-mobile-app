@@ -78,7 +78,7 @@ class _PutWayCreateScreenState extends State<PutWayCreateScreen> {
       "ItemCode": item.text,
       "UoMCode": _uoMCode["name"],
       "UoMEntry": _uoMCode["value"],
-      "Quantity": _uoMCode["quantity"],
+      "Quantity": qty.text,
       "WarehouseCode": whs.text,
       "FromWarehouseCode": whs.text,
       "ItemDescription": _item["name"] ?? "",
