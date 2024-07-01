@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flex_two_field.dart';
-import 'package:wms_mobile/presentations/inbound/quick_good_receipt/component/list_to_do_item.dart';
+import 'package:wms_mobile/feature/inbound/customer_return_receipt/component/list_to_do_item.dart';
 
-class QuickGoodReceiptCreateScreen extends StatefulWidget {
-  QuickGoodReceiptCreateScreen({super.key, required this.data});
+class CustomerReturnReceiptCreateScreen extends StatefulWidget {
+  CustomerReturnReceiptCreateScreen({super.key, required this.data});
   Map<String, dynamic> data;
   // ignore: prefer_typing_uninitialized_variables
 
   @override
-  State<QuickGoodReceiptCreateScreen> createState() =>
-      _QuickGoodReceiptCreateScreenState();
+  State<CustomerReturnReceiptCreateScreen> createState() =>
+      _CustomerReturnReceiptCreateScreenState();
 }
 
-class _QuickGoodReceiptCreateScreenState
-    extends State<QuickGoodReceiptCreateScreen> {
+class _CustomerReturnReceiptCreateScreenState
+    extends State<CustomerReturnReceiptCreateScreen> {
   // start form field
   TextEditingController whs = TextEditingController();
-  TextEditingController sub = TextEditingController();
+  TextEditingController rtr = TextEditingController();
   TextEditingController item = TextEditingController();
   TextEditingController uom = TextEditingController();
   TextEditingController qty = TextEditingController();
@@ -31,7 +31,7 @@ class _QuickGoodReceiptCreateScreenState
   void init() async {
     whs.text = "1";
     if (widget.data.isNotEmpty) {
-      sub.text = widget.data["DocNum"]?.toString() ?? "";
+      rtr.text = widget.data["DocNum"]?.toString() ?? "";
     }
   }
 
@@ -63,7 +63,7 @@ class _QuickGoodReceiptCreateScreenState
       appBar: AppBar(
         backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
-          'Quick Receipt',
+          'Return Receipt',
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
@@ -132,7 +132,7 @@ class _QuickGoodReceiptCreateScreenState
               SizedBox(
                 height: 10,
               ),
-              FlexTwoField(title: "Sup", values: sub),
+              FlexTwoField(title: "RTR. #", values: rtr),
               SizedBox(
                 height: 10,
               ),

@@ -6,6 +6,7 @@ import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bl
 import 'package:wms_mobile/main_screen.dart';
 import 'core/disble_ssl.dart';
 import 'injector.dart';
+import 'feature/inbound/good_receipt_po/presentation/cubit/purchase_order_cubit.dart';
 
 void main() {
   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ class _MyMainAppState extends State<MyMainApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<AuthorizationBloc>()),
+        BlocProvider(create: (_) => getIt<PurchaseOrderCubit>()),
       ],
       child: const MainScreen(),
     );

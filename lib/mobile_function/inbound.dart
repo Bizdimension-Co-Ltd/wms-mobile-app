@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/presentations/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
-import 'package:wms_mobile/presentations/inbound/good_receipt/good_receipt_create_screen.dart';
-import 'package:wms_mobile/presentations/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
-import 'package:wms_mobile/presentations/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
+import 'package:wms_mobile/feature/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt/good_receipt_create_screen.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
+import 'package:wms_mobile/feature/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
 
 import '../constant/style.dart';
 import '../helper/helper.dart';

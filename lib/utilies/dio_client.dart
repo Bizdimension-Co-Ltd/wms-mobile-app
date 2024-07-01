@@ -42,22 +42,19 @@ class DioClient {
 
       return res;
     } on DioException catch (e) {
-      log(e.response?.data);
-
-      String message = e.response?.data['msg'];
-
-      if (message.contains('Route [login] not defined')) {
-        throw const UnauthorizeFailure(message: '401');
-      }
-
-      //
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(
-            message:
-                "Sorry due our server is error. please contact our support.");
+          message: "Sorry due our server is error. please contact our support.",
+        );
       }
 
-      throw const ServerFailure(message: 'Data not found');
+      if (e.response?.statusCode == 401) {
+        throw UnauthorizeFailure(message: 'Session already timeout');
+      }
+
+      throw ServerFailure(
+        message: e.response?.data['error']['message']['value'],
+      );
     } catch (e) {
       rethrow;
     }
@@ -98,32 +95,30 @@ class DioClient {
           )
           .then((value) => value);
     } on DioException catch (e) {
-      log(e.requestOptions.method);
-      log(e.requestOptions.uri.toString());
-      log(jsonEncode(e.requestOptions.data));
-      log('dio ${e.response?.statusCode}');
-
-      dynamic message = e.response?.data['error']['message']['value'];
-
-      log(jsonEncode(message));
-
+      // log(e.requestOptions.method);
+      // log(e.requestOptions.uri.toString());
+      // log(jsonEncode(e.requestOptions.data));
+      // log('dio ${e.response?.statusCode}');
+      // log(jsonEncode(message));
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(
           message: "Sorry due our server is error. please contact our support.",
         );
       }
 
-      if (e.response?.data != null) {
-        throw HttpError(message: message);
+      if (e.response?.statusCode == 401) {
+        throw UnauthorizeFailure(message: 'Session already timeout');
       }
 
-      throw const ServerFailure(message: 'Invalid request.');
+      throw ServerFailure(
+        message: e.response?.data['error']['message']['value'],
+      );
     } catch (e) {
       rethrow;
     }
   }
 
-     Future<Response> patch(String uri,
+  Future<Response> patch(String uri,
       {Options? options,
       Object? data,
       Map<String, dynamic>? queryParameters}) async {

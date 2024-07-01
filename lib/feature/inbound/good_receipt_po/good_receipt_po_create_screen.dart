@@ -1,42 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:wms_mobile/component/flex_two_field.dart';
-import 'package:wms_mobile/form/goodReceiptTypeSelect.dart';
 import 'package:wms_mobile/form/itemSelect.dart';
 import 'package:wms_mobile/form/warehouseSelect.dart';
-import 'package:wms_mobile/injector.dart';
-import 'package:wms_mobile/presentations/inbound/good_receipt_po/component/list_to_do_item.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/component/list_to_do_item.dart';
 import 'package:wms_mobile/presentations/inventory/component/uomSelect.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/component/binlocationSelect.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 
-class GoodReceiptCreateScreen extends StatefulWidget {
-  GoodReceiptCreateScreen({super.key, required this.data});
+class GoodReceiptPOCreateScreen extends StatefulWidget {
+  GoodReceiptPOCreateScreen({super.key, required this.data});
   Map<String, dynamic> data;
-  // ignore: prefer_typing_uninitialized_variables
 
   @override
-  State<GoodReceiptCreateScreen> createState() =>
-      _GoodReceiptCreateScreenState();
+  State<GoodReceiptPOCreateScreen> createState() =>
+      _GoodReceiptPOCreateScreenState();
 }
 
-class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
+class _GoodReceiptPOCreateScreenState extends State<GoodReceiptPOCreateScreen> {
   // start form field
+
   TextEditingController whs = TextEditingController();
-  TextEditingController bin = TextEditingController();
+  TextEditingController poNumber = TextEditingController(text: "1234");
   TextEditingController item = TextEditingController();
   TextEditingController uom = TextEditingController();
   TextEditingController qty = TextEditingController();
-  Map<String, dynamic> _grType = {};
-  TextEditingController grType = TextEditingController();
+  // Map<String, dynamic> _warehouse = {};
+  // Map<String, dynamic> _item = {};
   Map<String, dynamic> _uoMCode = {};
-  Map<String, dynamic> _item = {};
-  Map<String, dynamic> _bin = {};
+
   List<dynamic> document = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    init();
+  }
+
+  void init() async {
+    if (widget.data.isNotEmpty) {
+      poNumber.text = widget.data["DocNum"]?.toString() ?? "";
+    }
   }
 
   void addDocument() {
@@ -48,30 +50,39 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       "UoM": _uoMCode["name"],
       "Quantity": qty.text,
       "TotalQty": "",
-      "WharehouseCode": whs.text,
-      "ItemDescription": _item["name"] ?? "",
+      "ItemDescription": "",
       "Bin": [
         {
           "Quantity": _uoMCode["quantity"],
-          "BinAbsEntry": _bin["value"],
-          "BaseLineNumber": 0,
-          "AllowNegativeQuantity": "tNO",
-          "SerialAndBatchNumbersBaseLine": -1
+          // "BinAbsEntry": _binLocation["value"],
+          // "BaseLineNumber": widget.ind,
+          // "AllowNegativeQuantity": _binLocation["allowNegativeQuantity"],
+          // "SerialAndBatchNumbersBaseLine":
+          //     _binLocation["serialAndBatchNumbersBaseLine"]
         }
       ]
     };
     setState(() {
       print(newRow);
     });
+    if (item.text.isNotEmpty) {
+      try {
+        var documentLine = widget.data["DocumentLines"]
+            .firstWhere((e) => e["ItemCode"] == item.text);
+        newRow["TotalQty"] = documentLine["Quantity"];
+        newRow["ItemDescription"] = documentLine["ItemDescription"];
+      } catch (e) {
+        MaterialDialog.success(context,
+            title: 'Error', body: "ItemCode not found $e");
+        return;
+      }
+    }
 
     setState(() {
       document = [
         newRow,
         ...document,
       ];
-      item.text = "";
-      uom.text = "";
-      qty.text = "";
     });
   }
 
@@ -81,7 +92,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
       appBar: AppBar(
         backgroundColor: Color.fromARGB(238, 16, 50, 171),
         title: const Text(
-          'Good Receipt',
+          'Good Receipt PO',
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
@@ -147,17 +158,6 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
           child: ListView(
             children: [
               FlexTwoField(
-                title: "Type",
-                values: grType,
-                menu: "true",
-                onMenuClick: () {
-                  _navigateGISelect(context);
-                },
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              FlexTwoField(
                 title: "Whs",
                 values: whs,
                 menu: "true",
@@ -168,15 +168,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
               SizedBox(
                 height: 10,
               ),
-              FlexTwoField(
-                title: "Bin",
-                values: bin,
-                barcode: "true",
-                menu: "true",
-                onMenuClick: () {
-                  _navigateBINSelect(context);
-                },
-              ),
+              FlexTwoField(title: "PO. #", values: poNumber),
               SizedBox(
                 height: 10,
               ),
@@ -216,14 +208,14 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: const [
                     Expanded(flex: 7, child: Text("Item Number")),
                     Expanded(flex: 2, child: Text("UoM")),
                     Expanded(flex: 2, child: Text("Qty/Open")),
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 300,
                 child: ListView.builder(
                   // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
@@ -245,37 +237,6 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
             ],
           )),
     );
-  }
-
-  num indexBINSeleted = -1;
-  Future<void> _navigateBINSelect(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => BinlocationSelect(
-                indBack: indexBINSeleted,
-                whCode: whs.text,
-                // branchId: _branch["value"],
-              )),
-    );
-    if (!mounted) return;
-    setState(() {
-      if (result == null) return;
-      bin.text = result["name"];
-      _bin = {
-        "name": result["name"],
-        "value": result["value"],
-        "allowNegativeQuantity": "tNO",
-        "serialAndBatchNumbersBaseLine": -1
-      };
-      indexBINSeleted = result["index"];
-    });
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-          content: Text(_bin["name"] == null
-              ? "Unselected"
-              : "Selected ${_bin["name"]}")));
   }
 
   num indexWarehouseSeleted = -1;
@@ -314,7 +275,7 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
     setState(() {
       if (result == null) return;
       item.text = result["value"];
-      _item = {"name": result["name"], "value": result["value"]};
+
       indexItemsSeleted = result["index"];
     });
     ScaffoldMessenger.of(context)
@@ -355,29 +316,5 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
           content: Text(_uoMCode["name"] == null
               ? "Unselected"
               : "Selected ${_uoMCode["name"]}")));
-  }
-
-  num indexGRSeleted = -1;
-  Future<void> _navigateGISelect(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => GoodReceiptTypeSelect(
-                indBack: indexGRSeleted,
-              )),
-    );
-    if (!mounted) return;
-    setState(() {
-      if (result == null) return;
-      grType.text = result["name"].toString();
-      _grType = {"name": result["name"], "value": result["value"]};
-      indexGRSeleted = result["index"];
-    });
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-          content: Text(_grType["name"] == null
-              ? "Unselected"
-              : "Selected ${_grType["name"]}")));
   }
 }

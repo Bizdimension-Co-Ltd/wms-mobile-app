@@ -1,61 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/constant/style.dart';
-import 'package:wms_mobile/core/error/failure.dart';
-import 'package:wms_mobile/injector.dart';
-import 'package:wms_mobile/presentations/inbound/good_receipt_po/component/listSelectComponent.dart';
-import 'package:wms_mobile/presentations/inbound/good_receipt_po/good_receipt_po_create_screen.dart';
-import 'package:wms_mobile/utilies/dio_client.dart';
-import 'package:wms_mobile/utilies/formart.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_create_screen.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_order_cubit.dart';
+
+import '../../../helper/helper.dart';
 
 class GoodReceiptPOSelectVendor extends StatefulWidget {
   const GoodReceiptPOSelectVendor({
     super.key,
   });
-  // ignore: prefer_typing_uninitialized_variables
+
   @override
   State<GoodReceiptPOSelectVendor> createState() =>
       _GoodReceiptPOSelectVendorState();
 }
 
-const gridList = [
-  {"name": "Inbound", "img": "download.svg"},
-  {"name": "Outbound", "img": "upload.svg"},
-  {"name": "Pick & Pack", "img": "heigth.svg"},
-  {"name": "Transfer", "img": "transfer.svg"},
-  {"name": "Counting", "img": "counting1.svg"},
-  {"name": "Lookup", "img": "look.svg"},
-  {"name": "Log Out", "img": "logout1.svg"}
-];
-
 class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
+  final ScrollController _scrollController = ScrollController();
+
+  String query = "?\$top=10&\$skip=0";
+
+  int _skip = 0;
+
   int check = 1;
   TextEditingController filter = TextEditingController();
-  final DioClient dio = DioClient();
   List<dynamic> data = [];
+  late PurchaseOrderCubit _bloc;
 
-  Future<void> getListPurchaseOrder() async {
-    if (filter.text == "") return;
-    try {
-      setState(() {
-        check = 0;
-      });
-      final response = await dio
-          .get("/PurchaseOrders?\$filter=CardCode eq '${filter.text}'");
-      print(response);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            check = 1;
-            data.addAll(response.data['value']);
+  @override
+  void initState() {
+    super.initState();
+    _bloc = context.read<PurchaseOrderCubit>();
+    _bloc.get(query).then((value) => setState(() => data = value));
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        final state = BlocProvider.of<PurchaseOrderCubit>(context).state;
+        if (state is PurchaseOrderData && data.length > 0) {
+          _bloc
+              .next(
+                  "?\$top=10&\$skip=${data.length}&\$filter=contains(CardCode,'${filter.text}')")
+              .then((value) {
+            if (!mounted) return;
+
+            setState(() => data = [...data, ...value]);
           });
         }
-      } else {
-        throw ServerFailure(message: response.data['msg']);
       }
-    } on Failure {
-      rethrow;
-    }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _scrollController.dispose();
+    filter.dispose();
+
+    super.dispose();
+  }
+
+  void onFilter() async {
+    setState(() {
+      data = [];
+    });
+    _bloc
+        .get("$query&\$filter=CardCode contains(CardCode, '${filter.text}')")
+        .then((value) {
+      if (!mounted) return;
+
+      setState(() => data = value);
+    });
   }
 
   @override
@@ -70,7 +86,7 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
               fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
       ),
-      bottomNavigationBar: MyBottomSheet(),
+      // bottomNavigationBar: MyBottomSheet(),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -83,6 +99,7 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
               width: double.infinity,
               decoration: BoxDecoration(color: Colors.white),
               child: TextFormField(
+                controller: filter,
                 decoration: InputDecoration(
                   enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.transparent)),
@@ -95,20 +112,89 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
                       Icons.search,
                       color: PRIMARY_COLOR,
                     ),
-                    onPressed: () {},
+                    onPressed: onFilter,
                   ),
                 ),
               ),
             ),
             // const SizedBox(height: 10),
-            const Divider(thickness: 0.2, height: 30),
+            const Divider(thickness: 0.1, height: 15),
             Expanded(
-              child: ListView(
-                children: List.generate(100, (int index) {
-                  return ListTile(
-                    title: Text(index.toString()),
+              child: BlocConsumer<PurchaseOrderCubit, PurchaseOrderState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  if (state is RequestingPurchaseOrder) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  return ListView(
+                    controller: _scrollController,
+                    children: [
+                      ...data
+                          .map(
+                            (po) => Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        getDataFromDynamic(po['DocNum']),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          getDataFromDynamic(po['Comments']),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 30),
+                                      Text(
+                                        'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      if (state is RequestingPaginationPurchaseOrder)
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          ),
+                        )
+                    ],
                   );
-                }),
+                },
               ),
             )
 
