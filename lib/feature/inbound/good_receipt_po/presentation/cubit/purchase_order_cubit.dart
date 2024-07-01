@@ -9,18 +9,6 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
   PurchaseOrderCubit(this.useCase) : super(PurchaseOrderInitial());
 
-  // void get(String query) async {
-  //   emit(RequestingPurchaseOrder());
-  //   print('requesting po.....');
-
-  //   final response = await useCase.call(query);
-  //   response.fold((error) {
-  //     emit(PurchaseOrderError(error.message));
-  //   }, (success) async {
-  //     emit(PurchaseOrderData(success));
-  //   });
-  // }
-
   Future<List<dynamic>> get(String query) async {
     emit(RequestingPurchaseOrder());
     print('requesting po.....');

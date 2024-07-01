@@ -4,7 +4,7 @@ import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/mobile_function/countingScreen.dart';
-import 'package:wms_mobile/mobile_function/inbound.dart';
+import 'package:wms_mobile/feature/inbound/inbound.dart';
 import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';

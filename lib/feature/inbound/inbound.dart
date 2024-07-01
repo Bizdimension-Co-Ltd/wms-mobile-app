@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
 import 'package:wms_mobile/feature/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt/good_receipt_create_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import 'package:wms_mobile/feature/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 
-import '../constant/style.dart';
-import '../helper/helper.dart';
+import '../../constant/style.dart';
+import '../../helper/helper.dart';
 
 const gridList = [
   {"name": "Good Receipt PO", "img": "download.svg"},
@@ -26,9 +29,11 @@ class Inbound extends StatefulWidget {
 class _InboundState extends State<Inbound> {
   final routes = [
     GoodReceiptPOSelectVendor(),
-    QuickGoodReceiptCreateScreen(data: {}),
-    CustomerReturnReceiptCreateScreen(data: {}),
-    CustomerReturnReceiptCreateScreen(data: {}),
+    CreateGoodReceiptScreen(),
+    WarehousePage(),
+    BinPage(warehouse: 'WH03'),
+    // CustomerReturnReceiptCreateScreen(data: {}),
+    // CustomerReturnReceiptCreateScreen(data: {}),
     GoodReceiptCreateScreen(data: {}),
     GoodReceiptCreateScreen(data: {}),
   ];
