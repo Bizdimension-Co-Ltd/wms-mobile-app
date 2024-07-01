@@ -47,6 +47,8 @@ class _PutWayCreateScreenState extends State<PutWayCreateScreen> {
       "BPLID": 1,
       "FromWarehouse": whs.text,
       "ToWarehouse": whs.text,
+      "DocumentStatus": "bost_Open",
+      "U_tl_sobincode": _tbin["name"],
       "StockTransferLines": document.toList()
     };
     // setState(() {
@@ -80,6 +82,7 @@ class _PutWayCreateScreenState extends State<PutWayCreateScreen> {
       "WarehouseCode": whs.text,
       "FromWarehouseCode": whs.text,
       "ItemDescription": _item["name"] ?? "",
+      "UseBaseUnits": "tNO",
       "StockTransferLinesBinAllocations": [
         {
           "BinAbsEntry": _sbin["value"],
