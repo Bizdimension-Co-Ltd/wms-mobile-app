@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/injector/di_bin.dart';
+import 'package:wms_mobile/injector/di_item.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
 import 'package:wms_mobile/injector/di_warehouse.dart';
 
@@ -16,5 +17,6 @@ Future<void> container() async {
   DIPurchaseOrder(getIt);
   DIWarehouse(getIt);
   DIBin(getIt);
+  DIItem(getIt);
   //
 }

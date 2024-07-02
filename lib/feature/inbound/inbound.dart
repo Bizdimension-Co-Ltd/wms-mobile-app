@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/core/enum/global.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
 import 'package:wms_mobile/feature/inbound/customer_return_receipt/customer_return_receipt_create_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt/good_receipt_create_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_select_vendor.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import 'package:wms_mobile/feature/inbound/quick_good_receipt/quick_good_receipt_create_screen.dart';
+import 'package:wms_mobile/feature/item/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 
 import '../../constant/style.dart';
@@ -32,9 +34,10 @@ class _InboundState extends State<Inbound> {
     CreateGoodReceiptScreen(),
     WarehousePage(),
     BinPage(warehouse: 'WH03'),
+    ItemPage(type: ItemType.purchase),
     // CustomerReturnReceiptCreateScreen(data: {}),
     // CustomerReturnReceiptCreateScreen(data: {}),
-    GoodReceiptCreateScreen(data: {}),
+    // GoodReceiptCreateScreen(data: {}),
     GoodReceiptCreateScreen(data: {}),
   ];
 
