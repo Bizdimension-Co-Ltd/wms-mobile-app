@@ -2,7 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/injector/di_bin.dart';
 import 'package:wms_mobile/injector/di_item.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
+import 'package:wms_mobile/injector/di_unit_of_measurement.dart';
 import 'package:wms_mobile/injector/di_warehouse.dart';
+import 'package:wms_mobile/utilies/database/database.dart';
 
 import 'injector/authenticate_di.dart';
 import 'utilies/dio_client.dart';
@@ -11,6 +13,7 @@ final getIt = GetIt.instance;
 
 Future<void> container() async {
   getIt.registerLazySingleton(() => DioClient());
+  getIt.registerLazySingleton(() => DatabaseHelper());
 
 //
   DIAuthentication(getIt);
@@ -18,5 +21,6 @@ Future<void> container() async {
   DIWarehouse(getIt);
   DIBin(getIt);
   DIItem(getIt);
+  DIUnitOfMeasurement(getIt);
   //
 }

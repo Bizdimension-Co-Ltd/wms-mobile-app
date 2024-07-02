@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_create_screen.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_order_cubit.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
 import '../../../helper/helper.dart';
 
@@ -21,8 +23,6 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
 
   String query = "?\$top=10&\$skip=0";
 
-  int _skip = 0;
-
   int check = 1;
   TextEditingController filter = TextEditingController();
   List<dynamic> data = [];
@@ -31,9 +31,17 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
   @override
   void initState() {
     super.initState();
-    if (mounted) {
+    init(context);
+  }
+
+  void init(BuildContext context) async {
+    try {
+      final warehouse = await LocalStorageManger.getString('warehouse');
+
       _bloc = context.read<PurchaseOrderCubit>();
-      _bloc.get(query).then((value) => setState(() => data = value));
+      _bloc
+          .get("$query&\$filter=U_tl_whsdesc eq '$warehouse'")
+          .then((value) => setState(() => data = value));
 
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
@@ -42,7 +50,7 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
           if (state is PurchaseOrderData && data.length > 0) {
             _bloc
                 .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=contains(CardCode,'${filter.text}')")
+                    "?\$top=10&\$skip=${data.length}&\$filter=U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
                 .then((value) {
               if (!mounted) return;
 
@@ -51,6 +59,8 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
           }
         }
       });
+    } catch (err) {
+      print(err);
     }
   }
 
@@ -67,13 +77,20 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
     setState(() {
       data = [];
     });
+
+    final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
-        .get("$query&\$filter=CardCode contains(CardCode, '${filter.text}')")
+        .get(
+            "$query&\$filter=U_tl_whsdesc eq '$warehouse' contains(CardCode, '${filter.text}')")
         .then((value) {
       if (!mounted) return;
 
       setState(() => data = value);
     });
+  }
+
+  void forward(dynamic po) {
+    goTo(context, CreateGoodReceiptScreen(po: po));
   }
 
   @override
@@ -134,49 +151,52 @@ class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
                     children: [
                       ...data
                           .map(
-                            (po) => Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        getDataFromDynamic(po['DocNum']),
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
+                            (po) => GestureDetector(
+                              onTap: () => forward(po),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                ),
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "${getDataFromDynamic(po['CardCode'])} - ${getDataFromDynamic(po['DocNum'])}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          getDataFromDynamic(po['Comments']),
-                                          overflow: TextOverflow.ellipsis,
+                                        Text(
+                                          'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
+                                          style: TextStyle(fontSize: 13),
                                         ),
-                                      ),
-                                      const SizedBox(width: 30),
-                                      Text(
-                                        'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  )
-                                ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            getDataFromDynamic(po['Comments']),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 30),
+                                        Text(
+                                          'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           )

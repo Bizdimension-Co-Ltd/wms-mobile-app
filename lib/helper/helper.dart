@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/core/enum/global.dart';
 
-void goTo<T extends Widget>(BuildContext context, T route,
+Future<dynamic> goTo<T extends Widget>(BuildContext context, T route,
     {bool removeAllPreviousRoutes = false}) async {
   if (removeAllPreviousRoutes) {
     Navigator.pushAndRemoveUntil(
@@ -12,7 +12,7 @@ void goTo<T extends Widget>(BuildContext context, T route,
   } else {
     final result = await Navigator.push(
         context, MaterialPageRoute(builder: (bulider) => route));
-    print(result);
+    return result;
   }
 }
 

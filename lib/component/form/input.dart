@@ -11,14 +11,17 @@ class Input extends StatelessWidget {
     // this.icon = Icons.content_copy_rounded,
     this.onPressed,
     this.iconSize = 15,
+    this.controller,
+    this.readOnly = false,
   });
 
   final String label;
   final String placeholder;
-
+  final TextEditingController? controller;
   final IconData? icon;
   final double iconSize;
   final Function()? onPressed;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,9 @@ class Input extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: TextFormField(
+              controller: controller,
               textAlign: TextAlign.right,
+              readOnly: readOnly,
               style: TextStyle(fontSize: 14),
               decoration: InputDecoration(
                 enabledBorder: UnderlineInputBorder(

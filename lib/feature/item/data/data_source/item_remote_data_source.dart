@@ -34,7 +34,15 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
         throw ServerFailure(message: 'error');
       }
 
-      return response.data as dynamic;
+      final uomGroup = await dio
+          .get('/UnitOfMeasurementGroups(${response.data['UoMGroupEntry']})');
+
+      return {
+        ...response.data,
+        "BaseUoM": uomGroup.data['BaseUoM'],
+        "UoMGroupDefinitionCollection":
+            uomGroup.data['UoMGroupDefinitionCollection'],
+      };
     } on Failure {
       rethrow;
     }

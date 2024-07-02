@@ -49,6 +49,8 @@ dependencies:
   bloc: ^8.1.4
   pull_to_refresh_flutter3: ^2.0.2
   provider: ^6.1.2
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
   # flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import '/feature/middleware/presentation/login_screen.dart';
 import '/mobile_function/dashboard_screen.dart';
@@ -15,9 +17,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  bool isPickedWarehuse = false;
+
   @override
   void initState() {
+    init();
     super.initState();
+  }
+
+  void init() async {
+    final value = await LocalStorageManger.getString('warehouse');
+    if (value != '') {
+      setState(() {
+        isPickedWarehuse = true;
+      });
+    }
   }
 
   @override
@@ -36,7 +50,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
           title: 'Flutter layout demo',
           home: state is AuthorizationSuccess
-              ? const Dashboard()
+              ? isPickedWarehuse
+                  ? Dashboard()
+                  : WarehousePage(isPicker: true)
               : const LoginScreen(),
         );
       },

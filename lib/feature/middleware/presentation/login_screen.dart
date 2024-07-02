@@ -8,7 +8,6 @@ import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bl
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
 import '../../../helper/helper.dart';
-import '../../../utilies/dialog/dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -69,10 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
               flex: 5,
               child: BlocConsumer<AuthorizationBloc, AuthorizationState>(
                 listener: (context, state) {
-                  // TODO: implement listener
-                  if (state is AuthorizationSuccess) {
-                    _isSuccess();
-                  }
+                  // // TODO: implement listener
+                  // if (state is AuthorizationSuccess) {
+                  //   _isSuccess();
+                  // }
                 },
                 builder: (context, state) {
                   return SizedBox(
@@ -109,16 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   border: OutlineInputBorder(),
                                   hintText: 'Enter Name',
                                   isDense: true),
-                            ),
-                            const SizedBox(height: 25),
-                            TextField(
-                              controller: _userName,
-                              decoration: const InputDecoration(
-                                labelText: 'Warehouse Code',
-                                border: OutlineInputBorder(),
-                                hintText: 'Warehouse Code',
-                                isDense: true,
-                              ),
                             ),
                             const SizedBox(height: 25),
                             TextField(

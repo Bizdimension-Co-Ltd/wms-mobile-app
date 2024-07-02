@@ -20,6 +20,9 @@ ButtonStyle buttonStyle(ButtonVariant variant) {
     case ButtonVariant.outline:
       return ButtonStyle(
         backgroundColor: WidgetStateProperty.all(Colors.white),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(),
+        ),
       );
     default:
       return ButtonStyle(
@@ -38,6 +41,7 @@ class Button extends StatelessWidget {
     this.loading = false,
     required this.child,
     this.variant = ButtonVariant.primary,
+    this.bgColor,
   });
 
   final Function()? onPressed;
@@ -45,6 +49,7 @@ class Button extends StatelessWidget {
   final bool loading;
   final Widget child;
   final ButtonVariant variant;
+  final Color? bgColor;
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +64,17 @@ class Button extends StatelessWidget {
               : onPressed, // Replace null with your actual callback function
           style: buttonStyle(variant).copyWith(
             shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+                side: variant == ButtonVariant.outline
+                    ? BorderSide(color: Colors.grey.shade300)
+                    : BorderSide.none,
+              ),
+            ),
             elevation: WidgetStateProperty.all(0),
+            backgroundColor: bgColor != null
+                ? WidgetStateProperty.all(bgColor)
+                : buttonStyle(variant).backgroundColor,
           ),
           child: loading
               ? SizedBox(

@@ -9,6 +9,7 @@ import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';
 import 'package:wms_mobile/mobile_function/rmaScreen.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
 import '../constant/style.dart';
 
@@ -30,6 +31,8 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  String warehouseCode = '';
+
   void onPressMenu(BuildContext context, int index) {
     switch (index) {
       case 0:
@@ -40,6 +43,19 @@ class _DashboardState extends State<Dashboard> {
         break;
       default:
     }
+  }
+
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
+  void init() async {
+    final value = await LocalStorageManger.getString('warehouse');
+    setState(() {
+      warehouseCode = value;
+    });
   }
 
   @override
@@ -67,6 +83,17 @@ class _DashboardState extends State<Dashboard> {
             fontSize: size(context).width * 0.045,
           ),
         ),
+        actions: [
+          Text(
+            warehouseCode,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              fontSize: size(context).width * 0.045,
+            ),
+          ),
+          const SizedBox(width: 15),
+        ],
       ),
       body: Container(
           // padding: const EdgeInsets.all(12),
