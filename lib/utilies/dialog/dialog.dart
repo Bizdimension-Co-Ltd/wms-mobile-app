@@ -4,8 +4,12 @@ import 'package:wms_mobile/constant/style.dart';
 import '../../component/loading_circle.dart';
 
 class MaterialDialog {
-  static Future<void> success(BuildContext context,
-      {String? title, String? body}) async {
+  static Future<void> success(
+    BuildContext context, {
+    String? title,
+    String? body,
+    Function()? onOk,
+  }) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: true, // user must tap button!
@@ -18,8 +22,10 @@ class MaterialDialog {
           surfaceTintColor: Colors.white,
           title: Text(
             title ?? 'Success',
-            style: const TextStyle(
-                color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500),
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: size(context).width * 0.045,
+                fontWeight: FontWeight.w500),
           ),
           content: SingleChildScrollView(
             child: ListBody(
@@ -31,12 +37,16 @@ class MaterialDialog {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
+              child: Text(
                 'Ok',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: size(context).width * 0.045),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
+
+                if (onOk != null) {
+                  onOk();
+                }
               },
             ),
           ],
@@ -64,7 +74,7 @@ class MaterialDialog {
           // surfaceTintColor: Colors.white,
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.white,
-          
+
           title: Text(
             title ?? 'Success',
             style: TextStyle(

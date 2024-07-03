@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/constant/style.dart';
-import 'package:wms_mobile/feature/inbound/good_receipt_po/good_receipt_po_create_screen.dart';
-import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
-import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_order_cubit.dart';
-import 'package:wms_mobile/utilies/storage/locale_storage.dart';
+import '/constant/style.dart';
+import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
+import '/utilies/storage/locale_storage.dart';
 
-import '../../../helper/helper.dart';
+import '../../../../helper/helper.dart';
+import 'cubit/purchase_order_cubit.dart';
 
-class GoodReceiptPOSelectVendor extends StatefulWidget {
-  const GoodReceiptPOSelectVendor({
+class PurchaseOrderPage extends StatefulWidget {
+  const PurchaseOrderPage({
     super.key,
   });
 
   @override
-  State<GoodReceiptPOSelectVendor> createState() =>
-      _GoodReceiptPOSelectVendorState();
+  State<PurchaseOrderPage> createState() => _PurchaseOrderPageState();
 }
 
-class _GoodReceiptPOSelectVendorState extends State<GoodReceiptPOSelectVendor> {
+class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
   final ScrollController _scrollController = ScrollController();
 
   String query = "?\$top=10&\$skip=0";

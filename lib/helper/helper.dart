@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_mobile/core/enum/global.dart';
 
 Future<dynamic> goTo<T extends Widget>(BuildContext context, T route,
@@ -45,4 +46,27 @@ String getItemTypeQueryString(ItemType type) {
     default:
       throw Exception('Invalid item type');
   }
+}
+
+String getBPTypeQueryString(BusinessPartnerType type) {
+  switch (type) {
+    case BusinessPartnerType.vendor:
+      return "CardType eq 'cSupplier'";
+    case BusinessPartnerType.supplier:
+      return "CardType eq 'cSupplier'";
+    case BusinessPartnerType.customer:
+      return "CardType eq 'cCustomer'";
+    default:
+      throw Exception('Invalid BusinessPartner type');
+  }
+}
+
+String fractionDigits(double value, {int digit = 4}) {
+  final formatter = NumberFormat('0.${'0' * digit}', 'en_US');
+  return formatter.format(value).replaceAll(',', '');
+}
+
+String convertQuantityUoM(double baseQty, double alternativeQty, double qty) {
+  String totalQty = fractionDigits(baseQty / alternativeQty, digit: 6);
+  return fractionDigits(qty * double.parse(totalQty), digit: 4);
 }

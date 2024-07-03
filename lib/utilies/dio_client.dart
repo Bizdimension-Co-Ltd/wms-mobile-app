@@ -71,34 +71,36 @@ class DioClient {
 
       return await _dio
           .post(
-            API_URL + uri,
-            data: data,
-            // options: options?.copyWith(
-            //   headers: {
-            //     "Content-Type": "application/json",
-            //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
-            //     // 'authorization': 'Basic',
-            //     // "Authorization": "Bearer $token",
-            //     // ...?options.headers,
-            //     // "withCredentials": true,
-            //   },
-            // ),
-            options: Options(
-              headers: {
-                'Content-Type': "application/json",
-                'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
-                // ...options,
-              },
-            ),
-            cancelToken: cancelToken,
-            queryParameters: queryParameters,
-          )
-          .then((value) => value);
+        API_URL + uri,
+        data: data,
+        // options: options?.copyWith(
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
+        //     // 'authorization': 'Basic',
+        //     // "Authorization": "Bearer $token",
+        //     // ...?options.headers,
+        //     // "withCredentials": true,
+        //   },
+        // ),
+        options: Options(
+          headers: {
+            'Content-Type': "application/json",
+            'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
+            // ...options,
+          },
+        ),
+        cancelToken: cancelToken,
+        queryParameters: queryParameters,
+      )
+          .then((value) {
+        return value;
+      });
     } on DioException catch (e) {
-      // log(e.requestOptions.method);
-      // log(e.requestOptions.uri.toString());
-      // log(jsonEncode(e.requestOptions.data));
-      // log('dio ${e.response?.statusCode}');
+      log(e.requestOptions.method);
+      log(e.requestOptions.uri.toString());
+      log(jsonEncode(e.requestOptions.data));
+      log('dio ${e.response?.statusCode}');
       // log(jsonEncode(message));
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(

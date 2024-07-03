@@ -2,15 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import 'package:wms_mobile/main_screen.dart';
 import 'core/disble_ssl.dart';
 import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
+import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'feature/item/presentation/cubit/item_cubit.dart';
 import 'injector.dart';
-import 'feature/inbound/good_receipt_po/presentation/cubit/purchase_order_cubit.dart';
 import 'utilies/database/database.dart';
 
 void main() {
@@ -45,6 +47,8 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<BinCubit>()),
         BlocProvider(create: (_) => getIt<ItemCubit>()),
         BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
+        BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),
+        BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),
       ],
       child: const MainScreen(),
     );

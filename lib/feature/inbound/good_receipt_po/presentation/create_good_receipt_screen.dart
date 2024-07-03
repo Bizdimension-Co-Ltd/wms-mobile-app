@@ -2,15 +2,20 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/component/button/button.dart';
-import 'package:wms_mobile/component/form/input.dart';
-import 'package:wms_mobile/core/enum/global.dart';
-import 'package:wms_mobile/feature/item/presentation/screen/item_page.dart';
-import 'package:wms_mobile/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.dart';
-import 'package:wms_mobile/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
-import 'package:wms_mobile/helper/helper.dart';
-import 'package:wms_mobile/utilies/dialog/dialog.dart';
-import 'package:wms_mobile/utilies/storage/locale_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/bin_location/domain/entity/bin_entity.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
+import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
+import '/component/button/button.dart';
+import '/component/form/input.dart';
+import '/core/enum/global.dart';
+import '/feature/item/presentation/screen/item_page.dart';
+import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.dart';
+import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
+import '/helper/helper.dart';
+import '/utilies/dialog/dialog.dart';
+import '/utilies/storage/locale_storage.dart';
 
 import '../../../../constant/style.dart';
 
@@ -25,6 +30,8 @@ class CreateGoodReceiptScreen extends StatefulWidget {
 }
 
 class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
+  final cardCode = TextEditingController();
+  final cardName = TextEditingController();
   final poText = TextEditingController();
   final uomText = TextEditingController();
   final quantity = TextEditingController();
@@ -35,6 +42,10 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   final itemName = TextEditingController();
   final baseUoM = TextEditingController();
   final uoMGroupDefinitionCollection = TextEditingController();
+  final binId = TextEditingController();
+  final binCode = TextEditingController();
+
+  late PurchaseGoodReceiptCubit _bloc;
 
   int isEdit = -1;
 
@@ -42,6 +53,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   @override
   void initState() {
     init();
+    _bloc = context.read<PurchaseGoodReceiptCubit>();
     super.initState();
   }
 
@@ -51,6 +63,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
     if (widget.po != null) {
       poText.text = getDataFromDynamic(widget.po['DocNum']);
+      cardCode.text = getDataFromDynamic(widget.po['CardCode']);
+      cardName.text = getDataFromDynamic(widget.po['CardName']);
       setState(() {
         items = widget.po['DocumentLines'] ?? [];
       });
@@ -67,9 +81,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM']);
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry']);
-      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM']));
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
       uoMGroupDefinitionCollection.text =
           jsonEncode(value['UoMGroupDefinitionCollection'] ?? []);
@@ -100,6 +114,18 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     try {
       List<dynamic> data = [...items];
 
+      if (itemCode.text == '') {
+        throw Exception('Item is missing.');
+      }
+
+      if (binId.text == '') {
+        throw Exception('Bin Location is missing.');
+      }
+
+      if (quantity.text == '' || quantity.text == '0') {
+        throw Exception('Quantity must be greater than zero.');
+      }
+
       final item = {
         "ItemCode": itemCode.text,
         "ItemDescription": itemName.text,
@@ -107,6 +133,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         "WarehouseCode": warehouse.text,
         "UoMEntry": uomAbEntry.text,
         "UoMCode": uom.text,
+        "UoMGroupDefinitionCollection":
+            jsonDecode(uoMGroupDefinitionCollection.text) ?? [],
+        "BaseUoM": baseUoM.text,
       };
 
       if (isEdit == -1) {
@@ -127,19 +156,10 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         data[isEdit] = item;
       }
 
-      itemCode.text = '';
-      itemName.text = '';
-      quantity.text = '0';
-      uom.text = '';
-      uomAbEntry.text = '';
-      isEdit = -1;
-
-      setState(() {
-        items = data;
-      });
+      clear();
     } catch (err) {
       if (err is Exception) {
-        MaterialDialog.warning(context, title: 'Warning', body: err.toString());
+        MaterialDialog.success(context, title: 'Warning', body: err.toString());
       }
     }
   }
@@ -174,6 +194,109 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     );
   }
 
+  void onChangeCardCode() async {
+    goTo(context, BusinessPartnerPage(type: BusinessPartnerType.supplier))
+        .then((value) {
+      if (value == null) return;
+
+      cardCode.text = getDataFromDynamic(value['CardCode']);
+      cardName.text = getDataFromDynamic(value['CardName']);
+    });
+  }
+
+  void onChangeBin() async {
+    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+      if (value == null) return;
+
+      binId.text = getDataFromDynamic((value as BinEntity).id);
+      binCode.text = getDataFromDynamic(value.code);
+    });
+  }
+
+  void onPostToSAP() async {
+    try {
+      Map<String, dynamic> data = {
+        "BPL_IDAssignedToInvoice": 1,
+        "CardCode": cardCode.text,
+        "CardName": cardName.text,
+        "WarehouseCode": warehouse.text,
+        "DocumentLines": items.map((item) {
+          List<dynamic> uomCollections =
+              item["UoMGroupDefinitionCollection"] ?? [];
+
+          final alternativeUoM = uomCollections.singleWhere(
+              (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']));
+
+          return {
+            "ItemCode": item['ItemCode'],
+            "ItemDescription": item['ItemDescription'],
+            "UoMCode": item['UoMCode'],
+            "UoMEntry": item['UoMEntry'],
+            "Quantity": item['Quantity'],
+            "WarehouseCode": warehouse.text,
+            "DocumentLinesBinAllocations": [
+              {
+                "Quantity": convertQuantityUoM(
+                  alternativeUoM['BaseQuantity'],
+                  alternativeUoM['AlternateQuantity'],
+                  double.tryParse(item['Quantity']) ?? 0.00,
+                ),
+                "BinAbsEntry": binId.text,
+                "BaseLineNumber": 0,
+                "AllowNegativeQuantity": "tNO",
+                "SerialAndBatchNumbersBaseLine": -1
+              }
+            ]
+          };
+        }).toList(),
+      };
+
+      if (widget.po != null) {
+        data['DocumentReferences'] = [
+          {
+            "RefDocEntr": widget.po['DocEntry'],
+            "RefDocNum": widget.po['DocNum'],
+            "RefObjType": "rot_PurchaseOrder",
+            "IssueDate": DateTime.now().toIso8601String(),
+            "Remark": "WMS",
+          }
+        ];
+      }
+
+      MaterialDialog.loading(context);
+      final response = await _bloc.post(data);
+      if (mounted) {
+        Navigator.of(context).pop();
+        MaterialDialog.success(context,
+            title: 'Successfully',
+            body: "Good Receipt - ${response['DocNum']}.",
+            onOk: () => Navigator.of(context).pop());
+      }
+      clear();
+      setState(() {
+        items = [];
+      });
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        MaterialDialog.success(context, title: 'Error', body: e.toString());
+      }
+    }
+  }
+
+  void clear() {
+    itemCode.text = '';
+    itemName.text = '';
+    quantity.text = '0';
+    binId.text = '';
+    binCode.text = '';
+    uom.text = '';
+    uomAbEntry.text = '';
+    cardCode.text = '';
+    cardName.text = '';
+    isEdit = -1;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,59 +314,91 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Input(
-              label: 'Warehouse',
-              placeholder: 'Warehouse',
-              controller: warehouse,
-              readOnly: true,
-              onPressed: () {},
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: size(context).height,
+              maxHeight: size(context).height,
+              minWidth: size(context).width,
+              maxWidth: size(context).width,
             ),
-            if (widget.po != null)
-              Input(
-                controller: poText,
-                readOnly: true,
-                label: 'PO. #',
-                placeholder: 'PO DocNum',
-                onPressed: () {},
-              ),
-            Input(
-              controller: itemCode,
-              label: 'Item.',
-              placeholder: 'Item',
-              onPressed: onSelectItem,
-            ),
-            Input(
-              controller: uom,
-              label: 'UoM.',
-              placeholder: 'Unit Of Measurement',
-              onPressed: onChangeUoM,
-            ),
-            Input(
-              controller: quantity,
-              label: 'Quantity.',
-              placeholder: 'Quantity',
-            ),
-            const SizedBox(height: 40),
-            Text('ITEMS'),
-            const SizedBox(height: 12),
-            ContentHeader(),
-            Expanded(
-              child: Scrollbar(
-                child: ListView(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  children: items
-                      .map((item) => GestureDetector(
-                            onTap: () => onEdit(item),
-                            child: ItemRow(item: item),
-                          ))
-                      .toList(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Input(
+                  label: 'Supplier Code',
+                  placeholder: 'Supplier Code',
+                  controller: cardCode,
+                  readOnly: true,
+                  onPressed: onChangeCardCode,
                 ),
-              ),
+                Input(
+                  label: 'Supplier Name',
+                  placeholder: 'Supplier Name',
+                  controller: cardName,
+                  readOnly: true,
+                  onPressed: () {},
+                ),
+                Input(
+                  label: 'Warehouse',
+                  placeholder: 'Warehouse',
+                  controller: warehouse,
+                  readOnly: true,
+                  onPressed: () {},
+                ),
+                if (widget.po != null)
+                  Input(
+                    controller: poText,
+                    readOnly: true,
+                    label: 'PO. #',
+                    placeholder: 'PO DocNum',
+                    onPressed: () {},
+                  ),
+                const SizedBox(height: 20),
+                Text(''),
+                Input(
+                  controller: itemCode,
+                  label: 'Item.',
+                  placeholder: 'Item',
+                  onPressed: onSelectItem,
+                ),
+                Input(
+                  controller: uom,
+                  label: 'UoM.',
+                  placeholder: 'Unit Of Measurement',
+                  onPressed: onChangeUoM,
+                ),
+                Input(
+                  controller: binCode,
+                  label: 'Bin.',
+                  placeholder: 'Bin Location',
+                  onPressed: onChangeBin,
+                ),
+                Input(
+                  controller: quantity,
+                  label: 'Quantity.',
+                  placeholder: 'Quantity',
+                ),
+                const SizedBox(height: 40),
+                Text('ITEMS'),
+                const SizedBox(height: 12),
+                ContentHeader(),
+                Expanded(
+                  child: Scrollbar(
+                    child: ListView(
+                      // crossAxisAlignment: CrossAxisAlignment.start,
+                      children: items
+                          .map((item) => GestureDetector(
+                                onTap: () => onEdit(item),
+                                child: ItemRow(item: item),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -267,7 +422,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
-                onPressed: () {},
+                onPressed: onPostToSAP,
                 child: Text(
                   'Finish',
                   style: TextStyle(color: Colors.white),
@@ -278,7 +433,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   'Cancel',
                   style: TextStyle(
