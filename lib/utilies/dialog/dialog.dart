@@ -116,7 +116,6 @@ class MaterialDialog {
                 if (onCancel != null) {
                   onCancel();
                 }
-
                 Navigator.of(context).pop();
               },
             ),

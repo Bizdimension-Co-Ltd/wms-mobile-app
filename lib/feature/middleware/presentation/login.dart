@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/constant/api.dart';
-import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
-import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
 
 import '../../../utilies/dialog/dialog.dart';
@@ -28,9 +26,10 @@ class _LoginState extends State<Login> {
       if (mounted) {
         // MaterialDialog.close(context);
         final loginEntity = LoginEntity(
-            username: _userName.text,
-            password: _password.text,
-            db: CONNECT_COMPANY);
+          username: _userName.text,
+          password: _password.text,
+          db: CONNECT_COMPANY,
+        );
 
         BlocProvider.of<AuthorizationBloc>(context).add(
           RequestLoginOnlineEvent(entity: loginEntity),

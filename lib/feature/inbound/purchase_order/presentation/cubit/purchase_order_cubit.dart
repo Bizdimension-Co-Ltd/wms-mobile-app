@@ -37,4 +37,15 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
       return success;
     });
   }
+
+  Future<void> remove(int docEntry) async {
+    List<dynamic> data = [];
+
+    if (state is PurchaseOrderData) {
+      data = [...(state as PurchaseOrderData).entities];
+    }
+    data.removeWhere((row) => row['DocEntry'] == docEntry);
+    emit(PurchaseOrderInitial());
+    emit(PurchaseOrderData(data));
+  }
 }

@@ -55,7 +55,8 @@ class DatabaseSchema {
         InventoryUoMEntry INTEGER NULL,
         PurchaseItem VARCHAR(20) NULL,
         SalesItem VARCHAR(20) NULL,
-        InventoryItem VARCHAR(20) NULL
+        InventoryItem VARCHAR(20) NULL,
+        UoMGroupDefinitionCollection TEXT NULL
       )
     ''');
   }

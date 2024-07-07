@@ -52,10 +52,16 @@ dependencies:
   sqflite: ^2.3.3+1
   path: ^1.9.0
   # flutter_barcode_scanner: ^2.0.0
+  iscan_data_plugin:
+    git:
+      url: https://github.com/Bizdimension-Co-Ltd/iscan_data_plugin.git
+      ref: main
+  path_provider: ^2.1.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

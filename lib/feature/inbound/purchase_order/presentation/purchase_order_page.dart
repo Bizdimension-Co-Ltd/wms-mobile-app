@@ -38,7 +38,8 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
 
       _bloc = context.read<PurchaseOrderCubit>();
       _bloc
-          .get("$query&\$filter=U_tl_whsdesc eq '$warehouse'")
+          .get(
+              "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
           .then((value) => setState(() => data = value));
 
       _scrollController.addListener(() {
@@ -48,7 +49,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
           if (state is PurchaseOrderData && data.length > 0) {
             _bloc
                 .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+                    "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
                 .then((value) {
               if (!mounted) return;
 
@@ -79,7 +80,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
     final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=U_tl_whsdesc eq '$warehouse' contains(CardCode, '${filter.text}')")
+            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' contains(CardCode, '${filter.text}')")
         .then((value) {
       if (!mounted) return;
 
@@ -88,7 +89,18 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
   }
 
   void forward(dynamic po) {
-    goTo(context, CreateGoodReceiptScreen(po: po));
+    goTo(context, CreateGoodReceiptScreen(po: po)).then((value) {
+      if (value == null) return;
+
+      final state = _bloc.state;
+
+      if (state is PurchaseOrderData) {
+        data = [...(state).entities];
+        setState(() {
+          data;
+        });
+      }
+    });
   }
 
   @override

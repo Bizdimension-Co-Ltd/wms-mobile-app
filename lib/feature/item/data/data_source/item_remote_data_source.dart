@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wms_mobile/utilies/database/database.dart';
+
 import '/utilies/dio_client.dart';
 import '../../../../../core/error/failure.dart';
 
@@ -8,8 +13,9 @@ abstract class ItemRemoteDataSource {
 
 class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
   final DioClient dio;
+  final DatabaseHelper db;
 
-  ItemRemoteDataSourceImpl(this.dio);
+  ItemRemoteDataSourceImpl(this.dio, this.db);
 
   @override
   Future<List<dynamic>> get(String query) async {
@@ -20,7 +26,9 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
         throw ServerFailure(message: 'error');
       }
 
-      return response.data['value'] as List<dynamic>;
+      final items = response.data['value'] as List<dynamic>;
+
+      return items;
     } on Failure {
       rethrow;
     }
@@ -34,8 +42,9 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
         throw ServerFailure(message: 'error');
       }
 
-      final uomGroup = await dio
-          .get('/UnitOfMeasurementGroups(${response.data['UoMGroupEntry']})');
+      final uomGroup = await dio.get(
+        '/UnitOfMeasurementGroups(${response.data['UoMGroupEntry']})',
+      );
 
       return {
         ...response.data,

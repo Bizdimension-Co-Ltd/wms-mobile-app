@@ -101,6 +101,13 @@ class DioClient {
       log(e.requestOptions.uri.toString());
       log(jsonEncode(e.requestOptions.data));
       log('dio ${e.response?.statusCode}');
+
+      if (e.type == DioExceptionType.connectionError) {
+        throw const ConnectionRefuse(
+          message: "Invalid server host name.",
+        );
+      }
+
       // log(jsonEncode(message));
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(

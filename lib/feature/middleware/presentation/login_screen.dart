@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
+import 'package:wms_mobile/component/form/input.dart';
 import 'package:wms_mobile/constant/api.dart';
 import 'package:wms_mobile/constant/style.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import '../../../helper/helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,14 +24,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late bool checkTypeInput = false;
 
+  late AuthorizationBloc _bloc;
+
   Future<void> _postData() async {
     try {
       if (mounted) {
         // MaterialDialog.close(context);
         final loginEntity = LoginEntity(
-            username: _userName.text,
-            password: _password.text,
-            db: CONNECT_COMPANY);
+          username: _userName.text,
+          password: _password.text,
+          db: CONNECT_COMPANY,
+        );
 
         BlocProvider.of<AuthorizationBloc>(context).add(
           RequestLoginOnlineEvent(entity: loginEntity),
@@ -53,6 +58,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void initState() {
+    _bloc = context.read<AuthorizationBloc>();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SingleChildScrollView(
@@ -72,6 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   // if (state is AuthorizationSuccess) {
                   //   _isSuccess();
                   // }
+
+                  if (state is RequestLoginFailedState) {
+                    MaterialDialog.success(context,
+                        title: 'Failed', body: state.message);
+                  }
                 },
                 builder: (context, state) {
                   return SizedBox(

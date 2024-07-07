@@ -2,11 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/bin_location/domain/entity/bin_entity.dart';
-import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
-import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
-import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
+import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
+import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
+import '/feature/bin_location/domain/entity/bin_entity.dart';
+import '/feature/bin_location/presentation/screen/bin_page.dart';
+import '/feature/business_partner/presentation/screen/business_partner_page.dart';
+import '/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
+import '/feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
+import '../../../../core/error/failure.dart';
+import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
 import '/core/enum/global.dart';
@@ -16,7 +22,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-
+import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
 class CreateGoodReceiptScreen extends StatefulWidget {
@@ -44,16 +50,42 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   final uoMGroupDefinitionCollection = TextEditingController();
   final binId = TextEditingController();
   final binCode = TextEditingController();
+  final serialsInput = TextEditingController();
+  final batchesInput = TextEditingController();
+
+  //
+  final isBatch = TextEditingController();
+  final isSerial = TextEditingController();
 
   late PurchaseGoodReceiptCubit _bloc;
+  late ItemCubit _blocItem;
+  late PurchaseOrderCubit _blocCubit;
 
   int isEdit = -1;
-
+  bool isSerialOrBatch = false;
   List<dynamic> items = [];
+  bool loading = false;
+
   @override
   void initState() {
     init();
     _bloc = context.read<PurchaseGoodReceiptCubit>();
+    _blocItem = context.read<ItemCubit>();
+    _blocCubit = context.read<PurchaseOrderCubit>();
+
+    //
+    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+      if (call.method == "onScanResults") {
+        if (loading) return;
+
+        setState(() {
+          if (call.arguments['data'] == "decode error") return;
+          //
+          itemCode.text = call.arguments['data'];
+          onCompleteTextEditItem();
+        });
+      }
+    });
     super.initState();
   }
 
@@ -65,8 +97,31 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       poText.text = getDataFromDynamic(widget.po['DocNum']);
       cardCode.text = getDataFromDynamic(widget.po['CardCode']);
       cardName.text = getDataFromDynamic(widget.po['CardName']);
+
+      if (mounted) MaterialDialog.loading(context);
+
+      items = [];
+      for (var element in widget.po['DocumentLines']) {
+        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+
+        items.add({
+          "ItemCode": element['ItemCode'],
+          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          "WarehouseCode": warehouse.text,
+          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+          "UoMCode": element['UoMCode'],
+          "UoMGroupDefinitionCollection":
+              itemResponse['UoMGroupDefinitionCollection'],
+          "BaseUoM": itemResponse['BaseUoM'],
+          "BinId": binId.text,
+        });
+      }
+
+      if (mounted) MaterialDialog.close(context);
+
       setState(() {
-        items = widget.po['DocumentLines'] ?? [];
+        items;
       });
     }
   }
@@ -78,15 +133,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     goTo(context, ItemPage(type: ItemType.purchase)).then((value) {
       if (value == null) return;
 
-      itemCode.text = getDataFromDynamic(value['ItemCode']);
-      itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
-      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      // log(value.toString());
-      uoMGroupDefinitionCollection.text =
-          jsonEncode(value['UoMGroupDefinitionCollection'] ?? []);
+      onSetItemTemp(value);
     });
   }
 
@@ -136,6 +183,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         "UoMGroupDefinitionCollection":
             jsonDecode(uoMGroupDefinitionCollection.text) ?? [],
         "BaseUoM": baseUoM.text,
+        "BinId": binId.text,
+        "BinCode": binCode.text,
+        "ManageSerialNumbers": isSerial.text,
+        "ManageBatchNumbers": isBatch.text,
+        "Serials":
+            serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
+        "Batches":
+            batchesInput.text == "" ? [] : jsonDecode(batchesInput.text) ?? [],
       };
 
       if (isEdit == -1) {
@@ -156,7 +211,13 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         data[isEdit] = item;
       }
 
+      // print(item);
+
       clear();
+      setState(() {
+        items = data;
+        isSerialOrBatch = false;
+      });
     } catch (err) {
       if (err is Exception) {
         MaterialDialog.success(context, title: 'Warning', body: err.toString());
@@ -175,13 +236,30 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       confirmLabel: "Edit",
       cancelLabel: "Remove",
       onConfirm: () {
+        print(item);
         itemCode.text = getDataFromDynamic(item['ItemCode']);
         itemName.text = getDataFromDynamic(item['ItemDescription']);
         quantity.text = getDataFromDynamic(item['Quantity']);
         uom.text = getDataFromDynamic(item['UoMCode']);
         uomAbEntry.text = getDataFromDynamic(item['UoMEntry']);
+        binCode.text = getDataFromDynamic(item['BinCode']);
+        binId.text = getDataFromDynamic(item['BinId']);
+        baseUoM.text = getDataFromDynamic(item['BaseUoM']);
+        uoMGroupDefinitionCollection.text = jsonEncode(
+          item['UoMGroupDefinitionCollection'],
+        );
+        isSerial.text = getDataFromDynamic(item['ManageSerialNumbers']);
+        isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
+        batchesInput.text = jsonEncode(item['Batches'] ?? []);
+        serialsInput.text = jsonEncode(item['Serials'] ?? []);
+
         setState(() {
           isEdit = index;
+
+          if (getDataFromDynamic(item['ManageSerialNumbers']) == 'tYES' ||
+              getDataFromDynamic(item['ManageBatchNumbers']) == 'tYES') {
+            isSerialOrBatch = true;
+          }
         });
       },
       onCancel: () {
@@ -225,7 +303,61 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
               item["UoMGroupDefinitionCollection"] ?? [];
 
           final alternativeUoM = uomCollections.singleWhere(
-              (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']));
+            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          );
+
+          int baseType = -1;
+          dynamic baseEntry = null;
+          dynamic baseLine = null;
+          if (widget.po != null) {
+            final lines = (widget.po['DocumentLines'] ?? []) as List<dynamic>;
+            final ele =
+                lines.singleWhere((row) => row['ItemCode'] == item['ItemCode']);
+
+            if (ele != null) {
+              baseType = 22;
+              baseEntry = ele['DocEntry'];
+              baseLine = ele['LineNum'];
+            }
+          }
+
+          List<dynamic> binAllocations = [
+            {
+              "Quantity": convertQuantityUoM(
+                alternativeUoM['BaseQuantity'],
+                alternativeUoM['AlternateQuantity'],
+                double.tryParse(item['Quantity']) ?? 0.00,
+              ),
+              "BinAbsEntry": item['BinId'],
+              "BaseLineNumber": 0,
+              "AllowNegativeQuantity": "tNO",
+              "SerialAndBatchNumbersBaseLine": -1
+            }
+          ];
+
+          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+
+          if (_isBatch || _isSerial) {
+            binAllocations = [];
+
+            List<dynamic> batchOrSerialLines =
+                _isSerial ? item['Serials'] : item['Batches'];
+
+            int index = 0;
+            for (var element in batchOrSerialLines) {
+              binAllocations.add({
+                "BinAbsEntry": item['BinId'],
+                "AllowNegativeQuantity": "tNO",
+                "BaseLineNumber": 0,
+                "SerialAndBatchNumbersBaseLine": index,
+                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'], 1),
+              });
+
+              index++;
+            }
+          }
 
           return {
             "ItemCode": item['ItemCode'],
@@ -234,19 +366,12 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             "UoMEntry": item['UoMEntry'],
             "Quantity": item['Quantity'],
             "WarehouseCode": warehouse.text,
-            "DocumentLinesBinAllocations": [
-              {
-                "Quantity": convertQuantityUoM(
-                  alternativeUoM['BaseQuantity'],
-                  alternativeUoM['AlternateQuantity'],
-                  double.tryParse(item['Quantity']) ?? 0.00,
-                ),
-                "BinAbsEntry": binId.text,
-                "BaseLineNumber": 0,
-                "AllowNegativeQuantity": "tNO",
-                "SerialAndBatchNumbersBaseLine": -1
-              }
-            ]
+            "BaseType": baseType,
+            "BaseEntry": baseEntry,
+            "BaseLine": baseLine,
+            "SerialNumbers": item['Serials'] ?? [],
+            "BatchNumbers": item['Batches'] ?? [],
+            "DocumentLinesBinAllocations": binAllocations
           };
         }).toList(),
       };
@@ -262,15 +387,21 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           }
         ];
       }
-
       MaterialDialog.loading(context);
+
       final response = await _bloc.post(data);
       if (mounted) {
+        if (widget.po != null) {
+          _blocCubit.remove(widget.po['DocEntry']);
+        }
         Navigator.of(context).pop();
-        MaterialDialog.success(context,
-            title: 'Successfully',
-            body: "Good Receipt - ${response['DocNum']}.",
-            onOk: () => Navigator.of(context).pop());
+        MaterialDialog.success(
+          context,
+          title: 'Successfully',
+          body: "Good Receipt - ${response['DocNum']}.",
+          onOk: () => Navigator.of(context)
+              .pop(widget.po == null ? null : widget.po['DocEntry']),
+        );
       }
       clear();
       setState(() {
@@ -292,9 +423,112 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     binCode.text = '';
     uom.text = '';
     uomAbEntry.text = '';
-    cardCode.text = '';
-    cardName.text = '';
+    isBatch.text = '';
+    isSerial.text = '';
     isEdit = -1;
+  }
+
+  void onSetItemTemp(dynamic value) {
+    try {
+      if (value == null) return;
+      FocusScope.of(context).requestFocus(FocusNode());
+
+      itemCode.text = getDataFromDynamic(value['ItemCode']);
+      itemName.text = getDataFromDynamic(value['ItemName']);
+      quantity.text = '0';
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
+      // log(value.toString());
+      uoMGroupDefinitionCollection.text = jsonEncode(
+        value['UoMGroupDefinitionCollection'] ?? [],
+      );
+
+      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
+      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
+
+      if (value['ManageSerialNumbers'] == 'tYES' ||
+          value['ManageBatchNumbers'] == 'tYES') {
+        setState(() {
+          isSerialOrBatch = true;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void onCompleteTextEditItem() async {
+    try {
+      if (itemCode.text == '') return;
+
+      //
+      MaterialDialog.loading(context);
+      final item = await _blocItem.find("('${itemCode.text}')");
+      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+        throw Exception('${itemCode.text} is not purchase item.');
+      }
+      if (mounted) {
+        MaterialDialog.close(context);
+      }
+
+      onSetItemTemp(item);
+    } catch (e) {
+      if (mounted) {
+        MaterialDialog.close(context);
+        if (e is ServerFailure) {
+          MaterialDialog.success(context, title: 'Failed', body: e.message);
+        }
+      }
+    }
+  }
+
+  void onCompleteQuantiyInput() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    onNavigateSerialOrBatch();
+  }
+
+  void onNavigateSerialOrBatch({bool force = false}) {
+    if (isSerial.text == 'tYES') {
+      final serialList = serialsInput.text == "" || serialsInput.text == "null"
+          ? []
+          : jsonDecode(serialsInput.text) as List<dynamic>;
+
+      if (force == false && (quantity.text == serialList.length.toString())) {
+        return;
+      }
+
+      goTo(
+        context,
+        GoodReceiptSerialScreen(
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: serialList,
+        ),
+      ).then((value) {
+        if (value == null) return;
+
+        quantity.text = value['quantity'] ?? "0";
+        serialsInput.text = jsonEncode(value['items']);
+      });
+    } else if (isBatch.text == 'tYES') {
+      final batches = batchesInput.text == "" || batchesInput.text == "null"
+          ? []
+          : jsonDecode(batchesInput.text) as List<dynamic>;
+      goTo(
+        context,
+        GoodReceiptBatchScreen(
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: batches,
+        ),
+      ).then((value) {
+        if (value == null) return;
+        quantity.text = value['quantity'] ?? "0";
+        batchesInput.text = jsonEncode(value['items']);
+      });
+    }
   }
 
   @override
@@ -358,6 +592,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                 Text(''),
                 Input(
                   controller: itemCode,
+                  onEditingComplete: onCompleteTextEditItem,
                   label: 'Item.',
                   placeholder: 'Item',
                   onPressed: onSelectItem,
@@ -378,10 +613,15 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                   controller: quantity,
                   label: 'Quantity.',
                   placeholder: 'Quantity',
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  onEditingComplete: onCompleteQuantiyInput,
+                  onPressed: isSerialOrBatch
+                      ? () {
+                          onNavigateSerialOrBatch(force: true);
+                        }
+                      : null,
                 ),
                 const SizedBox(height: 40),
-                Text('ITEMS'),
-                const SizedBox(height: 12),
                 ContentHeader(),
                 Expanded(
                   child: Scrollbar(
@@ -402,7 +642,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: size(context).height * 0.075,
+        height: size(context).height * 0.09,
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
@@ -422,6 +662,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
+                disabled: isEdit != -1,
                 onPressed: onPostToSAP,
                 child: Text(
                   'Finish',
@@ -433,7 +674,24 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  if (items.length > 0) {
+                    MaterialDialog.warning(
+                      context,
+                      title: 'Warning',
+                      body:
+                          'Are you sure leave? once you pressed ok the data will be ereas.',
+                      confirmLabel: 'Ok',
+                      cancelLabel: 'Cancel',
+                      onConfirm: () {
+                        Navigator.of(context).pop();
+                      },
+                      onCancel: () {},
+                    );
+                  } else {
+                    Navigator.of(context).pop();
+                  }
+                },
                 child: Text(
                   'Cancel',
                   style: TextStyle(

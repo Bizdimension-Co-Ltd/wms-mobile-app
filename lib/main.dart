@@ -13,14 +13,13 @@ import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'feature/item/presentation/cubit/item_cubit.dart';
 import 'injector.dart';
-import 'utilies/database/database.dart';
 
-void main() {
-  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  // Ensures Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  DatabaseHelper();
   HttpOverrides.global = DisableSSL();
   container();
+  //  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyMainApp());
 }
 

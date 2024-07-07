@@ -13,6 +13,9 @@ class Input extends StatelessWidget {
     this.iconSize = 15,
     this.controller,
     this.readOnly = false,
+    this.onEditingComplete,
+    this.initialValue = '',
+    this.keyboardType = TextInputType.text,
   });
 
   final String label;
@@ -22,6 +25,9 @@ class Input extends StatelessWidget {
   final double iconSize;
   final Function()? onPressed;
   final bool readOnly;
+  final Function()? onEditingComplete;
+  final String initialValue;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +47,10 @@ class Input extends StatelessWidget {
               controller: controller,
               textAlign: TextAlign.right,
               readOnly: readOnly,
+              onEditingComplete: onEditingComplete,
               style: TextStyle(fontSize: 14),
+              keyboardType: keyboardType,
+              // initialValue: initialValue,
               decoration: InputDecoration(
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),

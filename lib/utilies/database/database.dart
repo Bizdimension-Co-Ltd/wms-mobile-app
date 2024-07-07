@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wms_mobile/utilies/database/schema.dart';
@@ -19,6 +20,8 @@ class DatabaseHelper {
   // Database getter
   Future<Database> get database async {
     if (_database != null) return _database!;
+
+    dropAllTables();
     _database = await _initDatabase();
     return _database!;
   }
@@ -33,9 +36,29 @@ class DatabaseHelper {
     );
   }
 
+  Future<Database> init() async {
+    String path = join(await getDatabasesPath(), 'wms.db');
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+    );
+  }
+
   // Create tables
   Future<void> _onCreate(Database db, int version) async {
     await DatabaseSchema.init(db);
+  }
+
+  Future<void> dropAllTables() async {
+    final db = await database;
+    List<Map<String, dynamic>> tables =
+        await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
+    for (var table in tables) {
+      await db.execute("DROP TABLE IF EXISTS ${table['name']}");
+    }
+
+    log('All table cleared');
   }
 
   // CRUD operations
