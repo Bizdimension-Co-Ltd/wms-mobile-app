@@ -1,27 +1,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
+import 'package:wms_mobile/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import 'package:wms_mobile/main_screen.dart';
-import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/selectItemProvider.dart';
-import 'dart:async';
-
 import 'core/disble_ssl.dart';
+import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
+import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
+import 'feature/item/presentation/cubit/item_cubit.dart';
 import 'injector.dart';
-import 'package:provider/provider.dart';
 
-void main() {
-  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  // Ensures Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DisableSSL();
   container();
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => SelectedItemsProvider(),
-      child: MyMainApp(),
-    ),
-  );
+  //  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyMainApp());
 }
 
 class MyMainApp extends StatefulWidget {
@@ -42,62 +41,15 @@ class _MyMainAppState extends State<MyMainApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<AuthorizationBloc>()),
+        BlocProvider(create: (_) => getIt<PurchaseOrderCubit>()),
+        BlocProvider(create: (_) => getIt<WarehouseCubit>()),
+        BlocProvider(create: (_) => getIt<BinCubit>()),
+        BlocProvider(create: (_) => getIt<ItemCubit>()),
+        BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
+        BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),
+        BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),
       ],
       child: const MainScreen(),
     );
-
-    // return MaterialApp(
-    //   debugShowCheckedModeBanner: false,
-    //   theme: ThemeData(
-    //     // Define the default color for the date picker
-    //     colorScheme: const ColorScheme.light(
-    //       primary: PRIMARY_COLOR, // Change primary color
-    //       onPrimary: Colors.white, // Change text color
-    //     ),
-    //   ),
-    //   title: 'Flutter layout demo',
-    //   // home: TestPage(),
-    //   home: SplashScreen(),
-    // );
-  }
-}
-
-class TestPage extends StatefulWidget {
-  const TestPage({super.key});
-
-  @override
-  State<TestPage> createState() => _TestPageState();
-}
-
-class _TestPageState extends State<TestPage> {
-  static const batterChannel = MethodChannel('com.example.wms_mobiles');
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: TextButton(
-            onPressed: () async {
-              final val = await MyMethodChannel.getBatteryLevel();
-              print(val);
-
-              //  print( await batterChannel.invokeMethod('getBatteryLevel'));
-            },
-            child: Text('Click Me')),
-      ),
-    );
-  }
-}
-
-class MyMethodChannel {
-  static const platform = MethodChannel('com.example.method_channel');
-
-  static Future<String> getBatteryLevel() async {
-    try {
-      final String result = await platform.invokeMethod('getBatteryLevel');
-      return result;
-    } on PlatformException catch (e) {
-      return "Failed to get battery level: '${e.message}'.";
-    }
   }
 }

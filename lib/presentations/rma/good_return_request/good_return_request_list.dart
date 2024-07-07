@@ -110,7 +110,7 @@ class _GoodReturnRequestListScreenState
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                               GoodReturnRequestCreateScreen(dataById: {},id:false)),
+                               GoodReturnRequestCreateScreen(dataById: {},id:false, seriesList: [],)),
                     );
                   },
                   child: Container(

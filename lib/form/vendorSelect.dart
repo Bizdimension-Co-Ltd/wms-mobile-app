@@ -23,12 +23,13 @@ class _VendorSelectState extends State<VendorSelect> {
   int top = 10;
   var filter = null;
 
-  Future<void> getList() async {
+  Future<void> getList(filter) async {
     try {
-      final response = await dio.get('/BusinessPartners', query: {
+      final response = await dio.get("/BusinessPartners?\$filter=CardType eq 'cSupplier'${filter != "" ? " and CardCode eq '$filter'" : ''}", query: {
         '\$top': top,
         '\$skip': skip,
-        '\$filter': "CardType eq 'cSupplier'"
+        // '\$filter': "CardType eq 'cSupplier' and CardCode eq 'BFL0001'"
+        // '\$filter': "CardType eq 'cSupplier' ${filter != "" ? "and CardCode eq '$filter'":""}"
       });
 
       if (response.statusCode == 200) {
@@ -49,7 +50,7 @@ class _VendorSelectState extends State<VendorSelect> {
   @override
   void initState() {
     super.initState();
-    getList();
+    getList("");
     selectedRadio = widget.indBack;
   }
 
@@ -59,7 +60,7 @@ class _VendorSelectState extends State<VendorSelect> {
       data.clear();
       skip = 0;
     });
-    await getList();
+    await getList("");
     _refreshController.refreshCompleted();
   }
 
@@ -67,25 +68,61 @@ class _VendorSelectState extends State<VendorSelect> {
     setState(() {
       skip += top;
     });
-    await getList();
+    await getList("");
     _refreshController.loadComplete();
   }
 
+  bool _isSearching = false;
+  TextEditingController _search = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text('Vendors',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        actions: const [
-          Icon(Icons.search),
-          SizedBox(width: 10),
-          Icon(Icons.sort),
-          SizedBox(width: 10),
-        ],
+        title: _isSearching
+            ? TextField(
+                cursorColor: Colors.white, // Set the cursor color to white
+                controller: _search,
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+                style: TextStyle(color: Colors.white, fontSize: 17),
+              )
+            : const Text(
+                'Vendors',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+        actions: _isSearching
+            ? [
+                IconButton(
+                  icon: Icon(Icons.done),
+                  onPressed: () async {
+                    setState(() {
+                      _isSearching = false;
+                      check = 0;
+                      data.clear();
+                      getList(_search.text);
+                      // Perform search action here using _searchController.text
+                    });
+                  },
+                ),
+              ]
+            : [
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      _isSearching = true;
+                    });
+                  },
+                ),
+                SizedBox(width: 10),
+                Icon(Icons.sort),
+                SizedBox(width: 10),
+              ],
       ),
       body: Stack(
         children: [
@@ -117,7 +154,9 @@ class _VendorSelectState extends State<VendorSelect> {
                         shrinkWrap: true,
                         itemCount: data.length,
                         itemBuilder: (BuildContext context, int index) {
+                         bool isLastIndex = index == data.length - 1;
                           return ListItem(
+                            lastIndex: isLastIndex, 
                             twoRow: true,
                             index: index,
                             selectedRadio: selectedRadio,
@@ -153,7 +192,8 @@ class _VendorSelectState extends State<VendorSelect> {
                         data[selectedRadio]["BPAddresses"]?.isNotEmpty == true
                             ? data[selectedRadio]["BPAddresses"]![0]["Street"]
                             : null,
-                    "contactPersonList": data[selectedRadio]["ContactEmployees"],
+                    "contactPersonList": data[selectedRadio]
+                        ["ContactEmployees"],
                     "index": selectedRadio
                   };
                   if (selectedRadio != -1) {

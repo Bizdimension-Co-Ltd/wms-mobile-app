@@ -71,6 +71,14 @@ class _GoodReturnRequestItemDetailScreenState
               title: "Quantity",
               values: "${widget.itemDetail["Quantity"]}",
             ),
+              FlexTwo(
+              title: "Unit Price",
+              values: widget.itemDetail["UnitPrice"] ?? '',
+            ),
+            FlexTwo(
+              title: "Gross Price",
+              values: widget.itemDetail["GrossPrice"] ?? '',
+            ),
             FlexTwo(
               title: "Item Per Unit",
              values: "${widget.itemDetail["TaxPerUnit"]}",

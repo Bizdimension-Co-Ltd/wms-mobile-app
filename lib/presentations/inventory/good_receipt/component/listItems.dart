@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_item_create_screen.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_item_create_screen.dart';
+import 'package:wms_mobile/presentations/purchase/purchase_order/create_screen/purchaseOrderItemCreateScreen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/create_screen/good_return_request_item_create_screen.dart';
 
 class ListItems extends StatefulWidget {
-  const ListItems({super.key});
-
+  ListItems({super.key, required this.item});
+  Map<String, dynamic> item;
   @override
   State<ListItems> createState() => _ListItemsState();
 }
 
 class _ListItemsState extends State<ListItems> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,7 +42,7 @@ class _ListItemsState extends State<ListItems> {
       child: Row(
         children: [
           Expanded(
-            flex: 3,
+            flex: 4,
             child: SizedBox(
               height: double.infinity,
               child: Column(
@@ -41,16 +50,16 @@ class _ListItemsState extends State<ListItems> {
                 children: [
                   Container(
                     margin: const EdgeInsets.fromLTRB(13, 7, 0, 9),
-                    child: const Text(
-                      "Regular 92",
+                    child: Text(
+                      "${widget.item["ItemDescription"] ?? widget.item["ItemName"] ?? "N/A"}",
                       style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                   ),
                   Container(
                       margin: const EdgeInsets.only(left: 13),
-                      child: const Text(
-                        "FUE002",
+                      child: Text(
+                        "${widget.item["ItemCode"] ?? "N/A"}",
                         style: TextStyle(fontSize: 14.5, color: Colors.grey),
                       )),
                   Row(
@@ -96,7 +105,7 @@ class _ListItemsState extends State<ListItems> {
                           ),
                         ),
                         // child: const Center(child: Text("5")),
-                        child: const TextField(
+                        child: TextField(
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),
@@ -154,14 +163,6 @@ class _ListItemsState extends State<ListItems> {
                       height: 13,
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const GoodIssueItemCreateScreen()),
-                        );
-                      },
                       child: const Icon(
                         Icons.arrow_forward_ios,
                         color: Color.fromARGB(255, 122, 119, 119),
@@ -171,8 +172,8 @@ class _ListItemsState extends State<ListItems> {
                     const SizedBox(
                       height: 14,
                     ),
-                    const Text(
-                      "Ton1390L",
+                    Text(
+                      "${widget.item["InventoryUOM"] ?? widget.item["UoMCode"] ?? "N/A"}",
                       style: TextStyle(
                           fontSize: 14.5,
                           color: Color.fromARGB(255, 72, 72, 81)),
@@ -180,10 +181,10 @@ class _ListItemsState extends State<ListItems> {
                     const SizedBox(
                       height: 11,
                     ),
-                    const Text(
-                      "WH03 - WH03 - KST01",
+                    Text(
+                      "Wh - ${widget.item["WarehouseCode"] == "" || widget.item["WarehouseCode"] == null ? "N/A" : widget.item["WarehouseCode"]}",
                       style: TextStyle(
-                          fontSize: 15, color: Color.fromARGB(255, 72, 72, 81)),
+                          fontSize: 14, color: Color.fromARGB(255, 72, 72, 81)),
                     ),
                   ],
                 ) // color: const Color.fromARGB(255, 65, 60, 199),

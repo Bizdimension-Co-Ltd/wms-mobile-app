@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/mobile_function/countingScreen.dart';
 import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
@@ -30,7 +29,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.2,
+        elevation: 0,
+        
         automaticallyImplyLeading: false,
         // leading: const Icon(Icons.dashboard),
         iconTheme: const IconThemeData(

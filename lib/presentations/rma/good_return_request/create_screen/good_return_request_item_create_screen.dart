@@ -2,22 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/form/flexTwoArrowWithText.dart';
 import 'package:wms_mobile/form/textFlexTwo.dart';
+import 'package:wms_mobile/form/warehouseSelect.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
-class PurchaseOrderItemCreateScreen extends StatefulWidget {
-  const PurchaseOrderItemCreateScreen({super.key});
-
+class GoodReturnRequestItemCreateScreen extends StatefulWidget {
+  GoodReturnRequestItemCreateScreen({super.key, required this.updateItem});
+  Map<String, dynamic> updateItem;
   @override
-  State<PurchaseOrderItemCreateScreen> createState() =>
+  State<GoodReturnRequestItemCreateScreen> createState() =>
       _PurchaseOrderItemCreateScreenState();
 }
 
 class _PurchaseOrderItemCreateScreenState
-    extends State<PurchaseOrderItemCreateScreen> {
+    extends State<GoodReturnRequestItemCreateScreen> {
+  final _itemCode = TextEditingController();
+  final _itemDesc = TextEditingController();
+  final _quantity = TextEditingController();
+  final _unitPrice = TextEditingController();
+  final _crossPrice = TextEditingController();
+  final _itemPerUnit = TextEditingController();
+  final _unitOfMeas = TextEditingController();
+  Map<String, dynamic> _warehouse = {};
+  @override
+  void init() async {
+    _itemCode.text = widget.updateItem["ItemCode"] ?? "";
+    _itemDesc.text = widget.updateItem["ItemDescription"] ?? widget.updateItem["ItemName"] ?? "";
+    _quantity.text = widget.updateItem["Quantity"]?.toString() ?? "";
+    _unitPrice.text = widget.updateItem["UnitPrice"]?.toString() ?? "";
+    _crossPrice.text = widget.updateItem["GrossPrice"]?.toString() ?? "";
+    _itemPerUnit.text = widget.updateItem["ItemPerUnit"]?.toString() ?? "";
+    _warehouse["value"] = widget.updateItem["WarehouseCode"] ?? "";
+    _unitOfMeas.text = widget.updateItem["UnitsOfMeasurment"]?.toString() ?? "";
+  }
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context, {
+              "ItemCode": _itemCode.text,
+              "ItemDescription": _itemDesc.text,
+              "Quantity": _quantity.text,
+              "WarehouseCode": _warehouse["value"],
+              "UnitPrice": _unitPrice.text,
+              "GrossPrice": _crossPrice.text,
+              "UnitsOfMeasurment": _unitOfMeas.text
+            });
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            size: 24,
+          ),
+        ),
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
         title: const Text(
@@ -30,47 +74,52 @@ class _PurchaseOrderItemCreateScreenState
         height: double.infinity,
         color: const Color.fromARGB(255, 236, 233, 233),
         child: ListView(
-          children: const [
+          children: [
             SizedBox(
               height: 30,
             ),
             TextFlexTwo(
               title: "Item Code",
-              // textData: "",
+              textData: _itemCode,
             ),
             TextFlexTwo(
               title: "Description",
-              // textData: "",
+              textData: _itemDesc,
             ),
-            FlexTwoArrowWithText(
-              title: "Warehouse",
-              // textData: "FG01 - WHS - Finish Product",
-              simple: FontWeight.normal,
-              req: "true",
+            GestureDetector(
+              // onTap: () {
+              //   _navigateWarehouseSelect(context);
+              // },
+              child: FlexTwoArrowWithText(
+                title: "Warehouse",
+                textData: _warehouse["name"] ?? _warehouse["value"],
+                simple: FontWeight.normal,
+                req: "true",
+              ),
             ),
             TextFlexTwo(
               req: "true",
               title: "Quantity",
-              // textData: "",
+              textData: _quantity,
             ),
             TextFlexTwo(
               title: "Unit Price",
-              // textData: "FG01 - WHS - Finish Product",
+              textData: _unitPrice,
             ),
             TextFlexTwo(
               title: "Gross Price",
-              // textData: "FG01 - WHS - Finish Product",
+              textData: _crossPrice,
             ),
             SizedBox(
               height: 30,
             ),
             TextFlexTwo(
               title: "Item Per Unit",
-              // textData: "201003",
+              textData: _itemPerUnit,
             ),
             TextFlexTwo(
               title: "Unit of Measurement",
-              // textData: "",
+              textData: _unitOfMeas,
             ),
             SizedBox(
               height: 30,
@@ -97,5 +146,28 @@ class _PurchaseOrderItemCreateScreenState
         ),
       ),
     );
+  }
+
+  num indexWarehouseSeleted = -1;
+  Future<void> _navigateWarehouseSelect(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => WarehouseSelect(
+                indBack: indexWarehouseSeleted,
+              )),
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null) return;
+      _warehouse = {"name": result["name"], "value": result["value"]};
+      indexWarehouseSeleted = result["index"];
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          content: Text(_warehouse["name"] == null
+              ? "Unselected"
+              : "Selected ${_warehouse["name"]}")));
   }
 }

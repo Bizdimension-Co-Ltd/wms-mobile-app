@@ -4,11 +4,13 @@ import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
 class WarehouseSelect extends StatefulWidget {
-  const WarehouseSelect({Key? key, this.indBack})
+  WarehouseSelect({Key? key, this.indBack, this.branchId, this.allWH})
       : super(
           key: key,
         );
   final indBack;
+  final branchId;
+  final allWH;
   @override
   State<WarehouseSelect> createState() => _WarehouseSelectState();
 }
@@ -23,14 +25,23 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
   Future<void> getList() async {
     try {
       final response = await dio.get('/Warehouses', query: {
-        '\$select': "WarehouseCode,WarehouseName",
+        '\$select': "WarehouseCode,WarehouseName,BusinessPlaceID",
       });
 
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             check = 1;
-            data.addAll(response.data['value']);
+            List<dynamic> responseData = response.data['value'];
+            if (widget.branchId != null) {
+              data = responseData
+                  .where((e) => e['BusinessPlaceID'] == widget.branchId)
+                  .toList();
+            } else if (widget.allWH == "true") {
+              data = response.data['value'];
+            } else {
+              data = [];
+            }
           });
         }
       } else {
@@ -43,11 +54,11 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getList();
     setState(() {
       selectedRadio = widget.indBack;
+      print(widget.branchId);
     });
   }
 
@@ -55,10 +66,10 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text('Warehouse',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+        backgroundColor: Color.fromARGB(238, 16, 50, 171),
+        title: const Text(
+          'Warehouse',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,color: Colors.white),
         ),
         actions: const [
           Icon(Icons.search),
@@ -80,7 +91,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                         strokeWidth: 2.5,
                       ),
                     )
-                  : data.length == 0
+                  : data.isEmpty
                       ? Container(
                           child: Center(
                               child: Text(
@@ -93,7 +104,9 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
+                             bool isLastIndex = index == data.length - 1;
                             return ListItem(
+                                lastIndex: isLastIndex, 
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,
@@ -102,7 +115,10 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                                     selectedRadio = value;
                                   });
                                 },
-                                desc: data[index]["WarehouseName"] ?? "",
+                                desc: data[index]["WarehouseCode"] +
+                                        ' - ' +
+                                        data[index]["WarehouseName"] ??
+                                    "",
                                 code: "");
                           },
                         ),
@@ -122,7 +138,7 @@ class _WarehouseSelectState extends State<WarehouseSelect> {
                   ),
                   onPressed: () {
                     final op = {
-                      "name": data[selectedRadio]["WarehouseName"],
+                      "name": data[selectedRadio]["WarehouseCode"] ,
                       "value": data[selectedRadio]["WarehouseCode"],
                       "index": selectedRadio
                     };

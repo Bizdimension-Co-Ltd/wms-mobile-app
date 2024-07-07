@@ -1,8 +1,14 @@
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/component/blockList.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:wms_mobile/constant/style.dart';
+import 'package:wms_mobile/core/error/failure.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/good_issue_detail_screen.dart';
 import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_detail_screen.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wms_mobile/utilies/formart.dart';
 
 class ListDocument extends StatefulWidget {
@@ -59,7 +65,7 @@ class _ListDocumentState extends State<ListDocument> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => GoodReceiptDetailScreens(
-                              grById: widget.data[index],
+                              giById: widget.data[index],
                             ),
                           ),
                         );

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wms_mobile/presentations/inventory/good_issue/component/general.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_create_screen.dart';
+import 'package:wms_mobile/core/error/failure.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/component/general.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_create_screen.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 
 /// Flutter code sample for [TabBar].
 
 class GoodReceiptDetailScreens extends StatefulWidget {
-  final Map<String, dynamic> grById;
-  const GoodReceiptDetailScreens({super.key, required this.grById});
+  final Map<String, dynamic> giById;
+  const GoodReceiptDetailScreens({super.key, required this.giById});
   @override
   State<GoodReceiptDetailScreens> createState() =>
       _GoodReceiptDetailScreensState();
@@ -15,15 +18,101 @@ class GoodReceiptDetailScreens extends StatefulWidget {
 
 class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
     with TickerProviderStateMixin {
+  final DioClient dio = DioClient();
+  int check = 0;
+  Map<String, dynamic> data = {};
+  List<dynamic> _seriesList = [];
+  List<dynamic> _employee = [];
+  List<dynamic> _grTypeList = [];
+  List<dynamic> _binLocationList = [];
+  Future<void> getById() async {
+    try {
+      final response =
+          await dio.get('/InventoryGenEntries(${widget.giById["DocEntry"]})');
+      await getLabelApi();
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            check = 1;
+            data.addAll(response.data);
+          });
+        }
+      } else {
+        throw ServerFailure(message: response.data['msg']);
+      }
+    } on Failure {
+      rethrow;
+    }
+  }
+
+  Future<void> getLabelApi() async {
+    Map<String, dynamic> payload = {
+      'DocumentTypeParams': {'Document': '59'},
+    };
+    await dio
+        .post('/SeriesService_GetDocumentSeries', data: payload)
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _seriesList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/EmployeesInfo?\$select=EmployeeID,LastName,FirstName')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _employee.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/TL_OGIN?\$select=Name,Code')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _grTypeList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+    await dio
+        .get('/sml.svc/BIZ_BIN_QUERY?\$select=BinCode,BinID')
+        .then((res) => {
+              if (mounted)
+                {
+                  setState(() {
+                    _binLocationList.addAll(res.data["value"]);
+                  })
+                }
+            })
+        .catchError((e) => throw e);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getById();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: const Color.fromARGB(255, 17, 18, 48),
-        title: const Text(
-          'Good Receipt',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: GestureDetector(
+          child: const Text(
+            'Good Receipt',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
         ),
         actions: [
           IconButton(
@@ -209,7 +298,7 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
                               Navigator.pop(context);
                             },
                             child: Container(
-                              width: double.infinity, 
+                              width: double.infinity,
                               height: 50,
                               decoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 255, 255, 255),
@@ -284,42 +373,60 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          General(gHeader: widget.grById),
-          Positioned(
-              bottom: 30,
-              right: 30,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GoodReceiptCreateScreen()),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromARGB(255, 111, 115, 119),
-                          blurRadius: 10,
-                          offset: Offset(2, 5), // Shadow position
-                        ),
-                      ],
-                      color: const Color.fromARGB(255, 17, 18, 48),
-                      borderRadius: BorderRadius.circular(100.0)),
-                  width: 60,
-                  height: 60,
-                  child: Center(
-                      child: SvgPicture.asset(
-                    "images/svg/edit.svg",
-                    color: Colors.white,
-                  )),
+      body: check == 0
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(
+                strokeWidth: 2.5,
+              ),
+            )
+          : Stack(
+              children: [
+                General(
+                  gHeader: data,
+                  grTypeList: _grTypeList,
+                  employee: _employee,
+                  seriesList: _seriesList,
+                  binlocationList: _binLocationList
                 ),
-              ))
-        ],
-      ),
+                Positioned(
+                    bottom: 30,
+                    right: 30,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GoodReceiptCreateScreen(
+                                  id: true,
+                                  dataById: data,
+                                  seriesList: _seriesList,
+                                  listIssueType: _grTypeList,
+                                  employeeList: _employee,
+                                  binlocationList: _binLocationList)),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color.fromARGB(255, 111, 115, 119),
+                                blurRadius: 10,
+                                offset: Offset(2, 5), // Shadow position
+                              ),
+                            ],
+                            color: const Color.fromARGB(255, 17, 18, 48),
+                            borderRadius: BorderRadius.circular(100.0)),
+                        width: 60,
+                        height: 60,
+                        child: Center(
+                            child: SvgPicture.asset(
+                          "images/svg/edit.svg",
+                          color: Colors.white,
+                        )),
+                      ),
+                    ))
+              ],
+            ),
     );
   }
 }

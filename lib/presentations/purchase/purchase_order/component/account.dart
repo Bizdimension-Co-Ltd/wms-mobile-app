@@ -3,11 +3,10 @@ import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
 import 'package:wms_mobile/constant/style.dart';
 
-
 class AccountScreen extends StatefulWidget {
-   final Map<String, dynamic> poAccount;
-
-  const AccountScreen({super.key, required this.poAccount});
+  final Map<String, dynamic> poAccount;
+  final List<dynamic> paymentTermList;
+  const AccountScreen({super.key, required this.poAccount,required this.paymentTermList});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -31,13 +30,20 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           FlexTwo(
             title: "Payment Terms",
-          values: widget.poAccount["PaymentGroupCode"] ,
-              
+             values: (() {
+              var value = widget.paymentTermList.firstWhere(
+                (e) =>
+                    e["GroupNumber"] == widget.poAccount["PaymentGroupCode"],
+                orElse: () => null,
+              );
+              return value != null
+                  ? value["PaymentTermsGroupName"]
+                  : "";
+            })(),
           ),
           FlexTwo(
             title: "Cancellation date",
-           values: widget.poAccount["CancelDate"] ?? "",
-              
+            values: widget.poAccount["CancelDate"] ?? "",
           ),
           SizedBox(
             height: 30,

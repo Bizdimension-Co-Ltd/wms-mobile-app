@@ -34,7 +34,7 @@ class ServerFailure extends Failure {
   const ServerFailure({required super.message});
 
   @override
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [message];
 }
 
 class UnauthorizeFailure extends Failure {

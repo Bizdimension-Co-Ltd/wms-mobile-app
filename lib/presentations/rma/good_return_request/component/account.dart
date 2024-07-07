@@ -3,8 +3,11 @@ import 'package:wms_mobile/component/flexTwo.dart';
 import 'package:wms_mobile/component/flexTwoArrow.dart';
 
 class AccountScreen extends StatefulWidget {
-  AccountScreen({super.key, required this.grrAccount});
+  AccountScreen(
+      {super.key, required this.grrAccount, required this.paymentTermList});
   Map<String, dynamic> grrAccount;
+  final List<dynamic> paymentTermList;
+
   @override
   State<AccountScreen> createState() => _AccountScreenState();
 }
@@ -27,7 +30,16 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           FlexTwo(
             title: "Payment Terms",
-           values: "${widget.grrAccount["PaymentGroupCode"] ?? ""}",
+            values: (() {
+              var paymentTerm = widget.paymentTermList.firstWhere(
+                (e) =>
+                    e["GroupNumber"] == widget.grrAccount["PaymentGroupCode"],
+                orElse: () => null,
+              );
+              return paymentTerm != null
+                  ? paymentTerm["PaymentTermsGroupName"]
+                  : "";
+            })(),
           ),
           FlexTwo(
             title: "Cancellation date",

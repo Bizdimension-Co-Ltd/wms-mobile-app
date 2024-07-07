@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:wms_mobile/presentations/inventory/good_issue/component/itemsSelect.dart';
-import 'package:wms_mobile/presentations/rma/good_return_request/component/listItems.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/component/listItems.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/create_screen/good_issue_item_create_screen.dart';
 import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderCodeScreen.dart';
 
 class GoodIssueListItemsScreen extends StatefulWidget {
-  GoodIssueListItemsScreen({super.key, required this.dataFromPrev});
+  GoodIssueListItemsScreen({super.key, required this.dataFromPrev,required this.binList});
   List<dynamic> dataFromPrev;
-
+  List<dynamic> binList;
   @override
   State<GoodIssueListItemsScreen> createState() =>
       _GoodIssueListItemsScreenState();
@@ -14,6 +15,8 @@ class GoodIssueListItemsScreen extends StatefulWidget {
 
 class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
   List<dynamic> selectedItems = [];
+  final _quantity = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -101,8 +104,27 @@ class _GoodIssueListItemsScreenState extends State<GoodIssueListItemsScreen> {
                 shrinkWrap: true,
                 itemCount: selectedItems.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return ListItems(
-                    item: selectedItems[index],
+                  return GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GoodIssueItemCreateScreen(
+                            binList:widget.binList,
+                              updateItem: selectedItems[index], ind: index),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          selectedItems[index] = result;
+                          _quantity.text =
+                              selectedItems[index]["Quantity"] ?? "";
+                        });
+                      }
+                    },
+                    child: ListItems(
+                      item: selectedItems[index],
+                    ),
                   );
                 },
               ),

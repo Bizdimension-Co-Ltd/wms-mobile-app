@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/core/error/failure.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/component/listDocument.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/component/listOffLineDocument.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/create_screen/good_receipt_create_screen.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/component/listDocument.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/component/listOffLineDocument.dart';
+import 'package:wms_mobile/presentations/inventory/good_Receipt/create_screen/good_Receipt_create_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 
@@ -32,11 +32,7 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen>
     try {
       final response = await dio.get(
           '/InventoryGenEntries${pick != null && pick != selectedDate ? "?\$filter=DocDate eq '$pick'" : ''}',
-          query: {
-            '\$top': top,
-            '\$skip': skip,
-            '\$orderby': "DocEntry desc"
-          });
+          query: {'\$top': top, '\$skip': skip, '\$orderby': "DocEntry desc"});
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -205,8 +201,7 @@ class _GoodReceiptListScreenState extends State<GoodReceiptListScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              const GoodReceiptCreateScreen()),
+                          builder: (context) => GoodReceiptCreateScreen(id: false, dataById: {}, seriesList: [], listIssueType: [], employeeList: [], binlocationList: [],)),
                     );
                   },
                   child: Container(

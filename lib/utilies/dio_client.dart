@@ -42,22 +42,19 @@ class DioClient {
 
       return res;
     } on DioException catch (e) {
-      log(e.response?.data);
-
-      String message = e.response?.data['msg'];
-
-      if (message.contains('Route [login] not defined')) {
-        throw const UnauthorizeFailure(message: '401');
-      }
-
-      //
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(
-            message:
-                "Sorry due our server is error. please contact our support.");
+          message: "Sorry due our server is error. please contact our support.",
+        );
       }
 
-      throw const ServerFailure(message: 'Data not found');
+      if (e.response?.statusCode == 401) {
+        throw UnauthorizeFailure(message: 'Session already timeout');
+      }
+
+      throw ServerFailure(
+        message: e.response?.data['error']['message']['value'],
+      );
     } catch (e) {
       rethrow;
     }
@@ -74,56 +71,63 @@ class DioClient {
 
       return await _dio
           .post(
-            API_URL + uri,
-            data: data,
-            // options: options?.copyWith(
-            //   headers: {
-            //     "Content-Type": "application/json",
-            //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
-            //     // 'authorization': 'Basic',
-            //     // "Authorization": "Bearer $token",
-            //     // ...?options.headers,
-            //     // "withCredentials": true,
-            //   },
-            // ),
-            options: Options(
-              headers: {
-                'Content-Type': "application/json",
-                'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
-                // ...options,
-              },
-            ),
-            cancelToken: cancelToken,
-            queryParameters: queryParameters,
-          )
-          .then((value) => value);
+        API_URL + uri,
+        data: data,
+        // options: options?.copyWith(
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
+        //     // 'authorization': 'Basic',
+        //     // "Authorization": "Bearer $token",
+        //     // ...?options.headers,
+        //     // "withCredentials": true,
+        //   },
+        // ),
+        options: Options(
+          headers: {
+            'Content-Type': "application/json",
+            'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
+            // ...options,
+          },
+        ),
+        cancelToken: cancelToken,
+        queryParameters: queryParameters,
+      )
+          .then((value) {
+        return value;
+      });
     } on DioException catch (e) {
       log(e.requestOptions.method);
       log(e.requestOptions.uri.toString());
       log(jsonEncode(e.requestOptions.data));
       log('dio ${e.response?.statusCode}');
 
-      String message = e.response?.data['error']['message']['value'];
+      if (e.type == DioExceptionType.connectionError) {
+        throw const ConnectionRefuse(
+          message: "Invalid server host name.",
+        );
+      }
 
-      log(jsonEncode(message));
-
+      // log(jsonEncode(message));
       if (e.type == DioExceptionType.connectionTimeout) {
         throw const ConnectionRefuse(
           message: "Sorry due our server is error. please contact our support.",
         );
       }
 
-      if (e.response?.data != null) {
-        throw HttpError(message: message);
+      if (e.response?.statusCode == 401) {
+        throw UnauthorizeFailure(message: 'Session already timeout');
       }
 
-      throw const ServerFailure(message: 'Invalid request.');
+      throw ServerFailure(
+        message: e.response?.data['error']['message']['value'],
+      );
     } catch (e) {
       rethrow;
     }
   }
 
-   Future<Response> patch(String uri,
+  Future<Response> patch(String uri,
       {Options? options,
       Object? data,
       Map<String, dynamic>? queryParameters}) async {
@@ -163,7 +167,7 @@ class DioClient {
       log(jsonEncode(e.requestOptions.data));
       log('dio ${e.response?.statusCode}');
 
-      String message = e.response?.data['error']['message']['value'];
+      dynamic message = e.response?.data['error']['message']['value'];
 
       log(jsonEncode(message));
 

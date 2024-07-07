@@ -4,8 +4,10 @@ import 'package:wms_mobile/component/flexTwoArrow.dart';
 import 'package:wms_mobile/utilies/formart.dart';
 
 class HeaderScreen extends StatefulWidget {
-  const HeaderScreen({super.key, required this.grrHeader});
-  final Map<String, dynamic>  grrHeader;
+  const HeaderScreen(
+      {super.key, required this.grrHeader, required this.seriesList});
+  final Map<String, dynamic> grrHeader;
+  final List<dynamic> seriesList;
 
   @override
   State<HeaderScreen> createState() => _HeaderScreenState();
@@ -68,8 +70,8 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                   ),
-                                   Text(
-                                    " ${replaceStringStatus(widget. grrHeader["DocumentStatus"])}",
+                                  Text(
+                                    " ${replaceStringStatus(widget.grrHeader["DocumentStatus"])}",
                                     style: TextStyle(
                                       color: Colors.blue,
                                       fontSize: 14,
@@ -88,13 +90,13 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${splitDate(widget. grrHeader["DocDate"])}",
+                                    "${splitDate(widget.grrHeader["DocDate"])}",
                                     style: const TextStyle(
                                         color:
                                             Color.fromARGB(255, 106, 103, 103)),
                                   ),
-                                   Text(
-                                    "${widget. grrHeader["DocTotal"]} USD",
+                                  Text(
+                                    "${widget.grrHeader["DocTotal"]} USD",
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 97, 99, 100),
                                       fontSize: 14,
@@ -141,10 +143,10 @@ class _HeaderScreenState extends State<HeaderScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(
-                              height: 7,
+                              height: 5,
                             ),
                             Text(
-                              "Items (${widget. grrHeader["DocumentLines"].length})",
+                              "Items (${widget.grrHeader["DocumentLines"].length})",
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 15),
                             ),
@@ -178,71 +180,77 @@ class _HeaderScreenState extends State<HeaderScreen> {
               ],
             ),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Series",
-            values: "${widget. grrHeader["Series"]}",
+           values: (() {
+              var value = widget.seriesList.firstWhere(
+                (e) => e["Series"] == widget.grrHeader["Series"],
+                orElse: () => null,
+              );
+              return value != null ? value["Name"] : "...";
+            })(),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Document Number",
-            values: "${widget. grrHeader["DocNum"]}",
+            values: "${widget.grrHeader["DocNum"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Vendor",
-            values: "${widget. grrHeader["CardCode"]}",
+            values: "${widget.grrHeader["CardCode"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Name",
-            values: "${widget. grrHeader["CardName"]}",
+            values: "${widget.grrHeader["CardName"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Contact Person",
-            values: "${widget. grrHeader["ContactPersonCode"]}",
+            values: "${widget.grrHeader["ContactPersonCode"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Currency",
-            values: "${widget. grrHeader["DocCurrency"]}",
+            values: "${widget.grrHeader["DocCurrency"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Document Date",
-            values: splitDate(widget. grrHeader["TaxDate"]),
+            values: splitDate(widget.grrHeader["TaxDate"]),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Delivery Date",
-            values: splitDate(widget. grrHeader["DocDueDate"]),
+            values: splitDate(widget.grrHeader["DocDueDate"]),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Posting Date",
-            values: splitDate(widget. grrHeader["DocDate"]),
+            values: splitDate(widget.grrHeader["DocDate"]),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Remark",
-            values: "${widget. grrHeader["Comments"]}",
+            values: "${widget.grrHeader["Comments"]}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Custumer Ref. No",
-            values: "${widget. grrHeader["NumAtCard"] ?? ""}",
+            values: "${widget.grrHeader["NumAtCard"] ?? ""}",
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Status",
-            values: replaceStringStatus(widget. grrHeader["DocumentStatus"]),
+            values: replaceStringStatus(widget.grrHeader["DocumentStatus"]),
           ),
-           FlexTwo(
+          FlexTwo(
             title: "Branch",
-            values: "${widget. grrHeader["BPLName"] ?? ""}",
+            values: "${widget.grrHeader["BPLName"] ?? ""}",
           ),
-           SizedBox(
+          SizedBox(
             height: 30,
           ),
-           FlexTwoArrow(
+          FlexTwoArrow(
             title: "References",
           ),
-           SizedBox(
+          SizedBox(
             height: 30,
           ),
-           FlexTwoArrow(
+          FlexTwoArrow(
             title: "Attachment",
           ),
-           SizedBox(
+          SizedBox(
             height: 30,
           ),
         ],

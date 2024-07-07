@@ -96,7 +96,7 @@ class _ContentScreenState extends State<ContentScreen> {
                                                   255, 106, 103, 103)),
                                         ),
                                         Text(
-                                          "${widget.grrContent["DocumentLines"][index]["WarehouseCode"]} - WH03-KST01",
+                                          "Wh - ${widget.grrContent["DocumentLines"][index]["WarehouseCode"]}",
                                           style: TextStyle(
                                               color: Color.fromARGB(
                                                   255, 106, 103, 103)),

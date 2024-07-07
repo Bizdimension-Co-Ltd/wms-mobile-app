@@ -6,8 +6,9 @@ import 'package:wms_mobile/utilies/formart.dart';
 
 class HeaderScreen extends StatefulWidget {
   final Map<String, dynamic> poHeader;
-
-  const HeaderScreen({super.key, required this.poHeader});
+  final List<dynamic> seriesList;
+  const HeaderScreen(
+      {super.key, required this.poHeader, required this.seriesList});
   @override
   State<HeaderScreen> createState() => _HeaderScreenState();
 }
@@ -93,9 +94,14 @@ class _HeaderScreenState extends State<HeaderScreen> {
                                             Color.fromARGB(255, 106, 103, 103)),
                                   ),
                                   Text(
-                                    replaceStringStatus(widget.poHeader["DocumentStatus"]),
+                                    replaceStringStatus(
+                                        widget.poHeader["DocumentStatus"]),
                                     style: TextStyle(
-                                      color:widget.poHeader["DocumentStatus"]=="bost_Close"?Colors.red: Colors.blue,
+                                      color:
+                                          widget.poHeader["DocumentStatus"] ==
+                                                  "bost_Close"
+                                              ? Colors.red
+                                              : Colors.blue,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -178,9 +184,17 @@ class _HeaderScreenState extends State<HeaderScreen> {
               ],
             ),
           ),
-          FlexTwo(
-            title: "Series",
-            values: widget.poHeader["Series"] ?? "",
+          GestureDetector(
+            child: FlexTwo(
+              title: "Series",
+              values: (() {
+                var value = widget.seriesList.firstWhere(
+                  (e) => e["Series"] == widget.poHeader["Series"],
+                  orElse: () => null,
+                );
+                return value != null ? value["Name"] : "";
+              })(),
+            ),
           ),
           FlexTwo(
             title: "Document Number",
