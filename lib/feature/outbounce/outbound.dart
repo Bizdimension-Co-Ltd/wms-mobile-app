@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/outbounce/purchase_return/presentation/create_purchase_return_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import '/feature/inbound/purchase_order/presentation/purchase_order_page.dart';
-import '/feature/inbound/return_receipt/presentation/create_good_receipt_screen.dart';
+import '../inbound/return_receipt/presentation/create_return_receipt_screen.dart';
 
 import '../../constant/style.dart';
 import '../../helper/helper.dart';
+import 'delivery/presentation/create_delivery_screen.dart';
 import 'good_issue/presentation/create_good_issue_screen.dart';
 
 const gridList = [
@@ -24,8 +26,8 @@ class Outbound extends StatefulWidget {
 
 class _OutboundState extends State<Outbound> {
   final routes = [
-    PurchaseOrderPage(),
-    CreateGoodReceiptPOScreen(),
+    CreateDeliveryScreen(),
+    CreatePurchaseReturnScreen(),
     CreateGoodIssueScreen(),
   ];
 

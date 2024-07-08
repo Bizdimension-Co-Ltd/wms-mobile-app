@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import '/feature/inbound/purchase_order/presentation/purchase_order_page.dart';
-import '/feature/inbound/return_receipt/presentation/create_good_receipt_screen.dart';
+import 'return_receipt/presentation/create_return_receipt_screen.dart';
 
 import '../../constant/style.dart';
 import '../../helper/helper.dart';
