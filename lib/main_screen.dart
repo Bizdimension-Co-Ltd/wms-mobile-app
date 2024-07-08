@@ -6,7 +6,6 @@ import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import '/feature/middleware/presentation/login_screen.dart';
 import 'constant/style.dart';
-// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,15 +20,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     init();
-    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-    //   log('call.method 1 -> ${call.method}');
-    //   if (call.method == "onScanResults") {
-    //     setState(() {
-    //       log(call.arguments['data']);
-    //     });
-    //   }
-    // });
-
     super.initState();
   }
 

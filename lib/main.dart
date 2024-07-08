@@ -11,6 +11,8 @@ import 'package:wms_mobile/main_screen.dart';
 import 'core/disble_ssl.dart';
 import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
+import 'feature/inbound/return_receipt/presentation/cubit/return_receipt_cubit.dart';
+import 'feature/inbound/return_receipt_request/presentation/cubit/return_receipt_request_cubit.dart';
 import 'feature/item/presentation/cubit/item_cubit.dart';
 import 'injector.dart';
 
@@ -48,6 +50,8 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
         BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),
         BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),
+        BlocProvider(create: (_) => getIt<ReturnReceiptCubit>()),
+        BlocProvider(create: (_) => getIt<ReturnReceiptRequestCubit>()),
       ],
       child: const MainScreen(),
     );

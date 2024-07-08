@@ -5,7 +5,6 @@ import 'package:wms_mobile/form/goodReceiptTypeSelect.dart';
 import 'package:wms_mobile/form/itemSelect.dart';
 import 'package:wms_mobile/form/warehouseSelect.dart';
 import 'package:wms_mobile/injector.dart';
-import 'package:wms_mobile/feature/inbound/good_receipt_po/component/list_to_do_item.dart';
 import 'package:wms_mobile/presentations/inventory/component/uomSelect.dart';
 import 'package:wms_mobile/presentations/inventory/good_receipt/component/binlocationSelect.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
@@ -221,25 +220,6 @@ class _GoodReceiptCreateScreenState extends State<GoodReceiptCreateScreen> {
                     Expanded(flex: 2, child: Text("UoM")),
                     Expanded(flex: 2, child: Text("Qty/Open")),
                   ],
-                ),
-              ),
-              Container(
-                height: 300,
-                child: ListView.builder(
-                  // padding: const EdgeInsets.fromLTRB(0, 13, 0, 0),
-                  shrinkWrap: true,
-                  itemCount: document.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                        onTap: () {},
-                        child: ListToDoItem(
-                          itemCode: document[index]["ItemCode"],
-                          desc: document[index]["ItemDescription"],
-                          uom: document[index]["UoM"],
-                          qty: document[index]["Quantity"],
-                          openQty: document[index]["TotalQty"],
-                        ));
-                  },
                 ),
               ),
             ],
