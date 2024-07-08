@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
@@ -14,6 +15,7 @@ import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.d
 import 'feature/inbound/return_receipt/presentation/cubit/return_receipt_cubit.dart';
 import 'feature/inbound/return_receipt_request/presentation/cubit/return_receipt_request_cubit.dart';
 import 'feature/item/presentation/cubit/item_cubit.dart';
+import 'feature/outbounce/good_issue/presentation/cubit/good_issue_cubit.dart';
 import 'injector.dart';
 
 void main() async {
@@ -52,6 +54,8 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),
         BlocProvider(create: (_) => getIt<ReturnReceiptCubit>()),
         BlocProvider(create: (_) => getIt<ReturnReceiptRequestCubit>()),
+        BlocProvider(create: (_) => getIt<GoodReceiptCubit>()),
+        BlocProvider(create: (_) => getIt<GoodIssueCubit>()),
       ],
       child: const MainScreen(),
     );

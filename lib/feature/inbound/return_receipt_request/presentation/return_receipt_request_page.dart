@@ -90,21 +90,6 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
     });
   }
 
-  void forward(dynamic po) {
-    goTo(context, CreateGoodReceiptScreen(po: po)).then((value) {
-      if (value == null) return;
-
-      final state = _bloc.state;
-
-      if (state is ReturnReceiptRequestData) {
-        data = [...(state).entities];
-        setState(() {
-          data;
-        });
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

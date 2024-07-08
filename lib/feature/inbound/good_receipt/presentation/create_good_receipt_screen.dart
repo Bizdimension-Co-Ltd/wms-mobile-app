@@ -8,7 +8,6 @@ import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
 import '/feature/business_partner/presentation/screen/business_partner_page.dart';
-import '/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import '../../../../core/error/failure.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -22,17 +21,17 @@ import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
-import 'cubit/return_receipt_cubit.dart';
+import 'cubit/good_receipt_cubit.dart';
 
-class CreateReturnReceiptScreen extends StatefulWidget {
-  const CreateReturnReceiptScreen({super.key});
+class CreateGoodReceiptScreen extends StatefulWidget {
+  const CreateGoodReceiptScreen({super.key});
 
   @override
-  State<CreateReturnReceiptScreen> createState() =>
-      _CreateReturnReceiptScreenState();
+  State<CreateGoodReceiptScreen> createState() =>
+      _CreateGoodReceiptScreenState();
 }
 
-class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
+class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   final cardCode = TextEditingController();
   final cardName = TextEditingController();
   final poText = TextEditingController();
@@ -56,7 +55,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
 
-  late ReturnReceiptCubit _bloc;
+  late GoodReceiptCubit _bloc;
   late ItemCubit _blocItem;
 
   int isEdit = -1;
@@ -67,7 +66,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   @override
   void initState() {
     init();
-    _bloc = context.read<ReturnReceiptCubit>();
+    _bloc = context.read<GoodReceiptCubit>();
     _blocItem = context.read<ItemCubit>();
 
     //
@@ -95,7 +94,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.sale)).then((value) {
+    goTo(context, ItemPage(type: ItemType.inventory)).then((value) {
       if (value == null) return;
 
       onSetItemTemp(value);
@@ -262,15 +261,10 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
-      if (poText.text == '') {
-        throw Exception(
-            "You can only perform action with Return Receipt Request Document.");
-      }
-
       Map<String, dynamic> data = {
         "BPL_IDAssignedToInvoice": 1,
-        "CardCode": cardCode.text,
-        "CardName": cardName.text,
+        // "CardCode": cardCode.text,
+        // "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
         "DocumentLines": items.map((item) {
           List<dynamic> uomCollections =
@@ -325,9 +319,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             "UoMEntry": item['UoMEntry'],
             "Quantity": item['Quantity'],
             "WarehouseCode": warehouse.text,
-            "BaseType": 234000031,
-            "BaseEntry": item['BaseEntry'],
-            "BaseLine": item['BaseLine'],
+            // "BaseType": 234000031,
+            // "BaseEntry": item['BaseEntry'],
+            // "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations
@@ -341,7 +335,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Return Receipt - ${response['DocNum']}.",
+          body: "Good Receipt - ${response['DocNum']}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -521,7 +515,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Create Return Receipt',
+          'Create Good Receipt',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -549,15 +543,13 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                   readOnly: true,
                   onPressed: () {},
                 ),
-                Input(
-                  controller: poText,
-                  readOnly: true,
-                  label: 'RTR. #',
-                  placeholder: 'DocNum',
-                  onPressed: onNavigateToReturnReceiptRequest,
-                ),
-                const SizedBox(height: 20),
-                Text(''),
+                // Input(
+                //   controller: poText,
+                //   readOnly: true,
+                //   label: 'RTR. #',
+                //   placeholder: 'DocNum',
+                //   onPressed: onNavigateToReturnReceiptRequest,
+                // ),
                 Input(
                   controller: itemCode,
                   onEditingComplete: onCompleteTextEditItem,

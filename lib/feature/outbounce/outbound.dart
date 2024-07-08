@@ -7,29 +7,26 @@ import '/feature/inbound/return_receipt/presentation/create_good_receipt_screen.
 
 import '../../constant/style.dart';
 import '../../helper/helper.dart';
-import 'good_receipt/presentation/create_good_receipt_screen.dart';
+import 'good_issue/presentation/create_good_issue_screen.dart';
 
 const gridList = [
-  {"name": "Good Receipt PO", "img": "download.svg"},
-  {"name": "Quik Goods Receipt", "img": "download.svg"},
-  {"name": "Customer Return Receipt", "img": "return.svg"},
-  {"name": "Goods Receipt", "img": "transfer.svg"},
-  {"name": "Put Away", "img": "counting1.svg"},
+  {"name": "Delivery", "img": "download.svg"},
+  {"name": "Return To Supplier", "img": "download.svg"},
+  {"name": "Good Issue", "img": "return.svg"},
 ];
 
-class Inbound extends StatefulWidget {
-  const Inbound({super.key});
+class Outbound extends StatefulWidget {
+  const Outbound({super.key});
 
   @override
-  State<Inbound> createState() => _InboundState();
+  State<Outbound> createState() => _OutboundState();
 }
 
-class _InboundState extends State<Inbound> {
+class _OutboundState extends State<Outbound> {
   final routes = [
     PurchaseOrderPage(),
     CreateGoodReceiptPOScreen(),
-    CreateReturnReceiptScreen(),
-    CreateGoodReceiptScreen(),
+    CreateGoodIssueScreen(),
   ];
 
   @override
@@ -43,7 +40,7 @@ class _InboundState extends State<Inbound> {
         ),
         backgroundColor: PRIMARY_COLOR,
         title: Text(
-          "Inbound",
+          "Outbound",
           style: TextStyle(
             color: Colors.white,
             fontSize: size(context).width * 0.045,

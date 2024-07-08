@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/form/datePicker.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
@@ -38,6 +39,9 @@ class _DashboardState extends State<Dashboard> {
     switch (index) {
       case 0:
         goTo(context, const Inbound());
+        break;
+      case 1:
+        goTo(context, const Outbound());
         break;
       case 1:
         goTo(context,
