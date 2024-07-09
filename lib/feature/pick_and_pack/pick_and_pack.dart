@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/pick_and_pack/bin_transfer/presentation/create_bin_transfer_screen.dart';
 import '/utilies/dialog/dialog.dart';
 
 import '../../constant/style.dart';
@@ -13,18 +14,18 @@ const gridList = [
   {"name": "Warehouse Transfer", "img": "return.svg"},
 ];
 
-class Outbound extends StatefulWidget {
-  const Outbound({super.key});
+class PickAndPack extends StatefulWidget {
+  const PickAndPack({super.key});
 
   @override
-  State<Outbound> createState() => _OutboundState();
+  State<PickAndPack> createState() => _PickAndPackState();
 }
 
-class _OutboundState extends State<Outbound> {
+class _PickAndPackState extends State<PickAndPack> {
   final routes = [
     CreatePutAwayScreen(),
     CreatePutAwayScreen(),
-    CreatePutAwayScreen(),
+    CreateBinTransferScreen(),
     CreatePutAwayScreen(),
   ];
 
@@ -39,7 +40,7 @@ class _OutboundState extends State<Outbound> {
         ),
         backgroundColor: PRIMARY_COLOR,
         title: Text(
-          "Outbound",
+          "PickAndPack",
           style: TextStyle(
             color: Colors.white,
             fontSize: size(context).width * 0.045,
