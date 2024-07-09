@@ -9,6 +9,7 @@ import 'package:wms_mobile/feature/inbound/put_away/presentation/cubit/put_away_
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/purchase_return/presentation/cubit/purchase_return_cubit.dart';
 import 'package:wms_mobile/feature/pick_and_pack/bin_transfer/presentation/cubit/bin_transfer_cubit.dart';
+import 'package:wms_mobile/feature/pick_and_pack/warehouse_transfer/presentation/cubit/warehouse_transfer_cubit.dart';
 import 'package:wms_mobile/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import 'package:wms_mobile/main_screen.dart';
@@ -68,6 +69,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<PurchaseReturnCubit>()),
         BlocProvider(create: (_) => getIt<PurchaseReturnRequestCubit>()),
         BlocProvider(create: (_) => getIt<BinTransferCubit>()),
+        BlocProvider(create: (_) => getIt<WarehouseTransferCubit>()),
       ],
       child: const MainScreen(),
     );

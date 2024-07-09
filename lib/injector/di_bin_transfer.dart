@@ -1,38 +1,33 @@
 import 'package:get_it/get_it.dart';
-import 'package:wms_mobile/feature/inbound/put_away/data/data_source/put_away_remote_data_source.dart';
-import 'package:wms_mobile/feature/inbound/put_away/data/repository/put_away_repository_impl.dart';
-import 'package:wms_mobile/feature/inbound/put_away/domain/repository/put_away_repository.dart';
-import 'package:wms_mobile/feature/inbound/put_away/domain/usecase/post_usecase.dart';
-import 'package:wms_mobile/feature/inbound/put_away/presentation/cubit/put_away_cubit.dart';
 
-import '../feature/inbound/good_receipt/data/data_source/good_receipt_remote_data_source.dart';
-import '../feature/inbound/good_receipt/data/repository/good_receipt_repository_impl.dart';
-import '../feature/inbound/good_receipt/domain/repository/good_receipt_repository.dart';
-import '../feature/inbound/good_receipt/domain/usecase/post_usecase.dart';
-import '../feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
+import '../feature/pick_and_pack/bin_transfer/data/data_source/bin_transfer_remote_data_source.dart';
+import '../feature/pick_and_pack/bin_transfer/data/repository/bin_transfer_repository_impl.dart';
+import '../feature/pick_and_pack/bin_transfer/domain/repository/bin_transfer_repository.dart';
+import '../feature/pick_and_pack/bin_transfer/domain/usecase/post_usecase.dart';
+import '../feature/pick_and_pack/bin_transfer/presentation/cubit/bin_transfer_cubit.dart';
 
-class DiPutAway {
+class DIBinTransfer {
   final GetIt getIt;
 
-  DiPutAway(this.getIt) {
+  DIBinTransfer(this.getIt) {
     // ********* Bloc **********
     getIt.registerFactory(() {
-      return PutAwayCubit(getIt());
+      return BinTransferCubit(getIt());
     });
 
     //********* Use Cases **********
     getIt.registerLazySingleton(() {
-      return PostPutAwayUseCase(getIt());
+      return PostBinTransferUseCase(getIt());
     });
 
     // ********* Repositories **********
-    getIt.registerLazySingleton<PutAwayRepository>(() {
-      return PutAwayRepositoryImpl(getIt());
+    getIt.registerLazySingleton<BinTransferRepository>(() {
+      return BinTransferRepositoryImpl(getIt());
     });
 
     // ********* Data Sources **********
-    getIt.registerLazySingleton<PutAwayRemoteDataSource>(() {
-      return PutAwayRemoteDataSourceImpl(getIt());
+    getIt.registerLazySingleton<BinTransferRemoteDataSource>(() {
+      return BinTransferRemoteDataSourceImpl(getIt());
     });
   }
 }
