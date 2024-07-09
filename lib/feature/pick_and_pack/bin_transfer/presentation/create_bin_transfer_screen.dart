@@ -370,7 +370,7 @@ class _CreateBinTransferScreenState extends State<CreateBinTransferScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Put Away - ${response['DocNum']}.",
+          body: "Bin Transfer - ${response['DocNum']}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -506,45 +506,6 @@ class _CreateBinTransferScreenState extends State<CreateBinTransferScreen> {
     }
   }
 
-  // void onNavigateToReturnReceiptRequest() async {
-  //   goTo(context, ReturnReceiptRequestPage()).then((value) async {
-  //     if (value == null) return;
-
-  //     cardCode.text = getDataFromDynamic(value['CardCode']);
-  //     cardName.text = getDataFromDynamic(value['CardName']);
-  //     poText.text = getDataFromDynamic(value['DocNum']);
-
-  //     if (mounted) MaterialDialog.loading(context);
-
-  //     items = [];
-  //     for (var element in value['DocumentLines']) {
-  //       final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
-
-  //       items.add({
-  //         "DocEntry": element['DocEntry'],
-  //         "BaseEntry": element['DocEntry'],
-  //         "BaseLine": element['LineNum'],
-  //         "ItemCode": element['ItemCode'],
-  //         "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-  //         "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-  //         "WarehouseCode": warehouse.text,
-  //         "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-  //         "UoMCode": element['UoMCode'],
-  //         "UoMGroupDefinitionCollection":
-  //             itemResponse['UoMGroupDefinitionCollection'],
-  //         "BaseUoM": itemResponse['BaseUoM'],
-  //         "BinId": binId.text,
-  //       });
-  //     }
-
-  //     if (mounted) MaterialDialog.close(context);
-
-  //     setState(() {
-  //       items;
-  //     });
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -552,7 +513,7 @@ class _CreateBinTransferScreenState extends State<CreateBinTransferScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Create Put Away',
+          'Create Bin Transfer',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
