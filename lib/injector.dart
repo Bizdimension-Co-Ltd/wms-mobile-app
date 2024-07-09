@@ -9,6 +9,7 @@ import 'package:wms_mobile/injector/di_purchase_good_receipt.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
 import 'package:wms_mobile/injector/di_purchase_return.dart';
 import 'package:wms_mobile/injector/di_purchase_return_request.dart';
+import 'package:wms_mobile/injector/di_put_away%20copy.dart';
 import 'package:wms_mobile/injector/di_put_away.dart';
 import 'package:wms_mobile/injector/di_return_reqceipt.dart';
 import 'package:wms_mobile/injector/di_return_reqceipt_request.dart';
@@ -44,5 +45,6 @@ Future<void> container() async {
   DIDelivery(getIt);
   DIPurchaseReturn(getIt);
   DIPurchaseReturnRequest(getIt);
+  DiBinTransfer(getIt);
   //
 }
