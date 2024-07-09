@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/inbound/put_away/presentation/create_put_away_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import '/feature/inbound/purchase_order/presentation/purchase_order_page.dart';
@@ -30,6 +31,7 @@ class _InboundState extends State<Inbound> {
     CreateGoodReceiptPOScreen(),
     CreateReturnReceiptScreen(),
     CreateGoodReceiptScreen(),
+    CreatePutAwayScreen(),
   ];
 
   @override
