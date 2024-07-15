@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/core/enum/global.dart';
 import '/constant/style.dart';
 import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import '/utilies/storage/locale_storage.dart';
@@ -9,8 +10,9 @@ import 'cubit/return_receipt_request_cubit.dart';
 
 class ReturnReceiptRequestPage extends StatefulWidget {
   const ReturnReceiptRequestPage({
-    super.key,
+    super.key, required this.type,
   });
+  final BusinessPartnerType type;
 
   @override
   State<ReturnReceiptRequestPage> createState() =>
@@ -28,46 +30,84 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
   late ReturnReceiptRequestCubit _bloc;
 
   @override
+  // void initState() {
+  //   super.initState();
+  //   init(context);
+  // }
+
+  // void init(BuildContext context) async {
+  //   try {
+  //     final warehouse = await LocalStorageManger.getString('warehouse');
+
+  //     _bloc = context.read<ReturnReceiptRequestCubit>();
+  //     _bloc
+  //         .get(
+  //             "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
+  //         .then((value) => setState(() => data = value));
+
+  //     _scrollController.addListener(() {
+  //       if (_scrollController.position.pixels ==
+  //           _scrollController.position.maxScrollExtent) {
+  //         final state =
+  //             BlocProvider.of<ReturnReceiptRequestCubit>(context).state;
+  //         if (state is ReturnReceiptRequestData && data.length > 0) {
+  //           _bloc
+  //               .next(
+  //                   "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+  //               .then((value) {
+  //             if (!mounted) return;
+
+  //             setState(() => data = [...data, ...value]);
+  //           });
+  //         }
+  //       }
+  //     });
+  //   } catch (err) {
+  //     print(err);
+  //   }
+  // }
   void initState() {
     super.initState();
-    init(context);
-  }
-
-  void init(BuildContext context) async {
-    try {
-      final warehouse = await LocalStorageManger.getString('warehouse');
-
+    if (mounted) {
       _bloc = context.read<ReturnReceiptRequestCubit>();
-      _bloc
-          .get(
-              "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
-          .then((value) => setState(() => data = value));
+      final state = context.read<ReturnReceiptRequestCubit>().state;
+
+      if (state is ReturnReceiptRequestData) {
+        data = state.entities;
+      }
+
+      if (data.length == 0) {
+        _bloc
+            .get("$query&\$filter=${getBPTypeQueryString(widget.type)}")
+            .then((value) {
+          setState(() => data = value);
+          _bloc.set(value);
+        });
+      }
+
+      setState(() {
+        data;
+      });
 
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent) {
-          final state =
-              BlocProvider.of<ReturnReceiptRequestCubit>(context).state;
+          final state = BlocProvider.of<ReturnReceiptRequestCubit>(context).state;
           if (state is ReturnReceiptRequestData && data.length > 0) {
             _bloc
                 .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+                    "?\$top=10&\$skip=${data.length}&\$filter=${getBPTypeQueryString(widget.type)} and contains(CardCode,'${filter.text}')")
                 .then((value) {
               if (!mounted) return;
-
+              _bloc.set([...data, ...value]);
               setState(() => data = [...data, ...value]);
             });
           }
         }
       });
-    } catch (err) {
-      print(err);
     }
   }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
+    void dispose() {
     _scrollController.dispose();
     filter.dispose();
 
@@ -78,11 +118,9 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
     setState(() {
       data = [];
     });
-
-    final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' contains(CardCode, '${filter.text}')")
+            "$query&\$filter=${getBPTypeQueryString(widget.type)} and contains(CardCode, '${filter.text}')")
         .then((value) {
       if (!mounted) return;
 
@@ -90,6 +128,9 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
     });
   }
 
+  void onPressed(dynamic bp) {
+    Navigator.pop(context, bp);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +138,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Return Receipt Request Lists - OPEN',
+          'Business Partner Lists',
           style: TextStyle(
               fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
@@ -122,7 +163,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.transparent)),
                   contentPadding: const EdgeInsets.only(top: 15),
-                  hintText: 'Supplier Code...',
+                  hintText: 'BusinessPartner Code...',
                   suffixIcon: IconButton(
                     icon: Icon(
                       Icons.search,
@@ -146,11 +187,11 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
 
                   return ListView(
                     controller: _scrollController,
-                    children: [
+                     children: [
                       ...data
                           .map(
-                            (po) => GestureDetector(
-                              onTap: () => Navigator.of(context).pop(po),
+                            (bp) => GestureDetector(
+                              onTap: () => onPressed(bp),
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -158,41 +199,18 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
                                 ),
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "${getDataFromDynamic(po['CardCode'])} - ${getDataFromDynamic(po['DocNum'])}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                      ],
+                                    Text(
+                                      getDataFromDynamic(bp['CardCode']),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            getDataFromDynamic(po['Comments']),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 30),
-                                        Text(
-                                          'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                      ],
-                                    )
+                                    Text(
+                                      getDataFromDynamic(bp['CardName']),
+                                    ),
                                   ],
                                 ),
                               ),

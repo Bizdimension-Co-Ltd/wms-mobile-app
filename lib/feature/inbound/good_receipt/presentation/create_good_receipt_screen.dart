@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
+import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -46,6 +48,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   final uoMGroupDefinitionCollection = TextEditingController();
   final binId = TextEditingController();
   final binCode = TextEditingController();
+  final grType = TextEditingController();
+  final grTypeName = TextEditingController();
+
   final serialsInput = TextEditingController();
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
@@ -258,6 +263,15 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     });
   }
 
+  void onChangeGrt() async {
+    goTo(context, GrtPage()).then((value) {
+      if (value == null) return;
+
+      grType.text = getDataFromDynamic((value as GrtEntity).code);
+      grTypeName.text = getDataFromDynamic((value as GrtEntity).name);
+    });
+  }
+
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
@@ -265,6 +279,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
+        "U_tl_grtype":grType.text,
         "WarehouseCode": warehouse.text,
         "DocumentLines": items.map((item) {
           List<dynamic> uomCollections =
@@ -470,7 +485,11 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   }
 
   void onNavigateToReturnReceiptRequest() async {
-    goTo(context, ReturnReceiptRequestPage()).then((value) async {
+    goTo(
+        context,
+        ReturnReceiptRequestPage(
+          type: BusinessPartnerType.customer,
+        )).then((value) async {
       if (value == null) return;
 
       cardCode.text = getDataFromDynamic(value['CardCode']);
@@ -536,6 +555,12 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Input(
+                  controller: grTypeName,
+                  label: 'Good Receipt Type.',
+                  placeholder: 'Good Receipt Type',
+                  onPressed: onChangeGrt,
+                ),
                 Input(
                   label: 'Warehouse',
                   placeholder: 'Warehouse',

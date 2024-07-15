@@ -10,10 +10,8 @@ class ReturnReceiptRequestCubit extends Cubit<ReturnReceiptRequestState> {
 
   ReturnReceiptRequestCubit(this.useCase)
       : super(ReturnReceiptRequestInitial());
-
   Future<List<dynamic>> get(String query) async {
     emit(RequestingReturnReceiptRequest());
-
     final response = await useCase.call(query);
     return response.fold((error) {
       emit(ReturnReceiptRequestError(error.message));
@@ -26,8 +24,6 @@ class ReturnReceiptRequestCubit extends Cubit<ReturnReceiptRequestState> {
 
   Future<List<dynamic>> next(String query) async {
     emit(RequestingPaginationReturnReceiptRequest());
-    print('requesting next po.....');
-
     final response = await useCase.call(query);
     return response.fold((error) {
       emit(ReturnReceiptRequestError(error.message));
@@ -38,13 +34,7 @@ class ReturnReceiptRequestCubit extends Cubit<ReturnReceiptRequestState> {
     });
   }
 
-  Future<void> remove(int docEntry) async {
-    List<dynamic> data = [];
-
-    if (state is ReturnReceiptRequestData) {
-      data = [...(state as ReturnReceiptRequestData).entities];
-    }
-    data.removeWhere((row) => row['DocEntry'] == docEntry);
+  Future<void> set(List<dynamic> data) async {
     emit(ReturnReceiptRequestInitial());
     emit(ReturnReceiptRequestData(data));
   }

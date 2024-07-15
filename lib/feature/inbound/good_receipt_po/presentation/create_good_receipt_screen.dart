@@ -26,8 +26,9 @@ import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
 class CreateGoodReceiptPOScreen extends StatefulWidget {
-  const CreateGoodReceiptPOScreen({super.key, this.po = null});
-
+  const CreateGoodReceiptPOScreen(
+      {super.key, this.po = null, this.quickReceipt});
+  final dynamic quickReceipt;
   final dynamic po;
 
   @override
@@ -127,6 +128,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onSelectItem() async {
+    if (!widget.quickReceipt) return;
     setState(() {
       isEdit = -1;
     });
@@ -398,7 +400,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Good Receipt PO - ${response['DocNum']}.",
+          body: widget.quickReceipt
+              ? "Quick Receipt - ${response['DocNum']}."
+              : "Good Receipt PO - ${response['DocNum']}.",
           onOk: () => Navigator.of(context)
               .pop(widget.po == null ? null : widget.po['DocEntry']),
         );
@@ -537,14 +541,23 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Create Good Receipt PO',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
+        title: widget.quickReceipt
+            ? const Text(
+                'Create Quick Receipt',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              )
+            : const Text(
+                'Create Good Receipt PO',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

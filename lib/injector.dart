@@ -4,6 +4,7 @@ import 'package:wms_mobile/injector/di_business_partner.dart';
 import 'package:wms_mobile/injector/di_delivery.dart';
 import 'package:wms_mobile/injector/di_good_issue.dart';
 import 'package:wms_mobile/injector/di_good_receipt.dart';
+import 'package:wms_mobile/injector/di_grt.dart';
 import 'package:wms_mobile/injector/di_item.dart';
 import 'package:wms_mobile/injector/di_purchase_good_receipt.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
@@ -31,6 +32,7 @@ Future<void> container() async {
   DIPurchaseOrder(getIt);
   DIWarehouse(getIt);
   DIBin(getIt);
+  DIGrt(getIt);
   DIItem(getIt);
   DIUnitOfMeasurement(getIt);
   DIBusinessPartner(getIt);

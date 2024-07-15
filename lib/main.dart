@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
+import 'package:wms_mobile/feature/good_receipt_type/presentation/cubit/grt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/put_away/presentation/cubit/put_away_cubit.dart';
@@ -53,6 +54,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<PurchaseOrderCubit>()),
         BlocProvider(create: (_) => getIt<WarehouseCubit>()),
         BlocProvider(create: (_) => getIt<BinCubit>()),
+         BlocProvider(create: (_) => getIt<GrtCubit>()),
         BlocProvider(create: (_) => getIt<ItemCubit>()),
         BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
         BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),

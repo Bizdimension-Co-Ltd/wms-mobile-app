@@ -89,7 +89,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
   }
 
   void forward(dynamic po) {
-    goTo(context, CreateGoodReceiptPOScreen(po: po)).then((value) {
+    goTo(context, CreateGoodReceiptPOScreen(po: po,quickReceipt: false,)).then((value) {
       if (value == null) return;
 
       final state = _bloc.state;

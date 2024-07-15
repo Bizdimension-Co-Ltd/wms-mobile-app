@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
+import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
+import 'package:wms_mobile/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
-import '/feature/business_partner/presentation/screen/business_partner_page.dart';
-import '/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import '../../../../core/error/failure.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -35,7 +34,7 @@ class CreateReturnReceiptScreen extends StatefulWidget {
 class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final cardCode = TextEditingController();
   final cardName = TextEditingController();
-  final poText = TextEditingController();
+  final rtrText = TextEditingController();
   final uomText = TextEditingController();
   final quantity = TextEditingController();
   final warehouse = TextEditingController();
@@ -241,7 +240,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   }
 
   void onChangeCardCode() async {
-    goTo(context, BusinessPartnerPage(type: BusinessPartnerType.supplier))
+    goTo(context, BusinessPartnerPage(type: BusinessPartnerType.customer))
         .then((value) {
       if (value == null) return;
 
@@ -262,7 +261,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
-      if (poText.text == '') {
+      if (cardCode.text == '') {
         throw Exception(
             "You can only perform action with Return Receipt Request Document.");
       }
@@ -294,14 +293,14 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             }
           ];
 
-          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (_isBatch || _isSerial) {
+          if (isBatch || isSerial) {
             binAllocations = [];
 
             List<dynamic> batchOrSerialLines =
-                _isSerial ? item['Serials'] : item['Batches'];
+                isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
@@ -325,7 +324,6 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             "UoMEntry": item['UoMEntry'],
             "Quantity": item['Quantity'],
             "WarehouseCode": warehouse.text,
-            "BaseType": 234000031,
             "BaseEntry": item['BaseEntry'],
             "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
@@ -334,7 +332,6 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
           };
         }).toList(),
       };
-
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -476,41 +473,39 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   }
 
   void onNavigateToReturnReceiptRequest() async {
-    goTo(context, ReturnReceiptRequestPage()).then((value) async {
+    goTo(context, ReturnReceiptRequestPage(type: BusinessPartnerType.customer))
+        .then((value) async {
       if (value == null) return;
 
       cardCode.text = getDataFromDynamic(value['CardCode']);
       cardName.text = getDataFromDynamic(value['CardName']);
-      poText.text = getDataFromDynamic(value['DocNum']);
+      // if (mounted) MaterialDialog.loading(context);
+      // items = [];
+      // for (var element in value['DocumentLines']) {
+      //   final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-      if (mounted) MaterialDialog.loading(context);
+      //   items.add({
+      //     "DocEntry": element['DocEntry'],
+      //     "BaseEntry": element['DocEntry'],
+      //     "BaseLine": element['LineNum'],
+      //     "ItemCode": element['ItemCode'],
+      //     "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+      //     "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+      //     "WarehouseCode": warehouse.text,
+      //     "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+      //     "UoMCode": element['UoMCode'],
+      //     "UoMGroupDefinitionCollection":
+      //         itemResponse['UoMGroupDefinitionCollection'],
+      //     "BaseUoM": itemResponse['BaseUoM'],
+      //     "BinId": binId.text,
+      //   });
+      // }
 
-      items = [];
-      for (var element in value['DocumentLines']) {
-        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+      // if (mounted) MaterialDialog.close(context);
 
-        items.add({
-          "DocEntry": element['DocEntry'],
-          "BaseEntry": element['DocEntry'],
-          "BaseLine": element['LineNum'],
-          "ItemCode": element['ItemCode'],
-          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-          "WarehouseCode": warehouse.text,
-          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-          "UoMCode": element['UoMCode'],
-          "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
-          "BinId": binId.text,
-        });
-      }
-
-      if (mounted) MaterialDialog.close(context);
-
-      setState(() {
-        items;
-      });
+      // setState(() {
+      //   items;
+      // });
     });
   }
 
@@ -550,10 +545,10 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                   onPressed: () {},
                 ),
                 Input(
-                  controller: poText,
+                  controller: cardCode,
                   readOnly: true,
                   label: 'RTR. #',
-                  placeholder: 'DocNum',
+                  placeholder: 'Customer',
                   onPressed: onNavigateToReturnReceiptRequest,
                 ),
                 const SizedBox(height: 20),

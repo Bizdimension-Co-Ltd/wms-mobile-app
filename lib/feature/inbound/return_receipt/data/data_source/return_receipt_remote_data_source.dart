@@ -14,7 +14,7 @@ class ReturnReceiptRemoteDataSourceImpl
   @override
   Future<Map<String, dynamic>> post(Map<String, dynamic> payload) async {
     try {
-      final response = await dio.post('/Returns', data: payload);
+      final response = await dio.post('/ReturnRequest', data: payload);
       return response.data as dynamic;
     } on Failure {
       rethrow;

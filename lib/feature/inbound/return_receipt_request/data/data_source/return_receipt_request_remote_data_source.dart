@@ -14,7 +14,7 @@ class ReturnReceiptRequestRemoteDataSourceImpl
   @override
   Future<List<dynamic>> get(String query) async {
     try {
-      final response = await dio.get('/ReturnRequest$query');
+      final response = await dio.get('/BusinessPartners$query');
 
       if (response.statusCode != 200) {
         throw ServerFailure(message: 'error');
