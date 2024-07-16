@@ -562,77 +562,63 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: size(context).height,
-              maxHeight: size(context).height,
-              minWidth: size(context).width,
-              maxWidth: size(context).width,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Input(
-                  label: 'Warehouse',
-                  placeholder: 'Warehouse',
-                  controller: warehouse,
-                  readOnly: true,
-                  onPressed: () {},
-                ),
-                Input(
-                  controller: sbinCode,
-                  label: 'S.Bin.',
-                  placeholder: 'Bin Location',
-                  onPressed: onChangeSBin,
-                ),
-                Input(
-                  controller: tbinCode,
-                  label: 'T.Bin.',
-                  placeholder: 'Bin Location',
-                  onPressed: onChangeTBin,
-                ),
-                Input(
-                  controller: itemCode,
-                  onEditingComplete: onCompleteTextEditItem,
-                  label: 'Item.',
-                  placeholder: 'Item',
-                  onPressed: onSelectItem,
-                ),
-                Input(
-                  controller: uom,
-                  label: 'UoM.',
-                  placeholder: 'Unit Of Measurement',
-                  onPressed: onChangeUoM,
-                ),
-                Input(
-                  controller: quantity,
-                  label: 'Quantity.',
-                  placeholder: 'Quantity',
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  onEditingComplete: onCompleteQuantiyInput,
-                  onPressed: isSerialOrBatch
-                      ? () {
-                          onNavigateSerialOrBatch(force: true);
-                        }
-                      : null,
-                ),
-                const SizedBox(height: 40),
-                ContentHeader(),
-                Expanded(
-                  child: Scrollbar(
-                    child: ListView(
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            children: [
+              Input(
+                label: 'Warehouse',
+                placeholder: 'Warehouse',
+                controller: warehouse,
+                readOnly: true,
+                onPressed: () {},
+              ),
+              Input(
+                controller: sbinCode,
+                label: 'S.Bin.',
+                placeholder: 'Bin Location',
+                onPressed: onChangeSBin,
+              ),
+              Input(
+                controller: tbinCode,
+                label: 'T.Bin.',
+                placeholder: 'Bin Location',
+                onPressed: onChangeTBin,
+              ),
+              Input(
+                controller: itemCode,
+                onEditingComplete: onCompleteTextEditItem,
+                label: 'Item.',
+                placeholder: 'Item',
+                onPressed: onSelectItem,
+              ),
+              Input(
+                controller: uom,
+                label: 'UoM.',
+                placeholder: 'Unit Of Measurement',
+                onPressed: onChangeUoM,
+              ),
+              Input(
+                controller: quantity,
+                label: 'Quantity.',
+                placeholder: 'Quantity',
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                onEditingComplete: onCompleteQuantiyInput,
+                onPressed: isSerialOrBatch
+                    ? () {
+                        onNavigateSerialOrBatch(force: true);
+                      }
+                    : null,
+              ),
+              const SizedBox(height: 40),
+              ContentHeader(),
+              Column(
+                children: items
+                    .map((item) => GestureDetector(
+                          onTap: () => onEdit(item),
+                          child: ItemRow(item: item),
+                        ))
+                    .toList(),
+              ),
+            ],
           ),
         ),
       ),

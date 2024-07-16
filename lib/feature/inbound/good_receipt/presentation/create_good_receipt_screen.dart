@@ -279,7 +279,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
-        "U_tl_grtype":grType.text,
+        "U_tl_grtype": grType.text,
         "WarehouseCode": warehouse.text,
         "DocumentLines": items.map((item) {
           List<dynamic> uomCollections =
@@ -545,84 +545,63 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: size(context).height,
-              maxHeight: size(context).height,
-              minWidth: size(context).width,
-              maxWidth: size(context).width,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Input(
-                  controller: grTypeName,
-                  label: 'Good Receipt Type.',
-                  placeholder: 'Good Receipt Type',
-                  onPressed: onChangeGrt,
-                ),
-                Input(
-                  label: 'Warehouse',
-                  placeholder: 'Warehouse',
-                  controller: warehouse,
-                  readOnly: true,
-                  onPressed: () {},
-                ),
-                // Input(
-                //   controller: poText,
-                //   readOnly: true,
-                //   label: 'RTR. #',
-                //   placeholder: 'DocNum',
-                //   onPressed: onNavigateToReturnReceiptRequest,
-                // ),
-                Input(
-                  controller: itemCode,
-                  onEditingComplete: onCompleteTextEditItem,
-                  label: 'Item.',
-                  placeholder: 'Item',
-                  onPressed: onSelectItem,
-                ),
-                Input(
-                  controller: uom,
-                  label: 'UoM.',
-                  placeholder: 'Unit Of Measurement',
-                  onPressed: onChangeUoM,
-                ),
-                Input(
-                  controller: binCode,
-                  label: 'Bin.',
-                  placeholder: 'Bin Location',
-                  onPressed: onChangeBin,
-                ),
-                Input(
-                  controller: quantity,
-                  label: 'Quantity.',
-                  placeholder: 'Quantity',
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  onEditingComplete: onCompleteQuantiyInput,
-                  onPressed: isSerialOrBatch
-                      ? () {
-                          onNavigateSerialOrBatch(force: true);
-                        }
-                      : null,
-                ),
-                const SizedBox(height: 40),
-                ContentHeader(),
-                Expanded(
-                  child: Scrollbar(
-                    child: ListView(
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            children: [
+              Input(
+                controller: grTypeName,
+                label: 'Good Receipt Type.',
+                placeholder: 'Good Receipt Type',
+                onPressed: onChangeGrt,
+              ),
+              Input(
+                label: 'Warehouse',
+                placeholder: 'Warehouse',
+                controller: warehouse,
+                readOnly: true,
+                onPressed: () {},
+              ),
+              Input(
+                controller: itemCode,
+                onEditingComplete: onCompleteTextEditItem,
+                label: 'Item.',
+                placeholder: 'Item',
+                onPressed: onSelectItem,
+              ),
+              Input(
+                controller: uom,
+                label: 'UoM.',
+                placeholder: 'Unit Of Measurement',
+                onPressed: onChangeUoM,
+              ),
+              Input(
+                controller: binCode,
+                label: 'Bin.',
+                placeholder: 'Bin Location',
+                onPressed: onChangeBin,
+              ),
+              Input(
+                controller: quantity,
+                label: 'Quantity.',
+                placeholder: 'Quantity',
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                onEditingComplete: onCompleteQuantiyInput,
+                onPressed: isSerialOrBatch
+                    ? () {
+                        onNavigateSerialOrBatch(force: true);
+                      }
+                    : null,
+              ),
+              const SizedBox(height: 40),
+              ContentHeader(),
+              Column(
+                children: items
+                    .map((item) => GestureDetector(
+                          onTap: () => onEdit(item),
+                          child: ItemRow(item: item),
+                        ))
+                    .toList(),
+              ),
+            ],
           ),
         ),
       ),
