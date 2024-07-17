@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
-import 'package:wms_mobile/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
+import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
+import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
+import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
+import '/feature/business_partner/presentation/screen/business_partner_page.dart';
 import '../../../../core/error/failure.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -21,22 +23,19 @@ import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
-import 'cubit/return_receipt_cubit.dart';
+import 'cubit/physical_count_cubit.dart';
 
-class CreateReturnReceiptScreen extends StatefulWidget {
-  const CreateReturnReceiptScreen({super.key});
+class CreatePhysicalCountScreen extends StatefulWidget {
+  const CreatePhysicalCountScreen({super.key});
 
   @override
-  State<CreateReturnReceiptScreen> createState() =>
-      _CreateReturnReceiptScreenState();
+  State<CreatePhysicalCountScreen> createState() => _CreatePhysicalCountScreenState();
 }
 
-class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
-  final cardCode = TextEditingController();
-  final cardName = TextEditingController();
-  final rtrText = TextEditingController();
+class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   final uomText = TextEditingController();
   final quantity = TextEditingController();
+  final ref = TextEditingController();
   final warehouse = TextEditingController();
   final uom = TextEditingController();
   final uomAbEntry = TextEditingController();
@@ -46,6 +45,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final uoMGroupDefinitionCollection = TextEditingController();
   final binId = TextEditingController();
   final binCode = TextEditingController();
+
   final serialsInput = TextEditingController();
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
@@ -55,7 +55,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
 
-  late ReturnReceiptCubit _bloc;
+  late PhysicalCountCubit _bloc;
   late ItemCubit _blocItem;
 
   int isEdit = -1;
@@ -66,7 +66,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   @override
   void initState() {
     init();
-    _bloc = context.read<ReturnReceiptCubit>();
+    _bloc = context.read<PhysicalCountCubit>();
     _blocItem = context.read<ItemCubit>();
 
     //
@@ -94,7 +94,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.sale)).then((value) {
+    goTo(context, ItemPage(type: ItemType.inventory)).then((value) {
       if (value == null) return;
 
       onSetItemTemp(value);
@@ -122,6 +122,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   }
 
   void onAddItem({bool force = false}) {
+
     try {
       List<dynamic> data = [...items];
 
@@ -129,9 +130,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         throw Exception('Item is missing.');
       }
 
-      if (binId.text == '') {
-        throw Exception('Bin Location is missing.');
-      }
+      // if (binId.text == '') {
+      //   throw Exception('Bin Location is missing.');
+      // }
 
       if (quantity.text == '' || quantity.text == '0') {
         throw Exception('Quantity must be greater than zero.');
@@ -239,16 +240,6 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     );
   }
 
-  void onChangeCardCode() async {
-    goTo(context, BusinessPartnerPage(type: BusinessPartnerType.customer))
-        .then((value) {
-      if (value == null) return;
-
-      cardCode.text = getDataFromDynamic(value['CardCode']);
-      cardName.text = getDataFromDynamic(value['CardName']);
-    });
-  }
-
   void onChangeBin() async {
     goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
       if (value == null) return;
@@ -261,17 +252,10 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
-      if (cardCode.text == '') {
-        throw Exception(
-            "You can only perform action with Return Receipt Request Document.");
-      }
-
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
-        "CardCode": cardCode.text,
-        "CardName": cardName.text,
-        "WarehouseCode": warehouse.text,
-        "DocumentLines": items.map((item) {
+        "BranchID": 1,
+        "Reference2": ref.text,
+        "InventoryPostingLines": items.map((item) {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -279,17 +263,13 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
           );
 
-          List<dynamic> binAllocations = [
+          List<dynamic> inventoryPostingLineUoMs = [
             {
-              "Quantity": convertQuantityUoM(
-                alternativeUoM['BaseQuantity'],
-                alternativeUoM['AlternateQuantity'],
-                double.tryParse(item['Quantity']) ?? 0.00,
-              ),
-              "BinAbsEntry": item['BinId'],
-              "BaseLineNumber": 0,
-              "AllowNegativeQuantity": "tNO",
-              "SerialAndBatchNumbersBaseLine": -1
+              "LineNumber": 1,
+              "ChildNumber": 1,
+              "UoMCountedQuantity": item["Quantity"],
+              "CountedQuantity": item["Quantity"],
+              "UoMCode": item['UoMCode']
             }
           ];
 
@@ -297,14 +277,14 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
           bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
           if (isBatch || isSerial) {
-            binAllocations = [];
+            inventoryPostingLineUoMs = [];
 
             List<dynamic> batchOrSerialLines =
                 isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
-              binAllocations.add({
+              inventoryPostingLineUoMs.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
                 "BaseLineNumber": 0,
@@ -321,14 +301,12 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
-            "UoMEntry": item['UoMEntry'],
-            "Quantity": item['Quantity'],
+            "BinEntry": item["BinId"],
+            "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "BaseEntry": item['BaseEntry'],
-            "BaseLine": item['BaseLine'],
-            "SerialNumbers": item['Serials'] ?? [],
-            "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
+            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
+            "InventoryPostingLineUoMs": inventoryPostingLineUoMs
           };
         }).toList(),
       };
@@ -338,7 +316,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Return Receipt - ${response['DocNum']}.",
+          body: "Quick Count - ${response['DocumentNumber']}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -472,43 +450,6 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     }
   }
 
-  void onNavigateToReturnReceiptRequest() async {
-    goTo(context, ReturnReceiptRequestPage(type: BusinessPartnerType.customer))
-        .then((value) async {
-      if (value == null) return;
-
-      cardCode.text = getDataFromDynamic(value['CardCode']);
-      cardName.text = getDataFromDynamic(value['CardName']);
-      // if (mounted) MaterialDialog.loading(context);
-      // items = [];
-      // for (var element in value['DocumentLines']) {
-      //   final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
-
-      //   items.add({
-      //     "DocEntry": element['DocEntry'],
-      //     "BaseEntry": element['DocEntry'],
-      //     "BaseLine": element['LineNum'],
-      //     "ItemCode": element['ItemCode'],
-      //     "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-      //     "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-      //     "WarehouseCode": warehouse.text,
-      //     "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-      //     "UoMCode": element['UoMCode'],
-      //     "UoMGroupDefinitionCollection":
-      //         itemResponse['UoMGroupDefinitionCollection'],
-      //     "BaseUoM": itemResponse['BaseUoM'],
-      //     "BinId": binId.text,
-      //   });
-      // }
-
-      // if (mounted) MaterialDialog.close(context);
-
-      // setState(() {
-      //   items;
-      // });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -516,7 +457,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Create Return Receipt',
+          'Physical Count',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -529,6 +470,11 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+               Input(
+                controller: ref,
+                label: 'CoS.',
+                placeholder: 'Counting Sheet',
+              ),
               Input(
                 label: 'Warehouse',
                 placeholder: 'Warehouse',
@@ -536,15 +482,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                 readOnly: true,
                 onPressed: () {},
               ),
-              Input(
-                controller: cardCode,
-                readOnly: true,
-                label: 'RTR. #',
-                placeholder: 'Customer',
-                onPressed: onNavigateToReturnReceiptRequest,
-              ),
-              const SizedBox(height: 20),
-              Text(''),
+             
               Input(
                 controller: itemCode,
                 onEditingComplete: onCompleteTextEditItem,
@@ -558,12 +496,12 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                 placeholder: 'Unit Of Measurement',
                 onPressed: onChangeUoM,
               ),
-              Input(
-                controller: binCode,
-                label: 'Bin.',
-                placeholder: 'Bin Location',
-                onPressed: onChangeBin,
-              ),
+              // Input(
+              //   controller: binCode,
+              //   label: 'Bin.',
+              //   placeholder: 'Bin Location',
+              //   onPressed: onChangeBin,
+              // ),
               Input(
                 controller: quantity,
                 label: 'Quantity.',

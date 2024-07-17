@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wms_mobile/feature/counting/counting.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/form/datePicker.dart';
@@ -46,6 +47,9 @@ class _DashboardState extends State<Dashboard> {
       case 1:
         goTo(context,
             const GoodReceiptSerialScreen(itemCode: 'SE0001', quantity: '20'));
+        break;
+        case 4:
+        goTo(context, const Counting());
         break;
       case 6:
         goTo(context, const LoginScreen());

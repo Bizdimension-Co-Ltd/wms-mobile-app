@@ -73,16 +73,6 @@ class DioClient {
           .post(
         API_URL + uri,
         data: data,
-        // options: options?.copyWith(
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
-        //     // 'authorization': 'Basic',
-        //     // "Authorization": "Bearer $token",
-        //     // ...?options.headers,
-        //     // "withCredentials": true,
-        //   },
-        // ),
         options: Options(
           headers: {
             'Content-Type': "application/json",
@@ -140,16 +130,56 @@ class DioClient {
           .patch(
             API_URL + uri,
             data: data,
-            // options: options?.copyWith(
-            //   headers: {
-            //     "Content-Type": "application/json",
-            //     'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
-            //     // 'authorization': 'Basic',
-            //     // "Authorization": "Bearer $token",
-            //     // ...?options.headers,
-            //     // "withCredentials": true,
-            //   },
-            // ),
+            options: Options(
+              headers: {
+                'Content-Type': "application/json",
+                'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
+                // ...options,
+              },
+            ),
+            cancelToken: cancelToken,
+            queryParameters: queryParameters,
+          )
+          .then((value) => value);
+    } on DioException catch (e) {
+      log(e.requestOptions.method);
+      log(e.requestOptions.uri.toString());
+      log(jsonEncode(e.requestOptions.data));
+      log('dio ${e.response?.statusCode}');
+
+      dynamic message = e.response?.data['error']['message']['value'];
+
+      log(jsonEncode(message));
+
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw const ConnectionRefuse(
+          message: "Sorry due our server is error. please contact our support.",
+        );
+      }
+
+      if (e.response?.data != null) {
+        throw HttpError(message: message);
+      }
+
+      throw const ServerFailure(message: 'Invalid request.');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> put(String uri,
+      {Options? options,
+      Object? data,
+      Map<String, dynamic>? queryParameters}) async {
+    try {
+      final token = await LocalStorageManger.getString('SessionId');
+      _dio.options.headers['Content-Type'] = "application/json";
+      // _dio.options.headers['Authorization'] = "Bearer $token";
+
+      return await _dio
+          .put(
+            API_URL + uri,
+            data: data,
             options: Options(
               headers: {
                 'Content-Type': "application/json",
