@@ -9,6 +9,7 @@
 # packages, and plugins designed to encourage good coding practices.
 analyzer:
   errors:
+    annotate_overrides: ignore
     avoid_init_to_null: ignore
     avoid_unnecessary_containers: ignore
     file_names: ignore

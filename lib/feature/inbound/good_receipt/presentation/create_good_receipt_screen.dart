@@ -268,13 +268,12 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       if (value == null) return;
 
       grType.text = getDataFromDynamic((value as GrtEntity).code);
-      grTypeName.text = getDataFromDynamic((value as GrtEntity).name);
+      grTypeName.text = getDataFromDynamic((value).name);
     });
   }
 
   void onPostToSAP() async {
     try {
-      MaterialDialog.loading(context);
       Map<String, dynamic> data = {
         "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
@@ -303,14 +302,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             }
           ];
 
-          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (_isBatch || _isSerial) {
+          if (isBatch || isSerial) {
             binAllocations = [];
 
             List<dynamic> batchOrSerialLines =
-                _isSerial ? item['Serials'] : item['Batches'];
+                isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
@@ -343,6 +342,10 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           };
         }).toList(),
       };
+      setState(() {
+        print(data);
+      });
+      MaterialDialog.loading(context);
 
       final response = await _bloc.post(data);
       if (mounted) {
@@ -461,7 +464,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         ),
       ).then((value) {
         if (value == null) return;
-
+        setState(() {
+          print(value);
+        });
         quantity.text = value['quantity'] ?? "0";
         serialsInput.text = jsonEncode(value['items']);
       });

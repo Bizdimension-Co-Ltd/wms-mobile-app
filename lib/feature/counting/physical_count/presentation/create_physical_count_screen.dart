@@ -2,14 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
-import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
-import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
+import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
+import 'package:wms_mobile/feature/counting/physical_count/presentation/cubit/physical_count_cubit.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
-import '/feature/business_partner/presentation/screen/business_partner_page.dart';
 import '../../../../core/error/failure.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -23,13 +21,13 @@ import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
-import 'cubit/physical_count_cubit.dart';
 
 class CreatePhysicalCountScreen extends StatefulWidget {
   const CreatePhysicalCountScreen({super.key});
 
   @override
-  State<CreatePhysicalCountScreen> createState() => _CreatePhysicalCountScreenState();
+  State<CreatePhysicalCountScreen> createState() =>
+      _CreatePhysicalCountScreenState();
 }
 
 class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
@@ -50,7 +48,8 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
-
+  final cosDocEntry = TextEditingController();
+  final cos = TextEditingController();
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
@@ -101,6 +100,17 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     });
   }
 
+  void onSelectCos() async {
+    setState(() {
+      isEdit = -1;
+    });
+    goTo(context, CosPage()).then((value) {
+      if (value == null) return;
+
+      onSetCosTemp(value);
+    });
+  }
+
   void onChangeUoM() async {
     try {
       final data =
@@ -122,7 +132,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   }
 
   void onAddItem({bool force = false}) {
-
     try {
       List<dynamic> data = [...items];
 
@@ -254,8 +263,8 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
         "BranchID": 1,
-        "Reference2": ref.text,
-        "InventoryPostingLines": items.map((item) {
+        "DocumentNumber": cos.text,
+        "InventoryCountingLines": items.map((item) {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -263,10 +272,8 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
             (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
           );
 
-          List<dynamic> inventoryPostingLineUoMs = [
+          List<dynamic> inventoryCountingLineUoMs = [
             {
-              "LineNumber": 1,
-              "ChildNumber": 1,
               "UoMCountedQuantity": item["Quantity"],
               "CountedQuantity": item["Quantity"],
               "UoMCode": item['UoMCode']
@@ -277,14 +284,14 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
           bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
           if (isBatch || isSerial) {
-            inventoryPostingLineUoMs = [];
+            inventoryCountingLineUoMs = [];
 
             List<dynamic> batchOrSerialLines =
                 isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
-              inventoryPostingLineUoMs.add({
+              inventoryCountingLineUoMs.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
                 "BaseLineNumber": 0,
@@ -301,22 +308,26 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
-            "BinEntry": item["BinId"],
+            // "BinEntry": item["BinId"],
+            "UoMCountedQuantity": item["Quantity"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
-            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
-            "InventoryPostingLineUoMs": inventoryPostingLineUoMs
+            "InventoryCountingSerialNumbers": item['Serials'] ?? [],
+            "InventoryCountingBatchNumbers": item['Batches'] ?? [],
+            "InventoryCountingLineUoMs": inventoryCountingLineUoMs
           };
         }).toList(),
       };
-      final response = await _bloc.post(data);
+      setState(() {
+        print(data);
+      });
+      final response = await _bloc.put(data, int.tryParse(cosDocEntry.text)!);
       if (mounted) {
         Navigator.of(context).pop();
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Quick Count - ${response['DocumentNumber']}.",
+          body: "Physical Count - ${cos.text}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -372,6 +383,17 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
           isSerialOrBatch = true;
         });
       }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void onSetCosTemp(dynamic value) {
+    try {
+      if (value == null) return;
+      FocusScope.of(context).requestFocus(FocusNode());
+      cosDocEntry.text = getDataFromDynamic(value['DocumentEntry']);
+      cos.text = getDataFromDynamic(value['DocumentNumber']);
     } catch (e) {
       print(e);
     }
@@ -470,10 +492,11 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-               Input(
-                controller: ref,
+              Input(
+                controller: cos,
                 label: 'CoS.',
                 placeholder: 'Counting Sheet',
+                onPressed: onSelectCos,
               ),
               Input(
                 label: 'Warehouse',
@@ -482,7 +505,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 readOnly: true,
                 onPressed: () {},
               ),
-             
+
               Input(
                 controller: itemCode,
                 onEditingComplete: onCompleteTextEditItem,

@@ -3,6 +3,7 @@ import 'package:wms_mobile/injector/di_bin.dart';
 import 'package:wms_mobile/injector/di_binlocation_count%20.dart';
 import 'package:wms_mobile/injector/di_bin_transfer.dart';
 import 'package:wms_mobile/injector/di_business_partner.dart';
+import 'package:wms_mobile/injector/di_cos.dart';
 import 'package:wms_mobile/injector/di_delivery.dart';
 import 'package:wms_mobile/injector/di_good_issue.dart';
 import 'package:wms_mobile/injector/di_good_receipt.dart';
@@ -39,6 +40,7 @@ Future<void> container() async {
   DIBin(getIt);
   DIGrt(getIt);
   DIItem(getIt);
+  DICos(getIt);
   DIUnitOfMeasurement(getIt);
   DIBusinessPartner(getIt);
   DIPurchaseGoodReceipt(getIt);

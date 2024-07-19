@@ -2,7 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/feature/counting/physical_count/data/data_source/physical_count_remote_data_source.dart';
 import 'package:wms_mobile/feature/counting/physical_count/data/repository/physical_count_repository_impl.dart';
 import 'package:wms_mobile/feature/counting/physical_count/domain/repository/physical_count_repository.dart';
-import 'package:wms_mobile/feature/counting/physical_count/domain/usecase/post_usecase.dart';
+import 'package:wms_mobile/feature/counting/physical_count/domain/usecase/put_usecase.dart';
 import 'package:wms_mobile/feature/counting/physical_count/presentation/cubit/physical_count_cubit.dart';
 
 class DIPhysicalCount {
@@ -16,7 +16,7 @@ class DIPhysicalCount {
 
     //********* Use Cases **********
     getIt.registerLazySingleton(() {
-      return PostPhysicalCountUseCase(getIt());
+      return PutPhysicalCountUseCase(getIt());
     });
 
     // ********* Repositories **********

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
 import 'package:wms_mobile/feature/counting/bin_count/presentation/cubit/binlocation_count_cubit.dart';
+import 'package:wms_mobile/feature/counting/cos/presentation/cubit/cos_cubit.dart';
 import 'package:wms_mobile/feature/counting/physical_count/presentation/cubit/physical_count_cubit.dart';
 import 'package:wms_mobile/feature/counting/quick_count/presentation/cubit/quick_count_cubit.dart';
 import 'package:wms_mobile/feature/good_receipt_type/presentation/cubit/grt_cubit.dart';
@@ -61,6 +62,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<BinCubit>()),
         BlocProvider(create: (_) => getIt<GrtCubit>()),
         BlocProvider(create: (_) => getIt<ItemCubit>()),
+        BlocProvider(create: (_) => getIt<CosCubit>()),
         BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
         BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),
         BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),

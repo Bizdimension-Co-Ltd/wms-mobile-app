@@ -29,6 +29,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   final quantity = TextEditingController();
   final totalSerial = TextEditingController();
   final textSerial = TextEditingController();
+  int updateIndex = -1;
 
   List<dynamic> items = [];
 
@@ -86,7 +87,6 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
 
       items.add({"InternalSerialNumber": textSerial.text});
       totalSerial.text = items.length.toString();
-      textSerial.text = "";
       setState(() {
         items;
       });
@@ -109,6 +109,17 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         });
       },
     );
+  }
+
+  void onComplete() {
+    try {
+      Navigator.of(context).pop({
+        "items": items,
+        "quantity": quantity.text,
+      });
+    } catch (e) {
+      MaterialDialog.success(context, title: 'Failed', body: e.toString());
+    }
   }
 
   @override
@@ -174,7 +185,17 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
                   onEditingComplete: onEnterSerial,
                 ),
                 const SizedBox(height: 40),
-                Text('Serial No.'),
+                Button(
+                  bgColor: Colors.green.shade700,
+                  onPressed: onEnterSerial,
+                  child: Text(
+                    updateIndex == -1 ? "Add" : "Update",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                // Text('Serial No.'),
                 const SizedBox(height: 12),
                 ContentHeader(),
                 Expanded(
@@ -203,10 +224,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
           children: [
             Expanded(
               child: Button(
-                onPressed: () => Navigator.of(context).pop({
-                  "items": items,
-                  "quantity": quantity.text,
-                }),
+                onPressed: onComplete,
                 bgColor: Colors.green.shade900,
                 child: Text(
                   'Done',

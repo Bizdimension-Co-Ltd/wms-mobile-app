@@ -2,7 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/feature/counting/bin_count/data/data_source/bin_count_remote_data_source.dart';
 import 'package:wms_mobile/feature/counting/bin_count/data/repository/bin_count_repository_impl.dart';
 import 'package:wms_mobile/feature/counting/bin_count/domain/repository/bin_count_repository.dart';
-import 'package:wms_mobile/feature/counting/bin_count/domain/usecase/post_usecase.dart';
+import 'package:wms_mobile/feature/counting/bin_count/domain/usecase/put_usecase.dart';
 import 'package:wms_mobile/feature/counting/bin_count/presentation/cubit/binlocation_count_cubit.dart';
 
 class DIBinlocationCount {
@@ -16,7 +16,7 @@ class DIBinlocationCount {
 
     //********* Use Cases **********
     getIt.registerLazySingleton(() {
-      return PostBinlocationCountUseCase(getIt());
+      return PutBinCountUseCase(getIt());
     });
 
     // ********* Repositories **********
