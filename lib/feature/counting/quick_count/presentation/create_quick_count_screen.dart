@@ -272,29 +272,29 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             }
           ];
 
-          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
+          // bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          // bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (isBatch || isSerial) {
-            inventoryPostingLineUoMs = [];
+          // if (isBatch || isSerial) {
+          //   inventoryPostingLineUoMs = [];
 
-            List<dynamic> batchOrSerialLines =
-                isSerial ? item['Serials'] : item['Batches'];
+          //   List<dynamic> batchOrSerialLines =
+          //       isSerial ? item['Serials'] : item['Batches'];
 
-            int index = 0;
-            for (var element in batchOrSerialLines) {
-              inventoryPostingLineUoMs.add({
-                "BinAbsEntry": item['BinId'],
-                "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
-                "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
-              });
+          //   int index = 0;
+          //   for (var element in batchOrSerialLines) {
+          //     inventoryPostingLineUoMs.add({
+          //       "BinAbsEntry": item['BinId'],
+          //       "AllowNegativeQuantity": "tNO",
+          //       "BaseLineNumber": 0,
+          //       "SerialAndBatchNumbersBaseLine": index,
+          //       "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
+          //           alternativeUoM['AlternateQuantity'], 1),
+          //     });
 
-              index++;
-            }
-          }
+          //     index++;
+          //   }
+          // }
 
           return {
             "ItemCode": item['ItemCode'],

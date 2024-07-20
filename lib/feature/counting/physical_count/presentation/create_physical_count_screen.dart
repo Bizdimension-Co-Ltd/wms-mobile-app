@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
 import 'package:wms_mobile/feature/counting/physical_count/presentation/cubit/physical_count_cubit.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -60,6 +61,8 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
+  final DioClient dio = DioClient();
+
   bool loading = false;
 
   @override
@@ -90,6 +93,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   }
 
   void onSelectItem() async {
+    return;
     setState(() {
       isEdit = -1;
     });
@@ -265,13 +269,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         "BranchID": 1,
         "DocumentNumber": cos.text,
         "InventoryCountingLines": items.map((item) {
-          List<dynamic> uomCollections =
-              item["UoMGroupDefinitionCollection"] ?? [];
-
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
-
           List<dynamic> inventoryCountingLineUoMs = [
             {
               "UoMCountedQuantity": item["Quantity"],
@@ -279,30 +276,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               "UoMCode": item['UoMCode']
             }
           ];
-
-          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
-
-          if (isBatch || isSerial) {
-            inventoryCountingLineUoMs = [];
-
-            List<dynamic> batchOrSerialLines =
-                isSerial ? item['Serials'] : item['Batches'];
-
-            int index = 0;
-            for (var element in batchOrSerialLines) {
-              inventoryCountingLineUoMs.add({
-                "BinAbsEntry": item['BinId'],
-                "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
-                "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
-              });
-
-              index++;
-            }
-          }
 
           return {
             "ItemCode": item['ItemCode'],
@@ -318,9 +291,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
           };
         }).toList(),
       };
-      setState(() {
-        print(data);
-      });
       final response = await _bloc.put(data, int.tryParse(cosDocEntry.text)!);
       if (mounted) {
         Navigator.of(context).pop();
@@ -388,12 +358,35 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     }
   }
 
-  void onSetCosTemp(dynamic value) {
+  void onSetCosTemp(dynamic value) async {
     try {
       if (value == null) return;
+      if (mounted) MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
       cosDocEntry.text = getDataFromDynamic(value['DocumentEntry']);
       cos.text = getDataFromDynamic(value['DocumentNumber']);
+      // documentLines.add();
+      if (value['DocumentEntry'] != null) {
+        final response =
+            await dio.get('/InventoryCountings(${value['DocumentEntry']})');
+        if (response.statusCode == 200) {
+          for (var element in response.data["InventoryCountingLines"]) {
+            items.add({
+              "ItemCode": element['ItemCode'],
+              "ItemDescription":
+                  element['ItemName'] ?? element['ItemDescription'],
+              "Quantity": getDataFromDynamic(element['CountedQuantity']),
+              "WarehouseCode": warehouse.text,
+              "UoMCode": element['UoMCode'],
+            });
+          }
+        }
+
+        setState(() {
+          items;
+        });
+        if (mounted) MaterialDialog.close(context);
+      }
     } catch (e) {
       print(e);
     }
