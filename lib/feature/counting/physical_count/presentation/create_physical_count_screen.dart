@@ -370,6 +370,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         final response =
             await dio.get('/InventoryCountings(${value['DocumentEntry']})');
         if (response.statusCode == 200) {
+          items = [];
           for (var element in response.data["InventoryCountingLines"]) {
             items.add({
               "ItemCode": element['ItemCode'],

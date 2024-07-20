@@ -377,11 +377,13 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
               "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' & \$select=AbsEntry,Warehouse,BinCode");
           if (response.statusCode == 200 && binResponse.statusCode == 200) {
             final binData = binResponse.data['value'];
+            items = [];
             for (var element in response.data["InventoryCountingLines"]) {
               var binCode = binData.firstWhere(
                 (e) => e["AbsEntry"] == element['BinEntry'],
                 orElse: () => null,
               )?['BinCode'];
+
               items.add({
                 "ItemCode": element['ItemCode'],
                 "ItemDescription":
