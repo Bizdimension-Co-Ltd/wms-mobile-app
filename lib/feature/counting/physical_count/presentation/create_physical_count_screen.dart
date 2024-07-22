@@ -67,7 +67,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
 
   @override
   void initState() {
-    init();
+    // init();
     _bloc = context.read<PhysicalCountCubit>();
     _blocItem = context.read<ItemCubit>();
 
@@ -87,10 +87,10 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     super.initState();
   }
 
-  void init() async {
-    final whs = await LocalStorageManger.getString('warehouse');
-    warehouse.text = whs;
-  }
+  // void init() async {
+  //   final whs = await LocalStorageManger.getString('warehouse');
+  //   warehouse.text = whs;
+  // }
 
   void onSelectItem() async {
     return;
@@ -366,10 +366,13 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       cosDocEntry.text = getDataFromDynamic(value['DocumentEntry']);
       cos.text = getDataFromDynamic(value['DocumentNumber']);
       // documentLines.add();
+      clear();
       if (value['DocumentEntry'] != null) {
         final response =
             await dio.get('/InventoryCountings(${value['DocumentEntry']})');
         if (response.statusCode == 200) {
+          warehouse.text =
+              response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
           items = [];
           for (var element in response.data["InventoryCountingLines"]) {
             items.add({

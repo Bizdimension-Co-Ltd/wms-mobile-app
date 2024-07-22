@@ -68,7 +68,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
 
   @override
   void initState() {
-    init();
+    // init();
     _bloc = context.read<BinlocationCountCubit>();
     _blocItem = context.read<ItemCubit>();
 
@@ -88,10 +88,10 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     super.initState();
   }
 
-  void init() async {
-    final whs = await LocalStorageManger.getString('warehouse');
-    warehouse.text = whs;
-  }
+  // void init() async {
+  //   final whs = await LocalStorageManger.getString('warehouse');
+  //   warehouse.text = whs;
+  // }
 
   void onSelectItem() async {
     return;
@@ -255,6 +255,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   }
 
   void onChangeBin() async {
+    return;
     goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
       if (value == null) return;
 
@@ -336,7 +337,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     try {
       if (value == null) return;
       FocusScope.of(context).requestFocus(FocusNode());
-
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       quantity.text = '0';
@@ -369,31 +369,40 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
       FocusScope.of(context).requestFocus(FocusNode());
       cosDocEntry.text = getDataFromDynamic(value['DocumentEntry']);
       cos.text = getDataFromDynamic(value['DocumentNumber']);
+      clear();
       if (value['DocumentEntry'] != null) {
         try {
           final response =
               await dio.get('/InventoryCountings(${value['DocumentEntry']})');
-          final binResponse = await dio.get(
-              "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' & \$select=AbsEntry,Warehouse,BinCode");
-          if (response.statusCode == 200 && binResponse.statusCode == 200) {
-            final binData = binResponse.data['value'];
-            items = [];
-            for (var element in response.data["InventoryCountingLines"]) {
-              var binCode = binData.firstWhere(
-                (e) => e["AbsEntry"] == element['BinEntry'],
-                orElse: () => null,
-              )?['BinCode'];
 
-              items.add({
-                "ItemCode": element['ItemCode'],
-                "ItemDescription":
-                    element['ItemName'] ?? element['ItemDescription'],
-                "Quantity": getDataFromDynamic(element['CountedQuantity']),
-                "WarehouseCode": warehouse.text,
-                "UoMCode": element['UoMCode'],
-                "BinId": element['BinEntry'],
-                "BinCode": binCode
-              });
+          if (response.statusCode == 200) {
+            final binResponse = await dio.get(
+                "/BinLocations?\$filter=Warehouse eq '${response.data["InventoryCountingLines"]?[0]?["WarehouseCode"]}' & \$select=AbsEntry,Warehouse,BinCode");
+            warehouse.text =
+                response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
+            if (binResponse.statusCode == 200) {
+              final binData = binResponse.data['value'];
+              warehouse.text =
+                  response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
+              items = [];
+
+              for (var element in response.data["InventoryCountingLines"]) {
+                var binCode = binData.firstWhere(
+                  (e) => e["AbsEntry"] == element['BinEntry'],
+                  orElse: () => null,
+                )?['BinCode'];
+
+                items.add({
+                  "ItemCode": element['ItemCode'],
+                  "ItemDescription":
+                      element['ItemName'] ?? element['ItemDescription'],
+                  "Quantity": getDataFromDynamic(element['CountedQuantity']),
+                  "WarehouseCode": warehouse.text,
+                  "UoMCode": element['UoMCode'],
+                  "BinId": element['BinEntry'],
+                  "BinCode": binCode
+                });
+              }
             }
           }
 
