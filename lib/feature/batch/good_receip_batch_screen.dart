@@ -66,15 +66,15 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       final index =
           items.indexWhere((e) => e['BatchNumber'] == textSerial.text);
 
-      if (index >= 0 && updateIndex == -1) {
-        throw Exception('Duplicate batch on row $index');
-      }
+      // if (index >= 0 && updateIndex == -1) {
+      //   throw Exception('Duplicate batch on row $index');
+      // }
 
       if ((int.tryParse(quantityPerBatch.text) ?? 0) <= 0) {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
       if (updateIndex < 0 && items.length > 0) {
-        throw Exception('Record must be greater only one row.');
+        throw Exception('Duplicate batch on row $index');
       }
       if (updateIndex < 0) {
         items.add({
