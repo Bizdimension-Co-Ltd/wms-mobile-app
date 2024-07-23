@@ -138,11 +138,6 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       if (qty == 0) {
         throw Exception("Quantity must be greater than 0.");
       }
-
-      if (qty != items.length) {
-        throw Exception("Quantity and Batch not match quantity.");
-      }
-
       Navigator.of(context).pop({
         "items": items,
         "quantity": quantity.text,

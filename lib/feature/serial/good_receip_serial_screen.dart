@@ -113,6 +113,10 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
 
   void onComplete() {
     try {
+        if (items.length < int.parse(quantity.text)) {
+        throw Exception(
+            'Cannot add document without complete selection of serial numbers.');
+      }
       Navigator.of(context).pop({
         "items": items,
         "quantity": quantity.text,
