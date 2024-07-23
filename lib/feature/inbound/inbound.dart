@@ -11,11 +11,11 @@ import '../../helper/helper.dart';
 import 'good_receipt/presentation/create_good_receipt_screen.dart';
 
 const gridList = [
-  {"name": "Good Receipt PO", "img": "download.svg"},
-  {"name": "Quik Goods Receipt", "img": "download.svg"},
-  {"name": "Customer Return Receipt", "img": "return.svg"},
-  {"name": "Goods Receipt", "img": "transfer.svg"},
-  {"name": "Put Away", "img": "counting1.svg"},
+  {"name": "Good Receipt PO", "img": "receipt_po.svg"},
+  {"name": "Quik Goods Receipt", "img": "pen.svg"},
+  {"name": "Customer Return Receipt", "img": "return1.svg"},
+  {"name": "Goods Receipt", "img": "add_home_work.svg"},
+  {"name": "Put Away", "img": "put.svg"},
 ];
 
 class Inbound extends StatefulWidget {

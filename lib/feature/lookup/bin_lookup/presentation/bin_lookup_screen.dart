@@ -320,7 +320,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
+     bottomNavigationBar: Container(
         height: size(context).height * 0.09,
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -328,6 +328,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Button(
+                bgColor: Colors.green.shade900,
                 variant: ButtonVariant.primary,
                 onPressed: onGetItem,
                 child: Text(
@@ -336,6 +337,8 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                 ),
               ),
             ),
+            Expanded(child: Container()),
+            Expanded(child: Container()),
             const SizedBox(width: 12),
           ],
         ),

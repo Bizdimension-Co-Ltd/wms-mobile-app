@@ -9,10 +9,10 @@ import '../../constant/style.dart';
 import '../../helper/helper.dart';
 
 const gridList = [
-  {"name": "Quick Count", "img": "download.svg"},
-  {"name": "Cycle Count", "img": "download.svg"},
-  {"name": "Physical Count", "img": "return.svg"},
-  {"name": "Bin Count", "img": "counting1.svg"},
+  {"name": "Quick Count", "img": "refresh.svg"},
+  {"name": "Cycle Count", "img": "history.svg"},
+  {"name": "Physical Count", "img": "phy_count.svg"},
+  {"name": "Bin Count", "img": "bin_count.svg"},
 ];
 
 class Counting extends StatefulWidget {

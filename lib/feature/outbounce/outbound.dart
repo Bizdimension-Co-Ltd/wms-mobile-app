@@ -12,9 +12,9 @@ import 'delivery/presentation/create_delivery_screen.dart';
 import 'good_issue/presentation/create_good_issue_screen.dart';
 
 const gridList = [
-  {"name": "Delivery", "img": "download.svg"},
-  {"name": "Return To Supplier", "img": "download.svg"},
-  {"name": "Good Issue", "img": "return.svg"},
+  {"name": "Delivery", "img": "delivery.svg"},
+  {"name": "Return To Supplier", "img": "return1.svg"},
+  {"name": "Good Issue", "img": "subtract.svg"},
 ];
 
 class Outbound extends StatefulWidget {

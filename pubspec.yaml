@@ -118,7 +118,19 @@ flutter:
     - images/svg/logout1.svg
     - images/svg/book.svg
     - images/svg/search.svg
-    - images/svg/barcode.svg
+    - images/svg/bin_lookup.svg
+    - images/svg/product_lookup.svg
+    - images/svg/time.svg
+    - images/svg/phy_count.svg
+    - images/svg/bin_count.svg
+    - images/svg/refresh.svg
+    - images/svg/add_home_work.svg
+    - images/svg/receipt_po.svg
+    - images/svg/pen.svg
+    - images/svg/put.svg
+    - images/svg/return1.svg
+    - images/svg/delivery.svg
+    - images/svg/subtract.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

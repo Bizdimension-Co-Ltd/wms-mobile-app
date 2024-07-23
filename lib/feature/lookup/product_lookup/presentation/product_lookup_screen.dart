@@ -206,6 +206,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Button(
+                 bgColor: Colors.green.shade900,
                 variant: ButtonVariant.primary,
                 onPressed: onGetItem,
                 child: Text(
@@ -214,6 +215,8 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                 ),
               ),
             ),
+            Expanded(child: Container()),
+            Expanded(child: Container()),
             const SizedBox(width: 12),
           ],
         ),

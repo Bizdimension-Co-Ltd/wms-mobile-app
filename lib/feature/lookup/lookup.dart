@@ -8,8 +8,8 @@ import '../../constant/style.dart';
 import '../../helper/helper.dart';
 
 const gridList = [
-  {"name": "Product Lookup", "img": "download.svg"},
-  {"name": "Bin Lookup", "img": "download.svg"},
+  {"name": "Product Lookup", "img": "product_lookup.svg"},
+  {"name": "Bin Lookup", "img": "bin_lookup.svg"},
 ];
 
 class ProductLookUp extends StatefulWidget {
@@ -33,7 +33,7 @@ class _ProductLookUpState extends State<ProductLookUp> {
         ),
         backgroundColor: PRIMARY_COLOR,
         title: Text(
-          "Product LookUp",
+          "Lookup",
           style: TextStyle(
             color: Colors.white,
             fontSize: size(context).width * 0.045,
