@@ -73,8 +73,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       if ((int.tryParse(quantityPerBatch.text) ?? 0) <= 0) {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
-      if (updateIndex < 0 && items.length >0){
-         throw Exception('Record must be greater only one row.');
+      if (updateIndex < 0 && items.length > 0) {
+        throw Exception('Record must be greater only one row.');
       }
       if (updateIndex < 0) {
         items.add({
