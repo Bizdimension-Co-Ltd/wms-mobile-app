@@ -140,6 +140,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onChangeUoM() async {
+    //  if (!widget.quickReceipt) return;
     try {
       final data =
           jsonDecode(uoMGroupDefinitionCollection.text) as List<dynamic>;
@@ -275,6 +276,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onChangeCardCode() async {
+    if (!widget.quickReceipt) return;
     goTo(context, BusinessPartnerPage(type: BusinessPartnerType.supplier))
         .then((value) {
       if (value == null) return;
