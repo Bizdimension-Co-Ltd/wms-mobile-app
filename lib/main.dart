@@ -11,6 +11,8 @@ import 'package:wms_mobile/feature/good_receipt_type/presentation/cubit/grt_cubi
 import 'package:wms_mobile/feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/put_away/presentation/cubit/put_away_cubit.dart';
+import 'package:wms_mobile/feature/lookup/bin_lookup/presentation/cubit/binlocation_lookup_cubit.dart';
+import 'package:wms_mobile/feature/lookup/product_lookup/presentation/cubit/product_lookup_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/purchase_return/presentation/cubit/purchase_return_cubit.dart';
 import 'package:wms_mobile/feature/pick_and_pack/bin_transfer/presentation/cubit/bin_transfer_cubit.dart';
@@ -72,6 +74,8 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<GoodReceiptCubit>()),
         BlocProvider(create: (_) => getIt<QuickCountCubit>()),
         BlocProvider(create: (_) => getIt<PhysicalCountCubit>()),
+        BlocProvider(create: (_) => getIt<ProductLookUpCubit>()),
+        BlocProvider(create: (_) => getIt<BinLookUpCubit>()),
         BlocProvider(create: (_) => getIt<BinlocationCountCubit>()),
         BlocProvider(create: (_) => getIt<GoodIssueCubit>()),
         BlocProvider(create: (_) => getIt<SaleOrderCubit>()),

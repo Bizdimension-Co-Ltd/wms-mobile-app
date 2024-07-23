@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/injector/di_bin.dart';
+import 'package:wms_mobile/injector/di_bin_lookup.dart';
 import 'package:wms_mobile/injector/di_binlocation_count%20.dart';
 import 'package:wms_mobile/injector/di_bin_transfer.dart';
 import 'package:wms_mobile/injector/di_business_partner.dart';
@@ -10,6 +11,7 @@ import 'package:wms_mobile/injector/di_good_receipt.dart';
 import 'package:wms_mobile/injector/di_grt.dart';
 import 'package:wms_mobile/injector/di_item.dart';
 import 'package:wms_mobile/injector/di_physical_count%20.dart';
+import 'package:wms_mobile/injector/di_product_lookup.dart';
 import 'package:wms_mobile/injector/di_purchase_good_receipt.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
 import 'package:wms_mobile/injector/di_purchase_return.dart';
@@ -49,6 +51,8 @@ Future<void> container() async {
   DIGoodReceipt(getIt);
   DIQuickCount(getIt);
   DIPhysicalCount(getIt);
+  DIProductLookUp(getIt);
+  DIBinLookUp(getIt);
   DIBinlocationCount(getIt);
   DiPutAway(getIt);
   DIGoodIssue(getIt);
