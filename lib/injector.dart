@@ -10,6 +10,7 @@ import 'package:wms_mobile/injector/di_good_issue.dart';
 import 'package:wms_mobile/injector/di_good_receipt.dart';
 import 'package:wms_mobile/injector/di_grt.dart';
 import 'package:wms_mobile/injector/di_item.dart';
+import 'package:wms_mobile/injector/di_items.dart';
 import 'package:wms_mobile/injector/di_physical_count%20.dart';
 import 'package:wms_mobile/injector/di_product_lookup.dart';
 import 'package:wms_mobile/injector/di_purchase_good_receipt.dart';
@@ -42,6 +43,7 @@ Future<void> container() async {
   DIBin(getIt);
   DIGrt(getIt);
   DIItem(getIt);
+  DIItems(getIt);
   DICos(getIt);
   DIUnitOfMeasurement(getIt);
   DIBusinessPartner(getIt);

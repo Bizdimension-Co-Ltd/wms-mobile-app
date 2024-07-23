@@ -11,6 +11,7 @@ import 'package:wms_mobile/feature/good_receipt_type/presentation/cubit/grt_cubi
 import 'package:wms_mobile/feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
 import 'package:wms_mobile/feature/inbound/put_away/presentation/cubit/put_away_cubit.dart';
+import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
 import 'package:wms_mobile/feature/lookup/bin_lookup/presentation/cubit/binlocation_lookup_cubit.dart';
 import 'package:wms_mobile/feature/lookup/product_lookup/presentation/cubit/product_lookup_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
@@ -64,6 +65,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<BinCubit>()),
         BlocProvider(create: (_) => getIt<GrtCubit>()),
         BlocProvider(create: (_) => getIt<ItemCubit>()),
+        BlocProvider(create: (_) => getIt<ItemCubits>()),
         BlocProvider(create: (_) => getIt<CosCubit>()),
         BlocProvider(create: (_) => getIt<UnitOfMeasurementCubit>()),
         BlocProvider(create: (_) => getIt<BusinessPartnerCubit>()),

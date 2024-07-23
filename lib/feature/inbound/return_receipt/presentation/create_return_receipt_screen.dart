@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
+import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
+import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
 import '../../../../core/error/failure.dart';
-import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
 import '/core/enum/global.dart';
-import '/feature/item/presentation/screen/item_page.dart';
 import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.dart';
 import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
 import '/helper/helper.dart';
@@ -56,7 +56,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final isSerial = TextEditingController();
 
   late ReturnReceiptCubit _bloc;
-  late ItemCubit _blocItem;
+  late ItemCubits _blocItem;
 
   int isEdit = -1;
   bool isSerialOrBatch = false;
@@ -67,7 +67,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   void initState() {
     init();
     _bloc = context.read<ReturnReceiptCubit>();
-    _blocItem = context.read<ItemCubit>();
+    _blocItem = context.read<ItemCubits>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
