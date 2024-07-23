@@ -40,7 +40,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     print(widget.itemCode);
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
-
+    quantityPerBatch.text = widget.quantity;
     setState(() {
       items = widget.serials ?? [];
     });
@@ -90,7 +90,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
       totalSerial.text = items.length.toString();
       textSerial.text = "";
-      quantityPerBatch.text = "";
+      // quantityPerBatch.text = "";
+      // quantity.text = "";
       setState(() {
         items;
         updateIndex = -1;
