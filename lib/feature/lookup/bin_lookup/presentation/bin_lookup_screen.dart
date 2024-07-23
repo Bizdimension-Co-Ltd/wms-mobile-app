@@ -171,89 +171,100 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                 placeholder: 'Bin Location',
                 onPressed: onChangeBin,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 35, 0, 0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
+              items.isEmpty
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 35, 0, 0),
                       child: Row(
                         children: [
-                          SizedBox(width: 90, child: Text("Min. Qty")),
-                          Text(
-                            "${detailItem["MinQty"]}",
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("Min. Qty")),
+                                Text(
+                                  "${detailItem["MinQty"]}",
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("Max. Qty")),
+                                Text("${detailItem["MaxQty"]}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700)),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Expanded(
-                      flex: 3,
+              items.isEmpty
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                       child: Row(
                         children: [
-                          SizedBox(width: 90, child: Text("Max. Qty")),
-                          Text("${detailItem["MaxQty"]}",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("No. Items")),
+                                Text("${detailItem["NoItem"]}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700)),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("Items. Qty")),
+                                Text("${detailItem["ItemQty"]}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
+              items.isEmpty
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                       child: Row(
                         children: [
-                          SizedBox(width: 90, child: Text("No. Items")),
-                          Text("${detailItem["NoItem"]}",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("No. Batch")),
+                                Text("${detailItem["NoBatch"]}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700)),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                SizedBox(width: 90, child: Text("No. Serial")),
+                                Text("${detailItem["NoSerial"]}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w700)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 90, child: Text("Items. Qty")),
-                          Text("${detailItem["ItemQty"]}",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 90, child: Text("No. Batch")),
-                          Text("${detailItem["NoBatch"]}",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 90, child: Text("No. Serial")),
-                          Text("${detailItem["NoSerial"]}",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
