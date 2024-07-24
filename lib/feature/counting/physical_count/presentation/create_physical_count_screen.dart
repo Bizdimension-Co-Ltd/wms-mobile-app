@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
 import 'package:wms_mobile/feature/counting/physical_count/presentation/cubit/physical_count_cubit.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
-import '/feature/batch/good_receip_batch_screen.dart';
-import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
 import '../../../../core/error/failure.dart';
@@ -19,7 +17,6 @@ import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.da
 import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
-import '/utilies/storage/locale_storage.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
@@ -44,30 +41,22 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
   final uoMGroupDefinitionCollection = TextEditingController();
   final binId = TextEditingController();
   final binCode = TextEditingController();
-
   final serialsInput = TextEditingController();
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
   final cosDocEntry = TextEditingController();
   final cos = TextEditingController();
-  //
-  final isBatch = TextEditingController();
-  final isSerial = TextEditingController();
-
   late PhysicalCountCubit _bloc;
   late ItemCubit _blocItem;
-
   int isEdit = -1;
   bool isSerialOrBatch = false;
+  List<dynamic> isSerialOrBatchs = [{}];
   List<dynamic> items = [];
   final DioClient dio = DioClient();
-
   bool loading = false;
-
   @override
   void initState() {
-    // init();
     _bloc = context.read<PhysicalCountCubit>();
     _blocItem = context.read<ItemCubit>();
 
@@ -86,11 +75,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     });
     super.initState();
   }
-
-  // void init() async {
-  //   final whs = await LocalStorageManger.getString('warehouse');
-  //   warehouse.text = whs;
-  // }
 
   void onSelectItem() async {
     return;
@@ -142,15 +126,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       if (itemCode.text == '') {
         throw Exception('Item is missing.');
       }
-
-      // if (binId.text == '') {
-      //   throw Exception('Bin Location is missing.');
-      // }
-
-      if (quantity.text == '' || quantity.text == '0') {
-        throw Exception('Quantity must be greater than zero.');
-      }
-
       final item = {
         "ItemCode": itemCode.text,
         "ItemDescription": itemName.text,
@@ -165,8 +140,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         "BaseUoM": baseUoM.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
-        "ManageSerialNumbers": isSerial.text,
-        "ManageBatchNumbers": isBatch.text,
+        "InventoryCountingLineUoMs": isSerialOrBatchs,
         "Serials":
             serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
         "Batches":
@@ -174,25 +148,11 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       };
 
       if (isEdit == -1) {
-        // if (!force) {
-        //   final exist = items.indexWhere((row) =>
-        //       row['ItemCode'] == item['ItemCode'] &&
-        //       row['UoMCode'] == item['UoMCode']);
-
-        //   if (exist >= 0) {
-        //     throw Exception('${item['ItemCode']} already exist.');
-        //   }
-        // }
-
-        // throw Exception('${item['ItemCode']} already exist.');
 
         data.add(item);
       } else {
         data[isEdit] = item;
       }
-
-      // print(item);
-
       clear();
       setState(() {
         items = data;
@@ -229,18 +189,9 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         uoMGroupDefinitionCollection.text = jsonEncode(
           item['UoMGroupDefinitionCollection'],
         );
-        isSerial.text = getDataFromDynamic(item['ManageSerialNumbers']);
-        isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
-        batchesInput.text = jsonEncode(item['Batches'] ?? []);
-        serialsInput.text = jsonEncode(item['Serials'] ?? []);
-
         setState(() {
           isEdit = index;
-
-          if (getDataFromDynamic(item['ManageSerialNumbers']) == 'tYES' ||
-              getDataFromDynamic(item['ManageBatchNumbers']) == 'tYES') {
-            isSerialOrBatch = true;
-          }
+          isSerialOrBatchs = item['InventoryCountingLineUoMs'];
         });
       },
       onCancel: () {
@@ -276,13 +227,13 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               "UoMCode": item['UoMCode']
             }
           ];
-
+          if (isSerialOrBatchs.isEmpty) {
+            inventoryCountingLineUoMs = [];
+          }
           return {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
-            // "BinEntry": item["BinId"],
-            "UoMCountedQuantity": item["Quantity"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
             "InventoryCountingSerialNumbers": item['Serials'] ?? [],
@@ -321,8 +272,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     binCode.text = '';
     uom.text = '';
     uomAbEntry.text = '';
-    isBatch.text = '';
-    isSerial.text = '';
     docEntry.text = '';
     refLineNo.text = '';
     isEdit = -1;
@@ -339,20 +288,12 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      // log(value.toString());
       uoMGroupDefinitionCollection.text = jsonEncode(
         value['UoMGroupDefinitionCollection'] ?? [],
       );
-
-      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
-      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
-
-      if (value['ManageSerialNumbers'] == 'tYES' ||
-          value['ManageBatchNumbers'] == 'tYES') {
-        setState(() {
-          isSerialOrBatch = true;
-        });
-      }
+      setState(() {
+        isSerialOrBatch = true;
+      });
     } catch (e) {
       print(e);
     }
@@ -365,7 +306,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       FocusScope.of(context).requestFocus(FocusNode());
       cosDocEntry.text = getDataFromDynamic(value['DocumentEntry']);
       cos.text = getDataFromDynamic(value['DocumentNumber']);
-      // documentLines.add();
       clear();
       if (value['DocumentEntry'] != null) {
         final response =
@@ -382,6 +322,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               "Quantity": getDataFromDynamic(element['CountedQuantity']),
               "WarehouseCode": warehouse.text,
               "UoMCode": element['UoMCode'],
+              "InventoryCountingLineUoMs": element["InventoryCountingLineUoMs"]
             });
           }
         }
@@ -421,54 +362,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       }
     }
   }
-
-  void onCompleteQuantiyInput() {
-    FocusScope.of(context).requestFocus(FocusNode());
-    onNavigateSerialOrBatch();
-  }
-
-  void onNavigateSerialOrBatch({bool force = false}) {
-    if (isSerial.text == 'tYES') {
-      final serialList = serialsInput.text == "" || serialsInput.text == "null"
-          ? []
-          : jsonDecode(serialsInput.text) as List<dynamic>;
-
-      if (force == false && (quantity.text == serialList.length.toString())) {
-        return;
-      }
-
-      goTo(
-        context,
-        GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
-      ).then((value) {
-        if (value == null) return;
-
-        quantity.text = value['quantity'] ?? "0";
-        serialsInput.text = jsonEncode(value['items']);
-      });
-    } else if (isBatch.text == 'tYES') {
-      final batches = batchesInput.text == "" || batchesInput.text == "null"
-          ? []
-          : jsonDecode(batchesInput.text) as List<dynamic>;
-      goTo(
-        context,
-        GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
-      ).then((value) {
-        if (value == null) return;
-        quantity.text = value['quantity'] ?? "0";
-        batchesInput.text = jsonEncode(value['items']);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -516,23 +409,11 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 placeholder: 'Unit Of Measurement',
                 onPressed: onChangeUoM,
               ),
-              // Input(
-              //   controller: binCode,
-              //   label: 'Bin.',
-              //   placeholder: 'Bin Location',
-              //   onPressed: onChangeBin,
-              // ),
               Input(
                 controller: quantity,
                 label: 'Quantity.',
                 placeholder: 'Quantity',
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onEditingComplete: onCompleteQuantiyInput,
-                onPressed: isSerialOrBatch
-                    ? () {
-                        onNavigateSerialOrBatch(force: true);
-                      }
-                    : null,
               ),
               const SizedBox(height: 40),
               ContentHeader(),

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
@@ -19,7 +18,6 @@ import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.da
 import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
-import '/utilies/storage/locale_storage.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/binlocation_count_cubit.dart';
@@ -60,6 +58,8 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
 
   int isEdit = -1;
   bool isSerialOrBatch = false;
+  List<dynamic> isSerialOrBatchs = [{}];
+
   List<dynamic> items = [];
   bool loading = false;
   String queryBin = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
@@ -68,7 +68,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
 
   @override
   void initState() {
-    // init();
     _bloc = context.read<BinlocationCountCubit>();
     _blocItem = context.read<ItemCubit>();
 
@@ -87,11 +86,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     });
     super.initState();
   }
-
-  // void init() async {
-  //   final whs = await LocalStorageManger.getString('warehouse');
-  //   warehouse.text = whs;
-  // }
 
   void onSelectItem() async {
     return;
@@ -148,10 +142,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         throw Exception('Bin Location is missing.');
       }
 
-      if (quantity.text == '' || quantity.text == '0') {
-        throw Exception('Quantity must be greater than zero.');
-      }
-
       final item = {
         "ItemCode": itemCode.text,
         "ItemDescription": itemName.text,
@@ -166,34 +156,17 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         "BaseUoM": baseUoM.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
-        "ManageSerialNumbers": isSerial.text,
-        "ManageBatchNumbers": isBatch.text,
+        "InventoryCountingLineUoMs": isSerialOrBatchs,
         "Serials":
             serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
         "Batches":
             batchesInput.text == "" ? [] : jsonDecode(batchesInput.text) ?? [],
       };
-
       if (isEdit == -1) {
-        // if (!force) {
-        //   final exist = items.indexWhere((row) =>
-        //       row['ItemCode'] == item['ItemCode'] &&
-        //       row['UoMCode'] == item['UoMCode']);
-
-        //   if (exist >= 0) {
-        //     throw Exception('${item['ItemCode']} already exist.');
-        //   }
-        // }
-
-        // throw Exception('${item['ItemCode']} already exist.');
-
         data.add(item);
       } else {
         data[isEdit] = item;
       }
-
-      // print(item);
-
       clear();
       setState(() {
         items = data;
@@ -230,18 +203,9 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         uoMGroupDefinitionCollection.text = jsonEncode(
           item['UoMGroupDefinitionCollection'],
         );
-        isSerial.text = getDataFromDynamic(item['ManageSerialNumbers']);
-        isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
-        batchesInput.text = jsonEncode(item['Batches'] ?? []);
-        serialsInput.text = jsonEncode(item['Serials'] ?? []);
-
         setState(() {
           isEdit = index;
-
-          if (getDataFromDynamic(item['ManageSerialNumbers']) == 'tYES' ||
-              getDataFromDynamic(item['ManageBatchNumbers']) == 'tYES') {
-            isSerialOrBatch = true;
-          }
+          isSerialOrBatchs = item['InventoryCountingLineUoMs'];
         });
       },
       onCancel: () {
@@ -279,12 +243,14 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
             }
           ];
 
+          if (isSerialOrBatchs.isEmpty) {
+            inventoryCountingLineUoMs = [];
+          }
           return {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
             "BinEntry": item["BinId"],
-            "UoMCountedQuantity": item["Quantity"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
             "InventoryCountingSerialNumbers": item['Serials'] ?? [],
@@ -293,9 +259,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           };
         }).toList(),
       };
-      setState(() {
-        print(data);
-      });
       final response = await _bloc.put(data, int.tryParse(cosDocEntry.text)!);
       if (mounted) {
         Navigator.of(context).pop();
@@ -343,7 +306,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
       uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      // log(value.toString());
       uoMGroupDefinitionCollection.text = jsonEncode(
         value['UoMGroupDefinitionCollection'] ?? [],
       );
@@ -400,7 +362,9 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
                   "WarehouseCode": warehouse.text,
                   "UoMCode": element['UoMCode'],
                   "BinId": element['BinEntry'],
-                  "BinCode": binCode
+                  "BinCode": binCode,
+                  "InventoryCountingLineUoMs":
+                      element['InventoryCountingLineUoMs'],
                 });
               }
             }

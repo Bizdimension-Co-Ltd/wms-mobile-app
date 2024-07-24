@@ -2,14 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
-import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
-import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
-import '/feature/business_partner/presentation/screen/business_partner_page.dart';
 import '../../../../core/error/failure.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -129,14 +125,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         throw Exception('Item is missing.');
       }
 
-      // if (binId.text == '') {
-      //   throw Exception('Bin Location is missing.');
-      // }
-
-      if (quantity.text == '' || quantity.text == '0') {
-        throw Exception('Quantity must be greater than zero.');
-      }
-
       final item = {
         "ItemCode": itemCode.text,
         "ItemDescription": itemName.text,
@@ -160,25 +148,10 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       };
 
       if (isEdit == -1) {
-        // if (!force) {
-        //   final exist = items.indexWhere((row) =>
-        //       row['ItemCode'] == item['ItemCode'] &&
-        //       row['UoMCode'] == item['UoMCode']);
-
-        //   if (exist >= 0) {
-        //     throw Exception('${item['ItemCode']} already exist.');
-        //   }
-        // }
-
-        // throw Exception('${item['ItemCode']} already exist.');
-
         data.add(item);
       } else {
         data[isEdit] = item;
       }
-
-      // print(item);
-
       clear();
       setState(() {
         items = data;
@@ -255,13 +228,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         "BranchID": 1,
         "Reference2": ref.text,
         "InventoryPostingLines": items.map((item) {
-          List<dynamic> uomCollections =
-              item["UoMGroupDefinitionCollection"] ?? [];
-
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
-
           List<dynamic> inventoryPostingLineUoMs = [
             {
               "LineNumber": 1,
@@ -272,30 +238,12 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             }
           ];
 
-          // bool isBatch = item['ManageBatchNumbers'] == 'tYES';
-          // bool isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          // if (isBatch || isSerial) {
-          //   inventoryPostingLineUoMs = [];
-
-          //   List<dynamic> batchOrSerialLines =
-          //       isSerial ? item['Serials'] : item['Batches'];
-
-          //   int index = 0;
-          //   for (var element in batchOrSerialLines) {
-          //     inventoryPostingLineUoMs.add({
-          //       "BinAbsEntry": item['BinId'],
-          //       "AllowNegativeQuantity": "tNO",
-          //       "BaseLineNumber": 0,
-          //       "SerialAndBatchNumbersBaseLine": index,
-          //       "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-          //           alternativeUoM['AlternateQuantity'], 1),
-          //     });
-
-          //     index++;
-          //   }
-          // }
-
+          if (isBatch || isSerial) {
+            inventoryPostingLineUoMs = [];
+          }
           return {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
@@ -303,8 +251,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             "BinEntry": item["BinId"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
-            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
+            "InventoryPostingSerialNumbers": [],
+            "InventoryPostingBatchNumbers": [],
             "InventoryPostingLineUoMs": inventoryPostingLineUoMs
           };
         }).toList(),
@@ -357,7 +305,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      // log(value.toString());
       uoMGroupDefinitionCollection.text = jsonEncode(
         value['UoMGroupDefinitionCollection'] ?? [],
       );
