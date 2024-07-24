@@ -74,7 +74,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
       if (updateIndex < 0 && items.length > 0) {
-        throw Exception('Duplicate batch on row $index');
+        throw Exception('Duplicate batch on row ${index + 1}');
       }
       if (updateIndex < 0) {
         items.add({
