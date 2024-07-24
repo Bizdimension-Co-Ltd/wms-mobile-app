@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:wms_mobile/injector.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
@@ -159,6 +161,254 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
 
               const SizedBox(height: 40),
               ContentHeader(),
+              Column(children: [
+                GestureDetector(
+                  // onTap: () => onEdit(item),
+                  child: Container(
+                    padding: EdgeInsets.only(top: 15),
+                    decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(width: 0.1))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                "WH03-BIN-SYSTEM",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Text("TON")),
+                            Expanded(child: Text('5')),
+                          ],
+                        ),
+                        // SizedBox(
+                        //   height: 15,
+                        // ),
+                        //Serial///////////////////////////
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 7),
+                                child: SvgPicture.asset(
+                                  color: Color.fromARGB(235, 183, 184, 186),
+                                  "images/svg/down_right.svg",
+                                  width: size(context).width * 0.06,
+                                  height: size(context).width * 0.06,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 11,
+                              child: Container(
+                                margin: EdgeInsets.only(top: 13),
+                                padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: Color.fromARGB(255, 243, 243, 244),
+                                  // border: Border(
+                                  //   bottom: BorderSide(
+                                  //     color: Color.fromARGB(255, 226, 229,
+                                  //         233), // Change the color as needed
+                                  //     width: 1.0, // Change the width as needed
+                                  //   ),
+                                  // ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Text(
+                                        "Serial Info.",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        "Expiry",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(flex: 1, child: Text("")),
+                            Expanded(
+                                flex: 11,
+                                child: Container(
+                                  padding: EdgeInsets.fromLTRB(5, 7, 5, 10),
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  child: Column(
+                                    children: const [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                "Serial A000001.",
+                                                style: TextStyle(fontSize: 14),
+                                              )),
+                                          Expanded(
+                                              flex: 3,
+                                              child: Text("3-10-2000",
+                                                  style:
+                                                      TextStyle(fontSize: 14)))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                "Serial A000002.",
+                                                style: TextStyle(fontSize: 14),
+                                              )),
+                                          Expanded(
+                                              flex: 3,
+                                              child: Text("1-10-2000",
+                                                  style:
+                                                      TextStyle(fontSize: 14)))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                "Serial A000003.",
+                                                style: TextStyle(fontSize: 14),
+                                              )),
+                                          Expanded(
+                                              flex: 3,
+                                              child: Text("2-20-2000",
+                                                  style:
+                                                      TextStyle(fontSize: 14)))
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        ),
+                        //Batch1111111111
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 7),
+                                child: SvgPicture.asset(
+                                  color: Color.fromARGB(235, 183, 184, 186),
+                                  "images/svg/down_right.svg",
+                                  width: size(context).width * 0.06,
+                                  height: size(context).width * 0.06,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 11,
+                              child: Container(
+                                margin: EdgeInsets.only(top: 13),
+                                padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: Color.fromARGB(255, 243, 243, 244),
+                                  // border: Border(
+                                  //   bottom: BorderSide(
+                                  //     color: Color.fromARGB(255, 226, 229,
+                                  //         233), // Change the color as needed
+                                  //     width: 1.0, // Change the width as needed
+                                  //   ),
+                                  // ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Text(
+                                        "Batch Info.",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        "Expiry",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        "Qty",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(flex: 1, child: Text("")),
+                            Expanded(
+                                flex: 11,
+                                child: Container(
+                                  padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: const [
+                                          Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                "Serial Info.",
+                                                style: TextStyle(fontSize: 14),
+                                              )),
+                                          Expanded(
+                                              flex: 3,
+                                              child: Text("3",
+                                                  style:
+                                                      TextStyle(fontSize: 14))),
+                                          Expanded(
+                                              flex: 2,
+                                              child: Text("5",
+                                                  style:
+                                                      TextStyle(fontSize: 14)))
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        ),
+                        // //End11111111111111
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
               Column(
                 children: items
                     .map((item) => GestureDetector(
@@ -206,7 +456,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Button(
-                 bgColor: Colors.green.shade900,
+                bgColor: Colors.green.shade900,
                 variant: ButtonVariant.primary,
                 onPressed: onGetItem,
                 child: Text(
@@ -233,7 +483,7 @@ class ContentHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Color.fromARGB(255, 237, 238, 238),
         border: Border(
           bottom: BorderSide(width: 0.1),
           top: BorderSide(width: 0.1),

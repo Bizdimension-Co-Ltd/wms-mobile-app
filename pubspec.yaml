@@ -131,6 +131,7 @@ flutter:
     - images/svg/return1.svg
     - images/svg/delivery.svg
     - images/svg/subtract.svg
+    - images/svg/down_right.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

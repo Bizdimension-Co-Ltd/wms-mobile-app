@@ -49,10 +49,8 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   final refLineNo = TextEditingController();
   final cosDocEntry = TextEditingController();
   final cos = TextEditingController();
-  //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
-
   late BinlocationCountCubit _bloc;
   late ItemCubit _blocItem;
 

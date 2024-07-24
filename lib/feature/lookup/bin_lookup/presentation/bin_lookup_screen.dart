@@ -301,7 +301,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                                   children: [
                                     Expanded(
                                       flex: 3,
-                                      child: Text(
+                                      child: Text(  
                                         getDataFromDynamic(item['ItemName']),
                                         style: TextStyle(
                                           fontWeight: FontWeight.normal,
