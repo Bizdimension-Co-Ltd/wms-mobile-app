@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
 import 'package:wms_mobile/feature/outbounce/sale_order/presentation/sale_order_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -257,7 +258,12 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       binCode.text = getDataFromDynamic(value.code);
     });
   }
-
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
@@ -565,7 +571,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                   placeholder: 'Warehouse',
                   controller: warehouse,
                   readOnly: true,
-                  onPressed: () {},
+                  onPressed: onChangeWhs,
                 ),
                 const SizedBox(height: 20),
                 Text(''),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -272,7 +273,12 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       tbinCode.text = getDataFromDynamic((value as BinEntity).code);
     });
   }
-
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
@@ -569,7 +575,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               Input(
                 controller: sbinCode,

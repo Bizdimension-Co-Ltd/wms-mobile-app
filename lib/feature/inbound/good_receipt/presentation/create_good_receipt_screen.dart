@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
 import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -271,7 +272,12 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       grTypeName.text = getDataFromDynamic((value).name);
     });
   }
-
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
   void onPostToSAP() async {
     try {
       Map<String, dynamic> data = {
@@ -563,7 +569,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               Input(
                 controller: itemCode,

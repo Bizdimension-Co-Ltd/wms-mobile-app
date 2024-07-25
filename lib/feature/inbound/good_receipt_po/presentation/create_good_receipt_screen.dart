@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
 import '/feature/business_partner/presentation/screen/business_partner_page.dart';
@@ -292,6 +293,13 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
       binCode.text = getDataFromDynamic(value.code);
+    });
+  }
+
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
     });
   }
 
@@ -585,7 +593,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               if (widget.po != null)
                 Input(

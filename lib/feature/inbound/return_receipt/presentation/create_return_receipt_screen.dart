@@ -6,6 +6,7 @@ import 'package:wms_mobile/feature/business_partner/presentation/screen/business
 import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -120,7 +121,12 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
       print(e);
     }
   }
-
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
   void onAddItem({bool force = false}) {
     try {
       List<dynamic> data = [...items];
@@ -534,7 +540,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               Input(
                 controller: cardCode,
