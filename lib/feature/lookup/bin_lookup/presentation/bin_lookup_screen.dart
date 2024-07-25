@@ -291,7 +291,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                                     ),
                                     Expanded(
                                         child: Text(getDataFromDynamic(
-                                            item['UoMCode']))),
+                                            item['InvntryUom']))),
                                     Expanded(
                                         child: Text('${item['OnHandQty']}')),
                                   ],

@@ -13,7 +13,7 @@ class BinLookUpRemoteDataSourceImpl implements BinLookUpRemoteDataSource {
   @override
   Future<Map<String, dynamic>> get(Map<String, dynamic> filter) async {
     try {
-      final response = await dio.get("/sml.svc/BIZ_BIN_QUERY?\$filter=BinCode eq '${filter["binCode"]}' and WhsCode eq '${filter["warehouseCode"]}'");
+      final response = await dio.get("/sml.svc/ITEM?\$filter=BinCode eq '${filter["binCode"]}' and WhsCode eq '${filter["warehouseCode"]}'");
       return response.data as dynamic;
     } on Failure {
       rethrow;
