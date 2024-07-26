@@ -109,9 +109,6 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
 
       onSetItemTemp(value);
     });
-    setState(() {
-      itemCodeFilter = [];
-    });
   }
 
   void onChangeUoM() async {
@@ -505,6 +502,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       if (mounted) MaterialDialog.loading(context);
 
       items = [];
+      itemCodeFilter = [];
+
       for (var element in value['DocumentLines']) {
         // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 

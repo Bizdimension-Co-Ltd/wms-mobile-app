@@ -146,9 +146,6 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     }
-        setState(() {
-      itemCodeFilter = [];
-    });
   }
 
   void onChangeUoM() async {
