@@ -548,7 +548,7 @@ class _CreatePurchaseReturnScreenState
                   readOnly: true,
                   label: 'RTR. #',
                   placeholder: 'DocNum',
-                  onPressed: onChangeCardCode,
+                  onPressed: onNavigateToPurchaseReturnRequest,
                 ),
                 Input(
                   controller: cardCode,
