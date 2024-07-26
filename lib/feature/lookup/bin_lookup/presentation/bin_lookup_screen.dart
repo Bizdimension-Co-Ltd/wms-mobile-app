@@ -101,7 +101,6 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
       if (binResponse.statusCode == 200) {
         if (mounted) {
           setState(() {
-            print(binResponse);
             items = [];
             items.addAll(response["value"]);
             detailItem["MinQty"] = binResponse.data["value"]?[0]?["MinimumQty"];
@@ -112,6 +111,11 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
           });
         }
       }
+      setState(() {
+        detailItem["NoBatch"] = items.where((e) => e["IsBatch"] == "Y").length;
+        detailItem["NoSerial"] =
+            items.where((e) => e["IsSerial"] == "Y").length;
+      });
       MaterialDialog.close(context);
     } catch (e) {
       if (mounted) {

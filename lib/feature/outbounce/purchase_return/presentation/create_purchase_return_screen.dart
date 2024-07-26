@@ -333,9 +333,6 @@ class _CreatePurchaseReturnScreenState
           };
         }).toList(),
       };
-        setState(() {
-          print(data);
-        });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
