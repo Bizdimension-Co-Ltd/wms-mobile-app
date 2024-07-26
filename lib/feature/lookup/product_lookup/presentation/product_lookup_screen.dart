@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -83,6 +84,15 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
       MaterialDialog.loading(context);
       final response = await _bloc
           .get({"itemCode": itemCode.text, "warehouseCode": warehouse.text});
+      if (response["value"].length == 0) {
+        setState(() {
+          items = [];
+        });
+        MaterialDialog.close(context);
+        MaterialDialog.success(context, title: 'Opps.', body: "No Items");
+        return;
+      }
+      ;
       if (response["value"]?[0]?["IsSerial"] == "Y" ||
           response["value"]?[0]?["IsBatch"] == "Y") {
         final serialOrBatch = await dio.get('/InventoryCountings?\$top=1');
@@ -102,12 +112,15 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
           });
         }
       }
+      setState(() {
+        print(response);
+      });
 
       MaterialDialog.close(context);
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.success(context, title: 'Error.', body: e.toString());
       }
     }
   }
@@ -115,6 +128,13 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
+  }
+
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
   }
 
   void onSetItemTemp(dynamic value) {
@@ -153,7 +173,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
 
               Input(
@@ -449,15 +469,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                                       Expanded(
                                                           flex: 4,
                                                           child: Text(
-                                                            (serialOrBatchList
-                                                                    .firstWhere(
-                                                              (e) =>
-                                                                  e?["DocumentNumber"] ==
-                                                                  240000001,
-                                                              orElse: () =>
-                                                                  "", // Return null if no element matches
-                                                            )?["SingleCounterType"]
-                                                                as String), // Use null-aware operator to handle null
+                                                            "Batch0000010", // Use null-aware operator to handle null
                                                             style: TextStyle(
                                                                 fontSize: 14),
                                                           )),

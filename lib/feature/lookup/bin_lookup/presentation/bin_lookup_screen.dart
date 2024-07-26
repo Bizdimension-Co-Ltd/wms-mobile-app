@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
 import 'package:wms_mobile/feature/lookup/bin_lookup/presentation/cubit/binlocation_lookup_cubit.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
@@ -86,6 +87,15 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
       MaterialDialog.loading(context);
       final response = await _bloc
           .get({"binCode": binCode.text, "warehouseCode": warehouse.text});
+      if (response["value"].length == 0) {
+        setState(() {
+          items = [];
+        });
+
+        MaterialDialog.close(context);
+        MaterialDialog.success(context, title: 'Opps.', body: "No Items");
+        return;
+      }
       final binResponse = await dio.get(
           "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' and BinCode eq '${binCode.text}' & \$select=MinimumQty,MaximumQty");
       if (binResponse.statusCode == 200) {
@@ -102,18 +112,24 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
           });
         }
       }
-
       MaterialDialog.close(context);
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.success(context, title: 'Opp.', body: e.toString());
       }
     }
   }
 
   void clear() {
     binCode.text = '';
+  }
+
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
   }
 
   void onSetItemTemp(dynamic value) {
@@ -151,7 +167,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
 
               // Input(
@@ -301,7 +317,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                                   children: [
                                     Expanded(
                                       flex: 3,
-                                      child: Text(  
+                                      child: Text(
                                         getDataFromDynamic(item['ItemName']),
                                         style: TextStyle(
                                           fontWeight: FontWeight.normal,
@@ -320,7 +336,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
           ),
         ),
       ),
-     bottomNavigationBar: Container(
+      bottomNavigationBar: Container(
         height: size(context).height * 0.09,
         padding: const EdgeInsets.all(12),
         child: Row(

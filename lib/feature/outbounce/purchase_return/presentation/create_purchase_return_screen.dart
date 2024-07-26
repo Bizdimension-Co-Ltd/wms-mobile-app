@@ -261,10 +261,10 @@ class _CreatePurchaseReturnScreenState
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
-      if (poText.text == '') {
-        throw Exception(
-            "You can only perform action with Return Receipt Request Document.");
-      }
+      // if (poText.text == '') {
+      //   throw Exception(
+      //       "You can only perform action with Return Receipt Request Document.");
+      // }
 
       Map<String, dynamic> data = {
         "BPL_IDAssignedToInvoice": 1,
@@ -333,7 +333,9 @@ class _CreatePurchaseReturnScreenState
           };
         }).toList(),
       };
-
+        setState(() {
+          print(data);
+        });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -546,7 +548,7 @@ class _CreatePurchaseReturnScreenState
                   readOnly: true,
                   label: 'RTR. #',
                   placeholder: 'DocNum',
-                  onPressed: onNavigateToPurchaseReturnRequest,
+                  onPressed: onChangeCardCode,
                 ),
                 Input(
                   controller: cardCode,
