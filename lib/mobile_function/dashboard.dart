@@ -56,7 +56,7 @@ class _DashboardState extends State<Dashboard> {
         goTo(context, const ProductLookUp());
         break;
       case 6:
-        goTo(context, const LoginScreen());
+        // goTo(context, const LoginScreen());
         break;
       default:
     }

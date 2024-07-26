@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/good_isuse_select/domain/entity/grt_entity.dart';
+import 'package:wms_mobile/feature/good_isuse_select/presentation/screen/grt_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -49,7 +52,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
-
+  final giType = TextEditingController();
+  final giTypeName = TextEditingController();
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
@@ -118,6 +122,15 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void onChangeGit() async {
+    goTo(context, GoodIssueSelectPage()).then((value) {
+      if (value == null) return;
+
+      giType.text = getDataFromDynamic((value as GoodIssueSelectEntity).code);
+      giTypeName.text = getDataFromDynamic((value).name);
+    });
   }
 
   void onAddItem({bool force = false}) {
@@ -265,6 +278,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
+        "U_tl_gitype": giType.text,
         "DocumentLines": items.map((item) {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
@@ -467,7 +481,12 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       });
     }
   }
-
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -497,11 +516,17 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Input(
+                  controller: giTypeName,
+                  label: 'Good Issue Type.',
+                  placeholder: 'Good Issue Type',
+                  onPressed: onChangeGit,
+                ),
+                Input(
                   label: 'Warehouse',
                   placeholder: 'Warehouse',
                   controller: warehouse,
                   readOnly: true,
-                  onPressed: () {},
+                  onPressed: onChangeWhs,
                 ),
                 // Input(
                 //   controller: poText,

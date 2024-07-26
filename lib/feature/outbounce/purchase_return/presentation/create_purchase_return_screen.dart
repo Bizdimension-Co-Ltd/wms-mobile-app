@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import '../../purchase_return_request/presentation/purchase_return_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -51,6 +52,7 @@ class _CreatePurchaseReturnScreenState
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
+  final List<dynamic> itemCodeFilter = [];
 
   //
   final isBatch = TextEditingController();
@@ -95,7 +97,14 @@ class _CreatePurchaseReturnScreenState
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.sale)).then((value) {
+    goTo(
+            context,
+            ItemByCodePage(
+                type: ItemType.inventory,
+                itemCode: itemCodeFilter
+                    .map((item) => "ItemCode eq '$item'")
+                    .join(' or ')))
+        .then((value) {
       if (value == null) return;
 
       onSetItemTemp(value);
@@ -485,22 +494,27 @@ class _CreatePurchaseReturnScreenState
 
       items = [];
       for (var element in value['DocumentLines']) {
-        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        items.add({
-          "DocEntry": element['DocEntry'],
-          "BaseEntry": element['DocEntry'],
-          "BaseLine": element['LineNum'],
-          "ItemCode": element['ItemCode'],
-          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-          "WarehouseCode": warehouse.text,
-          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-          "UoMCode": element['UoMCode'],
-          "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
-          "BinId": binId.text,
+        // items.add({
+        //   "DocEntry": element['DocEntry'],
+        //   "BaseEntry": element['DocEntry'],
+        //   "BaseLine": element['LineNum'],
+        //   "ItemCode": element['ItemCode'],
+        //   "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+        //   "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+        //   "WarehouseCode": warehouse.text,
+        //   "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+        //   "UoMCode": element['UoMCode'],
+        //   "UoMGroupDefinitionCollection":
+        //       itemResponse['UoMGroupDefinitionCollection'],
+        //   "BaseUoM": itemResponse['BaseUoM'],
+        //   "BinId": binId.text,
+        // });
+        await Future.delayed(Duration(seconds: 1));
+        itemCodeFilter.add(element['ItemCode']);
+        setState(() {
+          print(itemCodeFilter);
         });
       }
 

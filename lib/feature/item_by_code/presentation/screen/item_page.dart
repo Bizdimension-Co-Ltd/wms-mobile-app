@@ -1,71 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/enum/global.dart';
+import '../../../../utilies/dialog/dialog.dart';
+import '/helper/helper.dart';
+import '../cubit/item_cubit.dart';
 import '/constant/style.dart';
-import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
-import '/utilies/storage/locale_storage.dart';
 
-import '../../../../helper/helper.dart';
-import 'cubit/purchase_order_cubit.dart';
-
-class PurchaseOrderPage extends StatefulWidget {
-  const PurchaseOrderPage({
-    super.key,
-  });
+class ItemByCodePage extends StatefulWidget {
+  const ItemByCodePage({super.key, required this.type, this.itemCode});
+  final itemCode;
+  final ItemType type;
 
   @override
-  State<PurchaseOrderPage> createState() => _PurchaseOrderPageState();
+  State<ItemByCodePage> createState() => _ItemPageState();
 }
 
-class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
+class _ItemPageState extends State<ItemByCodePage> {
   final ScrollController _scrollController = ScrollController();
 
-  String query = "?\$top=10&\$skip=0";
+  String query =
+      "?\$top=10&\$skip=0&\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry, ManageSerialNumbers, ManageBatchNumbers";
+
+  int _skip = 0;
 
   int check = 1;
   TextEditingController filter = TextEditingController();
   List<dynamic> data = [];
-  late PurchaseOrderCubit _bloc;
+  late ItemByCodeCubit _bloc;
 
   @override
   void initState() {
     super.initState();
-    init(context);
-  }
+    if (mounted) {
+      _bloc = context.read<ItemByCodeCubit>();
+      setState(() {
+        print(widget.itemCode);
+      });
+      // final state = context.read<ItemByCodeCubit>().state;
 
-  void init(BuildContext context) async {
-    try {
-      final warehouse = await LocalStorageManger.getString('warehouse');
+      // if (state is ItemData) {
+      //   data = state.entities;
+      // }
 
-      _bloc = context.read<PurchaseOrderCubit>();
-      _bloc
-          .get(
-              "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
-          .then((value) => setState(() => data = value));
+      if (data.length == 0) {
+        query =
+            "$query&\$filter=${widget.itemCode == null ? "" : "${widget.itemCode} and"}  ${getItemTypeQueryString(widget.type)}";
+        _bloc.get(query).then((value) {
+          setState(() => data = value);
+          _bloc.set(value);
+        });
+      }
+
+      setState(() {
+        data;
+      });
 
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent) {
-          final state = BlocProvider.of<PurchaseOrderCubit>(context).state;
-          if (state is PurchaseOrderData && data.length > 0) {
+          final state = BlocProvider.of<ItemByCodeCubit>(context).state;
+          if (state is ItemData && data.length > 0) {
             _bloc
                 .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+                    "?\$top=10&\$skip=${data.length}&\$filter=${getItemTypeQueryString(widget.type)} and contains(ItemCode,'${filter.text}')")
                 .then((value) {
               if (!mounted) return;
-
+              _bloc.set([...data, ...value]);
               setState(() => data = [...data, ...value]);
             });
           }
         }
       });
-    } catch (err) {
-      print(err);
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollController.dispose();
     filter.dispose();
 
@@ -76,11 +86,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
     setState(() {
       data = [];
     });
-
-    final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode, '${filter.text}')")
+            "$query&\$filter=${getItemTypeQueryString(widget.type)} and contains(ItemCode, '${filter.text}')",
+            cache: false)
         .then((value) {
       if (!mounted) return;
 
@@ -88,24 +97,23 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
     });
   }
 
-  void forward(dynamic po) {
-    goTo(
-        context,
-        CreateGoodReceiptPOScreen(
-          po: po,
-          quickReceipt: false,
-        )).then((value) {
-      if (value == null) return;
+  void onFind(String code) async {
+    try {
+      if (!mounted) return;
 
-      final state = _bloc.state;
+      MaterialDialog.loading(context);
+      final response = await _bloc.find("('$code')");
+      if (mounted) {
+        MaterialDialog.close(context);
 
-      if (state is PurchaseOrderData) {
-        data = [...(state).entities];
-        setState(() {
-          data;
-        });
+        Navigator.pop(context, response);
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        MaterialDialog.success(context,
+            title: 'Invalid', body: 'Item not found - $code');
+      }
+    }
   }
 
   @override
@@ -115,7 +123,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Purchase Order Lists',
+          'Item Lists',
           style: TextStyle(
               fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
@@ -140,7 +148,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.transparent)),
                   contentPadding: const EdgeInsets.only(top: 15),
-                  hintText: 'Supplier Code...',
+                  hintText: 'Item Code...',
                   suffixIcon: IconButton(
                     icon: Icon(
                       Icons.search,
@@ -154,10 +162,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
             // const SizedBox(height: 10),
             const Divider(thickness: 0.1, height: 15),
             Expanded(
-              child: BlocConsumer<PurchaseOrderCubit, PurchaseOrderState>(
+              child: BlocConsumer<ItemByCodeCubit, ItemByCodeState>(
                 listener: (context, state) {},
                 builder: (context, state) {
-                  if (state is RequestingPurchaseOrder) {
+                  if (state is RequestingItem) {
                     return Center(child: CircularProgressIndicator());
                   }
 
@@ -166,8 +174,9 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                     children: [
                       ...data
                           .map(
-                            (po) => GestureDetector(
-                              onTap: () => forward(po),
+                            (item) => GestureDetector(
+                              onTap: () =>
+                                  onFind(getDataFromDynamic(item['ItemCode'])),
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -175,48 +184,23 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                                 ),
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "${getDataFromDynamic(po['CardCode'])} - ${getDataFromDynamic(po['DocNum'])}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                      ],
+                                    Text(
+                                      getDataFromDynamic(item['ItemCode']),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            getDataFromDynamic(po['Comments']),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 30),
-                                        Text(
-                                          'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                      ],
-                                    )
+                                    Text(getDataFromDynamic(item['ItemName'])),
                                   ],
                                 ),
                               ),
                             ),
                           )
                           .toList(),
-                      if (state is RequestingPaginationPurchaseOrder)
+                      if (state is RequestingPaginationItem)
                         Container(
                           margin: const EdgeInsets.symmetric(vertical: 20),
                           child: Center(

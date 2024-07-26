@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -67,7 +68,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
-
+  final List<dynamic> itemCodeFilter = [];
   @override
   void initState() {
     init();
@@ -104,20 +105,22 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
       items = [];
       for (var element in widget.po['DocumentLines']) {
-        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        items.add({
-          "ItemCode": element['ItemCode'],
-          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-          "WarehouseCode": warehouse.text,
-          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-          "UoMCode": element['UoMCode'],
-          "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
-          "BinId": binId.text,
-        });
+        // items.add({
+        //   "ItemCode": element['ItemCode'],
+        //   "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+        //   "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+        //   "WarehouseCode": warehouse.text,
+        //   "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+        //   "UoMCode": element['UoMCode'],
+        //   "UoMGroupDefinitionCollection":
+        //       itemResponse['UoMGroupDefinitionCollection'],
+        //   "BaseUoM": itemResponse['BaseUoM'],
+        //   "BinId": binId.text,
+        // });
+        await Future.delayed(Duration(seconds: 1));
+        itemCodeFilter.add(element['ItemCode']);
       }
 
       if (mounted) MaterialDialog.close(context);
@@ -129,15 +132,20 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onSelectItem() async {
-    if (!widget.quickReceipt) return;
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.purchase)).then((value) {
-      if (value == null) return;
-
-      onSetItemTemp(value);
-    });
+    if (widget.quickReceipt) {
+      goTo(context, ItemPage(type: ItemType.purchase)).then((value) {
+        if (value == null) return;
+        onSetItemTemp(value);
+      });
+    } else {
+      goTo(context, ItemByCodePage(type: ItemType.purchase,itemCode: itemCodeFilter.map((item) => "ItemCode eq '$item'").join(' or '))).then((value) {
+        if (value == null) return;
+        onSetItemTemp(value);
+      });
+    }
   }
 
   void onChangeUoM() async {
