@@ -68,7 +68,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
-  final List<dynamic> itemCodeFilter = [];
+  List<dynamic> itemCodeFilter = [];
   @override
   void initState() {
     init();
@@ -146,6 +146,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     }
+        setState(() {
+      itemCodeFilter = [];
+    });
   }
 
   void onChangeUoM() async {

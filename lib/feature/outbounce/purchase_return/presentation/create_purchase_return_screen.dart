@@ -52,7 +52,7 @@ class _CreatePurchaseReturnScreenState
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
-  final List<dynamic> itemCodeFilter = [];
+  List<dynamic> itemCodeFilter = [];
 
   //
   final isBatch = TextEditingController();
@@ -108,6 +108,9 @@ class _CreatePurchaseReturnScreenState
       if (value == null) return;
 
       onSetItemTemp(value);
+    });
+    setState(() {
+      itemCodeFilter = [];
     });
   }
 
@@ -513,9 +516,6 @@ class _CreatePurchaseReturnScreenState
         // });
         await Future.delayed(Duration(seconds: 1));
         itemCodeFilter.add(element['ItemCode']);
-        setState(() {
-          print(itemCodeFilter);
-        });
       }
 
       if (mounted) MaterialDialog.close(context);

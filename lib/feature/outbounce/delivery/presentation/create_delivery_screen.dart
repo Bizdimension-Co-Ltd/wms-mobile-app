@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
 import 'package:wms_mobile/feature/outbounce/sale_order/presentation/sale_order_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
@@ -63,6 +64,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
+  List<dynamic> itemCodeFilter = [];
 
   @override
   void initState() {
@@ -95,10 +97,20 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.sale)).then((value) {
+    goTo(
+            context,
+            ItemByCodePage(
+                type: ItemType.sale,
+                itemCode: itemCodeFilter
+                    .map((item) => "ItemCode eq '$item'")
+                    .join(' or ')))
+        .then((value) {
       if (value == null) return;
 
       onSetItemTemp(value);
+    });
+    setState(() {
+      itemCodeFilter = [];
     });
   }
 
@@ -258,12 +270,14 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       binCode.text = getDataFromDynamic(value.code);
     });
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
@@ -492,23 +506,25 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
 
       items = [];
       for (var element in value['DocumentLines']) {
-        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        items.add({
-          "DocEntry": element['DocEntry'],
-          "BaseEntry": element['DocEntry'],
-          "BaseLine": element['LineNum'],
-          "ItemCode": element['ItemCode'],
-          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-          "WarehouseCode": warehouse.text,
-          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-          "UoMCode": element['UoMCode'],
-          "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
-          "BinId": binId.text,
-        });
+        // items.add({
+        //   "DocEntry": element['DocEntry'],
+        //   "BaseEntry": element['DocEntry'],
+        //   "BaseLine": element['LineNum'],
+        //   "ItemCode": element['ItemCode'],
+        //   "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+        //   "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+        //   "WarehouseCode": warehouse.text,
+        //   "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+        //   "UoMCode": element['UoMCode'],
+        //   "UoMGroupDefinitionCollection":
+        //       itemResponse['UoMGroupDefinitionCollection'],
+        //   "BaseUoM": itemResponse['BaseUoM'],
+        //   "BinId": binId.text,
+        // });
+        await Future.delayed(Duration(seconds: 1));
+        itemCodeFilter.add(element['ItemCode']);
       }
 
       if (mounted) MaterialDialog.close(context);
