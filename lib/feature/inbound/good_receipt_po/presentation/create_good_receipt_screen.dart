@@ -105,21 +105,21 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
       items = [];
       for (var element in widget.po['DocumentLines']) {
-        // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        // items.add({
-        //   "ItemCode": element['ItemCode'],
-        //   "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-        //   "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-        //   "WarehouseCode": warehouse.text,
-        //   "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-        //   "UoMCode": element['UoMCode'],
-        //   "UoMGroupDefinitionCollection":
-        //       itemResponse['UoMGroupDefinitionCollection'],
-        //   "BaseUoM": itemResponse['BaseUoM'],
-        //   "BinId": binId.text,
-        // });
-        await Future.delayed(Duration(seconds: 1));
+        items.add({
+          "ItemCode": element['ItemCode'],
+          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          "WarehouseCode": warehouse.text,
+          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+          "UoMCode": element['UoMCode'],
+          "UoMGroupDefinitionCollection":
+              itemResponse['UoMGroupDefinitionCollection'],
+          "BaseUoM": itemResponse['BaseUoM'],
+          "BinId": binId.text,
+        });
+        // await Future.delayed(Duration(seconds: 1));
         itemCodeFilter.add(element['ItemCode']);
       }
 

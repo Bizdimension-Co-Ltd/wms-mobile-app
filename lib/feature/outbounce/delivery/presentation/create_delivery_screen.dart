@@ -505,24 +505,24 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       itemCodeFilter = [];
 
       for (var element in value['DocumentLines']) {
-        // final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        // items.add({
-        //   "DocEntry": element['DocEntry'],
-        //   "BaseEntry": element['DocEntry'],
-        //   "BaseLine": element['LineNum'],
-        //   "ItemCode": element['ItemCode'],
-        //   "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-        //   "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-        //   "WarehouseCode": warehouse.text,
-        //   "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-        //   "UoMCode": element['UoMCode'],
-        //   "UoMGroupDefinitionCollection":
-        //       itemResponse['UoMGroupDefinitionCollection'],
-        //   "BaseUoM": itemResponse['BaseUoM'],
-        //   "BinId": binId.text,
-        // });
-        await Future.delayed(Duration(seconds: 1));
+        items.add({
+          "DocEntry": element['DocEntry'],
+          "BaseEntry": element['DocEntry'],
+          "BaseLine": element['LineNum'],
+          "ItemCode": element['ItemCode'],
+          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          "WarehouseCode": warehouse.text,
+          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+          "UoMCode": element['UoMCode'],
+          "UoMGroupDefinitionCollection":
+              itemResponse['UoMGroupDefinitionCollection'],
+          "BaseUoM": itemResponse['BaseUoM'],
+          "BinId": binId.text,
+        });
+        // await Future.delayed(Duration(seconds: 1));
         itemCodeFilter.add(element['ItemCode']);
       }
 
