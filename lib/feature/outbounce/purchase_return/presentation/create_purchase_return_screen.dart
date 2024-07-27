@@ -280,7 +280,9 @@ class _CreatePurchaseReturnScreenState
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.map((item) {
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int index = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -335,13 +337,16 @@ class _CreatePurchaseReturnScreenState
             "WarehouseCode": warehouse.text,
             "BaseType": 234000032,
             "BaseEntry": docEntry.text,
-            "BaseLine": item['BaseLine'],
+            "BaseLine": index,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations
           };
         }).toList(),
       };
+      setState(() {
+        print(data);
+      });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();

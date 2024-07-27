@@ -288,7 +288,9 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.map((item) {
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int index = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -343,7 +345,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
             "WarehouseCode": warehouse.text,
             "BaseType": 17, // sale order object
             "BaseEntry": item['BaseEntry'],
-            "BaseLine": item['BaseLine'],
+            "BaseLine": index,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations

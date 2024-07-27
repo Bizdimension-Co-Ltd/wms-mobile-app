@@ -141,7 +141,15 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     } else {
-      goTo(context, ItemByCodePage(type: ItemType.purchase,itemCode: itemCodeFilter.map((item) => "ItemCode eq '$item'").join(' or '))).then((value) {
+      return;
+      goTo(
+              context,
+              ItemByCodePage(
+                  type: ItemType.purchase,
+                  itemCode: itemCodeFilter
+                      .map((item) => "ItemCode eq '$item'")
+                      .join(' or ')))
+          .then((value) {
         if (value == null) return;
         onSetItemTemp(value);
       });
@@ -318,7 +326,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.map((item) {
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int index = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
