@@ -549,6 +549,12 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
                 placeholder: 'Customer',
                 onPressed: onNavigateToReturnReceiptRequest,
               ),
+              Input(
+                controller: cardName,
+                readOnly: true,
+                label: 'Name',
+                placeholder: 'Name',
+              ),
               const SizedBox(height: 20),
               Text(''),
               Input(
