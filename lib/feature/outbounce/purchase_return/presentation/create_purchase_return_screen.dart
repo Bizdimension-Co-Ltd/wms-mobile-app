@@ -94,6 +94,7 @@ class _CreatePurchaseReturnScreenState
   }
 
   void onSelectItem() async {
+    if (poText.text == "") return;
     setState(() {
       isEdit = -1;
     });

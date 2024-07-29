@@ -118,6 +118,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
+          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
         });
         // await Future.delayed(Duration(seconds: 1));
         itemCodeFilter.add(element['ItemCode']);
@@ -141,7 +143,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     } else {
-      return;
+      // return;
       goTo(
               context,
               ItemByCodePage(

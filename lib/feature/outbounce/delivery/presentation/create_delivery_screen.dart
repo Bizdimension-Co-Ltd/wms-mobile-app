@@ -63,6 +63,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
+  List<dynamic> baseEntry = [];
   bool loading = false;
   List<dynamic> itemCodeFilter = [];
 
@@ -94,6 +95,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   }
 
   void onSelectItem() async {
+    if (cardCode.text == "") return;
     setState(() {
       isEdit = -1;
     });
@@ -154,7 +156,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         "WarehouseCode": warehouse.text,
         "UoMEntry": uomAbEntry.text,
         "UoMCode": uom.text,
-        "BaseEntry": docEntry.text,
+        "BaseEntry": baseEntry
+            .singleWhere((e) => e["ItemCode"] == itemCode.text)?["BaseEntry"],
         "BaseLine": refLineNo.text,
         "UoMGroupDefinitionCollection":
             jsonDecode(uoMGroupDefinitionCollection.text) ?? [],
@@ -312,14 +315,14 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
             }
           ];
 
-          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (_isBatch || _isSerial) {
+          if (isBatch || isSerial) {
             binAllocations = [];
 
             List<dynamic> batchOrSerialLines =
-                _isSerial ? item['Serials'] : item['Batches'];
+                isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
@@ -352,7 +355,9 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           };
         }).toList(),
       };
-
+      setState(() {
+        print(data);
+      });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -523,6 +528,12 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
+          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+        });
+        baseEntry.add({
+          "BaseEntry": element['DocEntry'],
+          "ItemCode": element['ItemCode'],
         });
         // await Future.delayed(Duration(seconds: 1));
         itemCodeFilter.add(element['ItemCode']);

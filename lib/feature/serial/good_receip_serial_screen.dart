@@ -73,17 +73,17 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         return;
       }
 
-      if (items.length >= int.parse(quantity.text)) {
+      if (items.length >= double.parse(quantity.text).toInt()) {
         throw Exception(
             'Serial Number can not be greater than ${widget.quantity}.');
       }
 
-      final index =
-          items.indexWhere((e) => e['InternalSerialNumber'] == textSerial.text);
+      // final index =
+      //     items.indexWhere((e) => e['InternalSerialNumber'] == textSerial.text);
 
-      if (index >= 0) {
-        throw Exception('Duplicate serial on row $index');
-      }
+      // if (index >= 0) {
+      //   throw Exception('Duplicate serial on row $index');
+      // }
 
       items.add({"InternalSerialNumber": textSerial.text});
       totalSerial.text = items.length.toString();

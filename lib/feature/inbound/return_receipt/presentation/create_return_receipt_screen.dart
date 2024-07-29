@@ -121,12 +121,14 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
       print(e);
     }
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   void onAddItem({bool force = false}) {
     try {
       List<dynamic> data = [...items];
