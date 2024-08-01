@@ -279,7 +279,9 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         // "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
         "U_tl_gitype": giType.text,
-        "DocumentLines": items.map((item) {
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int parentIndex = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -295,7 +297,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                 double.tryParse(item['Quantity']) ?? 0.00,
               ),
               "BinAbsEntry": item['BinId'],
-              "BaseLineNumber": 0,
+              "BaseLineNumber": parentIndex,
               "AllowNegativeQuantity": "tNO",
               "SerialAndBatchNumbersBaseLine": -1
             }
@@ -315,10 +317,12 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
               binAllocations.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
+                "BaseLineNumber": parentIndex,
                 "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
+                "Quantity": convertQuantityUoM(
+                    alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'],
+                    double.tryParse(element["Quantity"]) ?? 0.00),
               });
 
               index++;
@@ -367,7 +371,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     binId.text = '';
     binCode.text = '';
     uom.text = '';
@@ -386,8 +390,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -453,10 +457,10 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
 
@@ -470,10 +474,10 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";
@@ -481,12 +485,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       });
     }
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

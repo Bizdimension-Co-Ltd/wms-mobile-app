@@ -221,22 +221,26 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       binCode.text = getDataFromDynamic(value.code);
     });
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
         "BranchID": 1,
         "Reference2": ref.text,
-        "InventoryPostingLines": items.map((item) {
+        "InventoryPostingLines": items.asMap().entries.map((entry) {
+          int index = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> inventoryPostingLineUoMs = [
             {
-              "LineNumber": 1,
+              "LineNumber": index + 1,
               "ChildNumber": 1,
               "UoMCountedQuantity": item["Quantity"],
               "CountedQuantity": item["Quantity"],
@@ -263,6 +267,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           };
         }).toList(),
       };
+      setState(() {
+        print(data);
+      });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -288,7 +295,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     binId.text = '';
     binCode.text = '';
     uom.text = '';
@@ -307,8 +314,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       uoMGroupDefinitionCollection.text = jsonEncode(
@@ -373,10 +380,10 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
 
@@ -390,10 +397,10 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";

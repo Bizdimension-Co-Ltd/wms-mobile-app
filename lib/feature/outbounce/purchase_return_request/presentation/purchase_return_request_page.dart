@@ -81,7 +81,7 @@ class _PurchaseReturnRequestPageState extends State<PurchaseReturnRequestPage> {
     final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' contains(CardCode, '${filter.text}')")
+            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode, '${filter.text}')")
         .then((value) {
       if (!mounted) return;
 

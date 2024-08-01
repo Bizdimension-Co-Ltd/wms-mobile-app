@@ -13,12 +13,13 @@ class GoodReceiptSerialScreen extends StatefulWidget {
     required this.itemCode,
     required this.quantity,
     this.serials,
+    this.isEdit,
   });
 
   final String quantity;
   final String itemCode;
   final List<dynamic>? serials;
-
+  final dynamic isEdit;
   @override
   State<GoodReceiptSerialScreen> createState() =>
       _GoodReceiptSerialScreenState();
@@ -39,10 +40,15 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
     quantity.text = widget.quantity;
     final serials = widget.serials ?? [];
     totalSerial.text = serials.length.toString();
-    setState(() {
-      items = serials;
-    });
-
+    if (widget.isEdit >= 0) {
+      setState(() {
+        items = widget.serials ?? [];
+      });
+    } else {
+      setState(() {
+        items = [];
+      });
+    }
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onScanResults") {
         setState(() {
@@ -85,7 +91,10 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
       //   throw Exception('Duplicate serial on row $index');
       // }
 
-      items.add({"InternalSerialNumber": textSerial.text});
+      items.add({
+        "InternalSerialNumber": textSerial.text,
+        "Quantity": "1",
+      });
       totalSerial.text = items.length.toString();
       setState(() {
         items;
@@ -113,7 +122,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
 
   void onComplete() {
     try {
-        if (items.length < int.parse(quantity.text)) {
+      if (items.length < int.parse(quantity.text)) {
         throw Exception(
             'Cannot add document without complete selection of serial numbers.');
       }
@@ -164,20 +173,21 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
                 Input(
                   controller: quantity,
                   label: 'Qty.',
-                  placeholder: '0.00',
+                  placeholder: '0',
+                  readOnly: true,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Input(
                   controller: quantity,
                   label: 'Sn#..',
-                  placeholder: '0.00',
+                  placeholder: '0',
                   readOnly: true,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Input(
                   controller: totalSerial,
                   label: 'Alc.Sn',
-                  placeholder: '0.00',
+                  placeholder: '0',
                   readOnly: true,
                 ),
                 Input(

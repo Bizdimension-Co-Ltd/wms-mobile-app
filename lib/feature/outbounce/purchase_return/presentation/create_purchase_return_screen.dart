@@ -282,7 +282,7 @@ class _CreatePurchaseReturnScreenState
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
         "DocumentLines": items.asMap().entries.map((entry) {
-          int index = entry.key;
+          int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
@@ -299,7 +299,7 @@ class _CreatePurchaseReturnScreenState
                 double.tryParse(item['Quantity']) ?? 0.00,
               ),
               "BinAbsEntry": item['BinId'],
-              "BaseLineNumber": 0,
+              "BaseLineNumber": parentIndex,
               "AllowNegativeQuantity": "tNO",
               "SerialAndBatchNumbersBaseLine": -1
             }
@@ -319,10 +319,12 @@ class _CreatePurchaseReturnScreenState
               binAllocations.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
+                "BaseLineNumber": parentIndex,
                 "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
+                "Quantity": convertQuantityUoM(
+                    alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'],
+                    double.tryParse(element["Quantity"]) ?? 0.00),
               });
 
               index++;
@@ -338,7 +340,7 @@ class _CreatePurchaseReturnScreenState
             "WarehouseCode": warehouse.text,
             "BaseType": 234000032,
             "BaseEntry": docEntry.text,
-            "BaseLine": index,
+            "BaseLine": parentIndex,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations
@@ -373,7 +375,7 @@ class _CreatePurchaseReturnScreenState
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     binId.text = '';
     binCode.text = '';
     uom.text = '';
@@ -391,8 +393,8 @@ class _CreatePurchaseReturnScreenState
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -458,10 +460,10 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
 
@@ -475,10 +477,10 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";

@@ -272,12 +272,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       grTypeName.text = getDataFromDynamic((value).name);
     });
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   void onPostToSAP() async {
     try {
       Map<String, dynamic> data = {
@@ -286,7 +288,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         // "CardName": cardName.text,
         "U_tl_grtype": grType.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.map((item) {
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int parentIndex = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -302,7 +306,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                 double.tryParse(item['Quantity']) ?? 0.00,
               ),
               "BinAbsEntry": item['BinId'],
-              "BaseLineNumber": 0,
+              "BaseLineNumber": parentIndex,
               "AllowNegativeQuantity": "tNO",
               "SerialAndBatchNumbersBaseLine": -1
             }
@@ -316,16 +320,20 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
             List<dynamic> batchOrSerialLines =
                 isSerial ? item['Serials'] : item['Batches'];
-
             int index = 0;
             for (var element in batchOrSerialLines) {
+              setState(() {
+                print(element);
+              });
               binAllocations.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
+                "BaseLineNumber": parentIndex,
                 "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
+                "Quantity": convertQuantityUoM(
+                    alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'],
+                    double.tryParse(element["Quantity"]) ?? 0.00),
               });
 
               index++;
@@ -378,7 +386,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     binId.text = '';
     binCode.text = '';
     uom.text = '';
@@ -397,8 +405,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -464,10 +472,10 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         setState(() {
@@ -483,10 +491,10 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";

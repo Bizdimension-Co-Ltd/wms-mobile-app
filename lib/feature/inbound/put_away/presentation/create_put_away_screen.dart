@@ -273,12 +273,14 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       tbinCode.text = getDataFromDynamic((value as BinEntity).code);
     });
   }
+
   void onChangeWhs() async {
     goTo(context, WarehousePage()).then((value) {
       if (value == null) return;
       warehouse.text = getDataFromDynamic(value);
     });
   }
+
   void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
@@ -290,7 +292,9 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
         "ToWarehouse": warehouse.text,
         "DocumentStatus": "bost_Open",
         "U_tl_sobincode": tbinCode.text,
-        "StockTransferLines": items.map((item) {
+        "StockTransferLines": items.asMap().entries.map((entry) {
+          int parentIndex = entry.key;
+          Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
@@ -306,7 +310,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
                 double.tryParse(item['Quantity']) ?? 0.00,
               ),
               "BinAbsEntry": item['SBinId'],
-              "BaseLineNumber": 0,
+              "BaseLineNumber": parentIndex,
               "AllowNegativeQuantity": "tNO",
               "SerialAndBatchNumbersBaseLine": -1,
               "BinActionType": "batFromWarehouse",
@@ -318,7 +322,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
                 double.tryParse(item['Quantity']) ?? 0.00,
               ),
               "BinAbsEntry": item['TBinId'],
-              "BaseLineNumber": 0,
+              "BaseLineNumber": parentIndex,
               "AllowNegativeQuantity": "tNO",
               "SerialAndBatchNumbersBaseLine": -1,
               "BinActionType": "batToWarehouse",
@@ -339,10 +343,12 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
               binAllocations.add({
                 "BinAbsEntry": item['BinId'],
                 "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": 0,
+                "BaseLineNumber": parentIndex,
                 "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'], 1),
+                "Quantity": convertQuantityUoM(
+                    alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'],
+                    double.tryParse(element['Quantity']) ?? 0.00),
               });
 
               index++;
@@ -394,7 +400,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     sbinId.text = '';
     sbinCode.text = '';
     tbinId.text = '';
@@ -415,8 +421,8 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -482,10 +488,10 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
 
@@ -499,10 +505,10 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";

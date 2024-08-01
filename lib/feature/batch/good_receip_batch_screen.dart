@@ -15,12 +15,13 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     required this.itemCode,
     required this.quantity,
     this.serials,
+    this.isEdit,
   });
 
   final String quantity;
   final String itemCode;
   final List<dynamic>? serials;
-
+  final dynamic isEdit;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -37,13 +38,18 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
   @override
   void initState() {
-    print(widget.itemCode);
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
     quantityPerBatch.text = widget.quantity;
-    setState(() {
-      items = widget.serials ?? [];
-    });
+    if (widget.isEdit >= 0) {
+      setState(() {
+        items = widget.serials ?? [];
+      });
+    } else {
+      setState(() {
+        items = [];
+      });
+    }
 
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onScanResults") {
@@ -65,17 +71,21 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       if (textSerial.text == '') return;
       final index =
           items.indexWhere((e) => e['BatchNumber'] == textSerial.text);
+      // Calculate the total added quantity so far
+      int totalAddedQuantity =
+          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
 
-      // if (index >= 0 && updateIndex == -1) {
-      //   throw Exception('Duplicate batch on row $index');
-      // }
-
-      if ((double.parse(quantityPerBatch.text).toInt()) <= 0) {
+      // Check if the current quantityPerBatch exceeds the remaining quantity
+      int currentQuantity = int.parse(quantityPerBatch.text);
+      if (currentQuantity <= 0) {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
-      if (updateIndex < 0 && items.length > 0) {
-        throw Exception('Duplicate batch on row ${index + 1}');
+      if (totalAddedQuantity + currentQuantity > int.parse(widget.quantity) &&
+          updateIndex < 0) {
+        throw Exception(
+            'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
       }
+
       if (updateIndex < 0) {
         items.add({
           "BatchNumber": textSerial.text,
@@ -92,7 +102,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
       totalSerial.text = items.length.toString();
       textSerial.text = "";
-      // quantityPerBatch.text = "";
+      quantityPerBatch.text = "";
       // quantity.text = "";
       setState(() {
         items;
@@ -141,6 +151,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       if (qty == 0) {
         throw Exception("Quantity must be greater than 0.");
       }
+      int totalAddedQuantity =
+          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
+      if (totalAddedQuantity < qty) {
+        throw Exception("Can't generate document without complete batch.");
+      }
       Navigator.of(context).pop({
         "items": items,
         "quantity": quantity.text,
@@ -150,6 +165,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     }
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,13 +204,14 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                 Input(
                   controller: quantity,
                   label: 'Qty.',
-                  placeholder: '0.00',
+                  placeholder: '0',
+                  readOnly: true,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Input(
                   controller: quantityPerBatch,
                   label: 'Alc.Bt',
-                  placeholder: '0.00',
+                  placeholder: '0',
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Input(

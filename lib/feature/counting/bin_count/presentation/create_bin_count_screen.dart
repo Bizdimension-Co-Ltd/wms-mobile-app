@@ -282,7 +282,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   void clear() {
     itemCode.text = '';
     itemName.text = '';
-    quantity.text = '0';
+    quantity.text = '';
     binId.text = '';
     binCode.text = '';
     uom.text = '';
@@ -300,7 +300,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
       FocusScope.of(context).requestFocus(FocusNode());
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
-      quantity.text = '0';
+      // quantity.text = '0';
       uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
