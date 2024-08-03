@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/counting/counting.dart';
+import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
+import 'package:wms_mobile/feature/list_serial/presentation/screen/batch_list_page.dart';
 import 'package:wms_mobile/feature/lookup/lookup.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
@@ -57,6 +59,11 @@ class _DashboardState extends State<Dashboard> {
         break;
       case 6:
         // goTo(context, const LoginScreen());
+        // goTo(
+        //     context,
+        //     const SerialListPage(
+        //       warehouse: '',
+        //     ));
         break;
       default:
     }
@@ -83,10 +90,19 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         leading: Container(
           padding: EdgeInsets.all(14), // Add some padding if necessary
-          child: SvgPicture.asset(
-            "images/svg/menu.svg",
-            color: Colors.white,
-            fit: BoxFit.contain, // Ensure the SVG fits within the container
+          child: GestureDetector(
+            onTap: () {
+              // goTo(
+              //     context,
+              //     const BatchListPage(
+              //       warehouse: '',
+              //     ));
+            },
+            child: SvgPicture.asset(
+              "images/svg/menu.svg",
+              color: Colors.white,
+              fit: BoxFit.contain, // Ensure the SVG fits within the container
+            ),
           ),
         ),
         iconTheme: const IconThemeData(

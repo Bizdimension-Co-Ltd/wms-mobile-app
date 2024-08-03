@@ -277,7 +277,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
-        "WarehouseCode": warehouse.text,
+        "U_tl_whsdesc": warehouse.text,
         "U_tl_gitype": giType.text,
         "DocumentLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
@@ -338,6 +338,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             "WarehouseCode": warehouse.text,
             // "BaseType": 234000031,
             // "BaseEntry": item['BaseEntry'],
+             "UseBaseUnits": "tNO",
             // "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],

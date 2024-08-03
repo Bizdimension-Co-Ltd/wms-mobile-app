@@ -287,7 +287,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "U_tl_grtype": grType.text,
-        "WarehouseCode": warehouse.text,
+        "U_tl_whsdesc": warehouse.text,
         "DocumentLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
@@ -350,6 +350,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             // "BaseType": 234000031,
             // "BaseEntry": item['BaseEntry'],
             // "BaseLine": item['BaseLine'],
+            "UseBaseUnits": "tNO",
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations

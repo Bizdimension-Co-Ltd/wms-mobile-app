@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:wms_mobile/injector/di_batch_list.dart';
 import 'package:wms_mobile/injector/di_bin.dart';
 import 'package:wms_mobile/injector/di_bin_lookup.dart';
 import 'package:wms_mobile/injector/di_binlocation_count%20.dart';
@@ -24,6 +25,7 @@ import 'package:wms_mobile/injector/di_quick_count.dart';
 import 'package:wms_mobile/injector/di_return_reqceipt.dart';
 import 'package:wms_mobile/injector/di_return_reqceipt_request.dart';
 import 'package:wms_mobile/injector/di_sale_order.dart';
+import 'package:wms_mobile/injector/di_serial_list.dart';
 import 'package:wms_mobile/injector/di_unit_of_measurement.dart';
 import 'package:wms_mobile/injector/di_warehouse.dart';
 import 'package:wms_mobile/injector/di_warehouse_transfer.dart';
@@ -48,6 +50,9 @@ Future<void> container() async {
   DIItem(getIt);
   DIItems(getIt);
   DICos(getIt);
+  DIBatchListSelect(getIt);
+  DISerialListSelect(getIt);
+
   DIItemByCode(getIt);
   DIUnitOfMeasurement(getIt);
   DIBusinessPartner(getIt);
