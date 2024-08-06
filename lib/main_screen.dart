@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         isPickedWarehuse = true;
       });
-    }
+    } 
   }
 
   @override

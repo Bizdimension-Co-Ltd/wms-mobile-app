@@ -491,6 +491,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
+            listAllSerial: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -508,6 +509,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: batches,
+            listAllBatch: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;

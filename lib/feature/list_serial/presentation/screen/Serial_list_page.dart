@@ -23,36 +23,34 @@ class _SerialListPageState extends State<SerialListPage> {
       "Serial": "A000012",
       "Qty": "25",
       "Bin": "SYSTEMBIN-LOCATION",
-      "selected": false
     },
-    {"Serial": "A000013", "Qty": "20", "Bin": "MOCATION001", "selected": false},
-    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002", "selected": false},
-    {"Serial": "D000015", "Qty": "45", "Bin": "LOCATION003", "selected": false},
-    {"Serial": "E000016", "Qty": "50", "Bin": "DOCATION004", "selected": false},
+    {"Serial": "A000013", "Qty": "20", "Bin": "MOCATION001"},
+    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002"},
+    {"Serial": "D000015", "Qty": "45", "Bin": "LOCATION003"},
+    {"Serial": "E000016", "Qty": "50", "Bin": "DOCATION004"},
     {
       "Serial": "A000012",
       "Qty": "25",
       "Bin": "SYSTEMBIN-LOCATION",
-      "selected": false
     },
-    {"Serial": "A000013", "Qty": "20", "Bin": "AOCATION001", "selected": false},
-    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002", "selected": false},
-    {"Serial": "C000015", "Qty": "45", "Bin": "EOCATION003", "selected": false},
-    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004", "selected": false},
+    {"Serial": "A000013", "Qty": "20", "Bin": "AOCATION001"},
+    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002"},
+    {"Serial": "C000015", "Qty": "45", "Bin": "EOCATION003"},
+    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004"},
     {
       "Serial": "A000012",
       "Qty": "25",
       "Bin": "SYSTEMBIN-LOCATION",
-      "selected": false
     },
-    {"Serial": "A000013", "Qty": "20", "Bin": "LOCATION001", "selected": false},
-    {"Serial": "A000014", "Qty": "30", "Bin": "BOCATION002", "selected": false},
-    {"Serial": "B000015", "Qty": "45", "Bin": "LOCATION003", "selected": false},
-    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004", "selected": false},
+    {"Serial": "A000013", "Qty": "20", "Bin": "LOCATION001"},
+    {"Serial": "A000014", "Qty": "30", "Bin": "BOCATION002"},
+    {"Serial": "B000015", "Qty": "45", "Bin": "LOCATION003"},
+    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004"},
   ];
   List<TextEditingController> controllers = [];
 
   late SerialListCubit _bloc;
+  Set<int> selectedIndices = Set<int>();
 
   @override
   void initState() {
@@ -75,18 +73,18 @@ class _SerialListPageState extends State<SerialListPage> {
 
   void _onSelected(bool? selected, int index) {
     setState(() {
-      data[index]["selected"] = selected;
+      if (selected == true) {
+        selectedIndices.add(index);
+      } else {
+        selectedIndices.remove(index);
+      }
     });
   }
 
   void _onDone() {
     List<Map<String, dynamic>> selectedData =
-        data.where((Serial) => Serial["selected"]).toList();
-    setState(() {
-      print(selectedData);
-    });
-    return;
-    Navigator.pop(context, selectedData);
+        selectedIndices.map((index) => data[index]).toList();
+    Navigator.of(context).pop(selectedData); // Pass selected data back
   }
 
   void _onChangeQty(String value, int index) {
@@ -97,7 +95,7 @@ class _SerialListPageState extends State<SerialListPage> {
 
   @override
   Widget build(BuildContext context) {
-     data.sort((a, b) => a["Bin"].compareTo(b["Bin"]));
+    data.sort((a, b) => a["Bin"].compareTo(b["Bin"]));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
@@ -171,7 +169,6 @@ class _SerialListPageState extends State<SerialListPage> {
                       ),
                     ),
                   ),
-                
                   Expanded(
                     flex: 1,
                     child: Padding(
@@ -217,7 +214,8 @@ class _SerialListPageState extends State<SerialListPage> {
                                           padding:
                                               const EdgeInsets.only(right: 7),
                                           child: Checkbox(
-                                            value: Serial["selected"],
+                                            value:
+                                                selectedIndices.contains(index),
                                             onChanged: (bool? value) {
                                               _onSelected(value, index);
                                             },
@@ -248,12 +246,11 @@ class _SerialListPageState extends State<SerialListPage> {
                                       ],
                                     ),
                                   ),
-                 
                                   Expanded(
                                     flex: 2,
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40),
-                                      child:   Text(
+                                      child: Text(
                                         Serial["Qty"],
                                         style: TextStyle(fontSize: 13),
                                       ),

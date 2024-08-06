@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/counting/counting.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
-import 'package:wms_mobile/feature/list_serial/presentation/screen/batch_list_page.dart';
+import 'package:wms_mobile/feature/list_serial/presentation/screen/Serial_list_page.dart';
 import 'package:wms_mobile/feature/lookup/lookup.dart';
+import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/form/datePicker.dart';
@@ -38,6 +40,19 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   String warehouseCode = '';
+  Future<void> _logout() async {
+    try {
+      if (mounted) {
+        // MaterialDialog.close(context);
+
+        BlocProvider.of<AuthorizationBloc>(context).add(
+          RequestLogoutEvent(),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   void onPressMenu(BuildContext context, int index) {
     switch (index) {
@@ -58,6 +73,7 @@ class _DashboardState extends State<Dashboard> {
         goTo(context, const ProductLookUp());
         break;
       case 6:
+        _logout();
         // goTo(context, const LoginScreen());
         // goTo(
         //     context,

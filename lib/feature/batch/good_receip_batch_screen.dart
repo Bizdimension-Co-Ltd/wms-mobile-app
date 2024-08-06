@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 
 import '/component/button/button.dart';
 import '/component/form/input.dart';
@@ -16,9 +19,11 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     required this.quantity,
     this.serials,
     this.isEdit,
+    this.listAllBatch,
   });
 
   final String quantity;
+  final dynamic listAllBatch;
   final String itemCode;
   final List<dynamic>? serials;
   final dynamic isEdit;
@@ -93,11 +98,22 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         });
       } else {
         final temps = [...items];
+
         temps[updateIndex] = {
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
         };
         items = temps;
+        if (items.fold(0, (sum, item) => sum + int.parse(item['Quantity'])) >
+                int.parse(widget.quantity) &&
+            updateIndex >= 0) {
+          updateIndex = -1;
+          quantityPerBatch.text = widget.quantity;
+          textSerial.text = "";
+          items = [];
+          throw Exception(
+              'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
+        }
       }
 
       totalSerial.text = items.length.toString();
@@ -165,7 +181,35 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     }
   }
 
-  @override
+  void onNavigateBatchList() async {
+    goTo(
+        context,
+        BatchListPage(
+          warehouse: '',
+        )).then((value) async {
+      if (value == null) return;
+
+      for (var element in value) {
+        items.add({
+          "BatchNumber": element['Batch'],
+          "Quantity": element['PickQty'] ?? "0",
+        });
+      }
+      int totalAddedQuantity =
+          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
+      if (totalAddedQuantity > int.parse(widget.quantity)) {
+        items = [];
+        MaterialDialog.success(context,
+            title: 'Failed',
+            body:
+                'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
+      }
+      setState(() {
+        items;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,7 +217,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'GRPO / Batches',
+          'Batch',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -218,7 +262,10 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                   controller: textSerial,
                   label: 'Batch.',
                   placeholder: 'Batch',
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (widget.listAllBatch == null) return;
+                    onNavigateBatchList();
+                  },
                   icon: Icons.barcode_reader,
                   onEditingComplete: onEnterSerial,
                 ),

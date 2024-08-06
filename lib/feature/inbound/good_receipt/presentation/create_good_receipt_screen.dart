@@ -76,18 +76,22 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            itemCode.text = call.arguments['data'];
+            onCompleteTextEditItem();
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     super.initState();
   }
 

@@ -474,7 +474,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: serialList,
-           isEdit: isEdit
+           isEdit: isEdit,
+           listAllSerial: true,
         ),
       ).then((value) {
         if (value == null) return;
@@ -492,7 +493,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: batches,
-           isEdit: isEdit
+           isEdit: isEdit,
+           listAllBatch: true,
         ),
       ).then((value) {
         if (value == null) return;
@@ -558,7 +560,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Create Return Receipt',
+          'Create Delivery',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,

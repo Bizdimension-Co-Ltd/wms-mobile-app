@@ -29,6 +29,10 @@ class _WarehousePageState extends State<WarehousePage> {
   @override
   void initState() {
     super.initState();
+    //testOfline
+    LocalStorageManger.setString('warehouse', "WH009");
+    goTo(context, Dashboard(), removeAllPreviousRoutes: true);
+    //testOutLine
     if (mounted) {
       _bloc = context.read<WarehouseCubit>();
       final state = context.read<WarehouseCubit>().state;

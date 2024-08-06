@@ -338,7 +338,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             "WarehouseCode": warehouse.text,
             // "BaseType": 234000031,
             // "BaseEntry": item['BaseEntry'],
-             "UseBaseUnits": "tNO",
+            "UseBaseUnits": "tNO",
             // "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
@@ -461,6 +461,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
+            listAllSerial: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -478,6 +479,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: batches,
+            listAllBatch: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
