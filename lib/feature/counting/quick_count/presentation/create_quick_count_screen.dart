@@ -382,6 +382,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptSerialScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
+            listAllSerial: true,
             serials: serialList,
             isEdit: isEdit),
       ).then((value) {
@@ -399,6 +400,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptBatchScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
+            listAllBatch: true,
             serials: batches,
             isEdit: isEdit),
       ).then((value) {

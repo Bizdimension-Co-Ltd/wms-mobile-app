@@ -35,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _password.text,
           db: CONNECT_COMPANY,
         );
-
         BlocProvider.of<AuthorizationBloc>(context).add(
           RequestLoginOnlineEvent(entity: loginEntity),
         );

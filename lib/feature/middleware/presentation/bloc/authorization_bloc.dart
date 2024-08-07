@@ -25,8 +25,8 @@ class AuthorizationBloc extends Bloc<AuthorizationEvent, AuthorizationState> {
           await LocalStorageManger.setString('SessionId', success);
           emit(AuthorizationSuccess());
         });
-      } else if (event is RequestLogoutEvent) {
-        // emit(RequestingAuthorization());
+      } else {
+        emit(RequestingAuthorization());
         await LocalStorageManger.removeString('SessionId');
         await LocalStorageManger.removeString('warehouse');
         emit(UnAuthorization());

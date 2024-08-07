@@ -38,12 +38,13 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   final totalSerial = TextEditingController();
   final textSerial = TextEditingController();
   final quantityPerBatch = TextEditingController();
-DateTime? _postingDate;
+  DateTime? expDate;
   List<dynamic> items = [];
   int updateIndex = -1;
 
   @override
   void initState() {
+    expDate=DateTime.now();
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
     quantityPerBatch.text = widget.quantity;
@@ -97,6 +98,7 @@ DateTime? _postingDate;
         items.add({
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
+          "ExpiryDate": expDate.toString()
         });
       } else {
         final temps = [...items];
@@ -104,6 +106,7 @@ DateTime? _postingDate;
         temps[updateIndex] = {
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
+          "ExpiryDate": expDate.toString()
         };
         items = temps;
         if (items.fold(
@@ -177,10 +180,8 @@ DateTime? _postingDate;
       if (totalAddedQuantity < qty) {
         throw Exception("Can't generate document without complete batch.");
       }
-      Navigator.of(context).pop({
-        "items": items,
-        "quantity": quantity.text,
-      });
+      Navigator.of(context)
+          .pop({"items": items, "quantity": quantity.text, "expDate": expDate});
     } catch (e) {
       MaterialDialog.success(context, title: 'Failed', body: e.toString());
     }
@@ -214,11 +215,13 @@ DateTime? _postingDate;
       });
     });
   }
-void _selectPostingDate(DateTime date) async {
+
+  void _selectPostingDate(DateTime date) async {
     setState(() {
-      _postingDate = date;
+      expDate = date;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,7 +286,7 @@ void _selectPostingDate(DateTime date) async {
                   restorationId: 'main_date_picker',
                   req: 'true',
                   onDateSelected: _selectPostingDate,
-                  defaultValue: _postingDate,
+                  defaultValue: expDate,
                 ),
                 const SizedBox(height: 12),
                 // Text('Batch No.'),

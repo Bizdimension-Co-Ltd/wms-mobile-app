@@ -444,6 +444,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   }
 
   void onNavigateSerialOrBatch({bool force = false}) {
+    return;
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
           ? []

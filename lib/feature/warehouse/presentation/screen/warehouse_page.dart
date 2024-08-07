@@ -21,7 +21,6 @@ class _WarehousePageState extends State<WarehousePage> {
 
   String query = "?\$top=10&\$skip=0&\$filter=BusinessPlaceID eq 1";
 
-  int check = 1;
   TextEditingController filter = TextEditingController();
   List<WarehouseEntity> data = [];
   late WarehouseCubit _bloc;
@@ -29,42 +28,39 @@ class _WarehousePageState extends State<WarehousePage> {
   @override
   void initState() {
     super.initState();
-    if (mounted) {
-      _bloc = context.read<WarehouseCubit>();
-      final state = context.read<WarehouseCubit>().state;
+    _bloc = context.read<WarehouseCubit>();
+    final state = context.read<WarehouseCubit>().state;
 
-      if (state is WarehouseData) {
-        data = state.entities;
-      }
+    if (state is WarehouseData) {
+      data = state.entities;
+    }
 
-      if (data.length == 0) {
-        _bloc.get(query).then((value) {
+    if (data.isEmpty) {
+      _bloc.get(query).then((value) {
+        if (mounted) {
           setState(() => data = value);
           _bloc.set(value);
-        });
-      }
-
-      setState(() {
-        data;
-      });
-
-      _scrollController.addListener(() {
-        if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent) {
-          final state = BlocProvider.of<WarehouseCubit>(context).state;
-          if (state is WarehouseData && data.length > 0) {
-            _bloc
-                .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=BusinessPlaceID eq 1 and contains(WarehouseCode,'${filter.text}')")
-                .then((value) {
-              if (!mounted) return;
-              _bloc.set([...data, ...value]);
-              setState(() => data = [...data, ...value]);
-            });
-          }
         }
       });
     }
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        final state = BlocProvider.of<WarehouseCubit>(context).state;
+        if (state is WarehouseData && data.isNotEmpty) {
+          _bloc
+              .next(
+                  "?\$top=10&\$skip=${data.length}&\$filter=BusinessPlaceID eq 1 and contains(WarehouseCode,'${filter.text}')")
+              .then((value) {
+            if (mounted) {
+              _bloc.set([...data, ...value]);
+              setState(() => data = [...data, ...value]);
+            }
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -83,9 +79,9 @@ class _WarehousePageState extends State<WarehousePage> {
         .get(
             "$query&\$filter=BusinessPlaceID eq 1 and contains(WarehouseCode, '${filter.text}')")
         .then((value) {
-      if (!mounted) return;
-
-      setState(() => data = value);
+      if (mounted) {
+        setState(() => data = value);
+      }
     });
   }
 

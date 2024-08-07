@@ -361,11 +361,11 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           };
         }).toList(),
       };
-      setState(() {
-        print(data);
-      });
       MaterialDialog.loading(context);
-
+      // setState(() {
+      //   print(data);
+      // });
+      // return;
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -483,9 +483,6 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
-        setState(() {
-          print(value);
-        });
         quantity.text = value['quantity'] ?? "0";
         serialsInput.text = jsonEncode(value['items']);
       });
