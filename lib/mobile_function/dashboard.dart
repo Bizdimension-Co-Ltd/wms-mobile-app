@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/counting/counting.dart';
+import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
+import 'package:wms_mobile/feature/list_serial/presentation/screen/Serial_list_page.dart';
 import 'package:wms_mobile/feature/lookup/lookup.dart';
+import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/form/datePicker.dart';
@@ -13,6 +17,7 @@ import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';
 import 'package:wms_mobile/mobile_function/rmaScreen.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
 import '../constant/style.dart';
@@ -21,7 +26,6 @@ const gridList = [
   {"name": "Inbound", "img": "download.svg"},
   {"name": "Outbound", "img": "upload.svg"},
   {"name": "Pick & Pack", "img": "heigth.svg"},
-  {"name": "Transfer", "img": "transfer.svg"},
   {"name": "Counting", "img": "counting1.svg"},
   {"name": "Lookup", "img": "look.svg"},
   {"name": "Log Out", "img": "logout1.svg"}
@@ -36,6 +40,15 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   String warehouseCode = '';
+  void _logout(BuildContext context) {
+    MaterialDialog.loading(context);
+
+    const timeoutDuration = Duration(seconds: 1);
+    Future.delayed(timeoutDuration, () {
+      BlocProvider.of<AuthorizationBloc>(context)
+          .add(const RequestLogoutEvent());
+    });
+  }
 
   void onPressMenu(BuildContext context, int index) {
     switch (index) {
@@ -45,18 +58,21 @@ class _DashboardState extends State<Dashboard> {
       case 1:
         goTo(context, const Outbound());
         break;
-      case 1:
-        goTo(context,
-            const GoodReceiptSerialScreen(itemCode: 'SE0001', quantity: '20'));
-        break;
-      case 4:
+      case 3:
         goTo(context, const Counting());
         break;
-      case 5:
+      case 4:
         goTo(context, const ProductLookUp());
         break;
-      case 6:
+      case 5:
+        _logout(context);
+
         // goTo(context, const LoginScreen());
+        // goTo(
+        //     context,
+        //     const SerialListPage(
+        //       warehouse: '',
+        //     ));
         break;
       default:
     }
@@ -83,10 +99,19 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         leading: Container(
           padding: EdgeInsets.all(14), // Add some padding if necessary
-          child: SvgPicture.asset(
-            "images/svg/menu.svg",
-            color: Colors.white,
-            fit: BoxFit.contain, // Ensure the SVG fits within the container
+          child: GestureDetector(
+            onTap: () {
+              // goTo(
+              //     context,
+              //     const BatchListPage(
+              //       warehouse: '',
+              //     ));
+            },
+            child: SvgPicture.asset(
+              "images/svg/menu.svg",
+              color: Colors.white,
+              fit: BoxFit.contain, // Ensure the SVG fits within the container
+            ),
           ),
         ),
         iconTheme: const IconThemeData(

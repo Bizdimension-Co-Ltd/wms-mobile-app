@@ -112,9 +112,9 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
         }
       }
       setState(() {
-        detailItem["NoBatch"] = items.where((e) => e["IsBatch"] == "Y").length;
+        detailItem["NoBatch"] = items.where((e) => e["IsBatch"] == "Y" && e["OnHandQty"] > 0).length;
         detailItem["NoSerial"] =
-            items.where((e) => e["IsSerial"] == "Y").length;
+            items.where((e) => e["IsSerial"] == "Y" && e["OnHandQty"] > 0).length;
       });
       MaterialDialog.close(context);
     } catch (e) {
@@ -289,6 +289,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
               ContentHeader(),
               Column(
                 children: items
+                    .where((e) => e["OnHandQty"] > 0)
                     .map((item) => GestureDetector(
                           // onTap: () => onEdit(item),
                           child: Container(

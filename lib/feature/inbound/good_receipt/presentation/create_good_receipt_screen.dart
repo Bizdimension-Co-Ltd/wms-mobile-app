@@ -76,18 +76,22 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            itemCode.text = call.arguments['data'];
+            onCompleteTextEditItem();
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     super.initState();
   }
 
@@ -287,7 +291,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "U_tl_grtype": grType.text,
-        "WarehouseCode": warehouse.text,
+        "U_tl_whsdesc": warehouse.text,
         "DocumentLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
@@ -350,17 +354,18 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             // "BaseType": 234000031,
             // "BaseEntry": item['BaseEntry'],
             // "BaseLine": item['BaseLine'],
+            "UseBaseUnits": "tNO",
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations": binAllocations
           };
         }).toList(),
       };
-      setState(() {
-        print(data);
-      });
       MaterialDialog.loading(context);
-
+      // setState(() {
+      //   print(data);
+      // });
+      // return;
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -478,9 +483,6 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
-        setState(() {
-          print(value);
-        });
         quantity.text = value['quantity'] ?? "0";
         serialsInput.text = jsonEncode(value['items']);
       });

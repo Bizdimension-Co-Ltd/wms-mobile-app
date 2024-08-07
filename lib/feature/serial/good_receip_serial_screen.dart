@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wms_mobile/feature/list_serial/presentation/screen/Serial_list_page.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
 import '/helper/helper.dart';
@@ -14,12 +15,14 @@ class GoodReceiptSerialScreen extends StatefulWidget {
     required this.quantity,
     this.serials,
     this.isEdit,
+    this.listAllSerial,
   });
 
   final String quantity;
   final String itemCode;
   final List<dynamic>? serials;
   final dynamic isEdit;
+  final dynamic listAllSerial;
   @override
   State<GoodReceiptSerialScreen> createState() =>
       _GoodReceiptSerialScreenState();
@@ -38,11 +41,11 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   void initState() {
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
-    final serials = widget.serials ?? [];
-    totalSerial.text = serials.length.toString();
+    totalSerial.text = items.length.toString();
     if (widget.isEdit >= 0) {
       setState(() {
         items = widget.serials ?? [];
+        totalSerial.text = items.length.toString();
       });
     } else {
       setState(() {
@@ -120,6 +123,46 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
     );
   }
 
+  void onNavigateSerialList() async {
+    goTo(
+        context,
+        SerialListPage(
+          warehouse: '',
+          itemCode: widget.itemCode,
+        )).then((value) async {
+      if (value == null) return;
+      for (var element in value) {
+        dynamic index = 0;
+        if (items.length > 0) {
+          if (element["Batch_Serial"] ==
+              items[index]?["InternalSerialNumber"]) {
+            MaterialDialog.success(context,
+                title: 'Opps.',
+                body: 'Duplicate Serial Number ${element["Batch_Serial"]}.');
+            return;
+          }
+        }
+        items.add({
+          "InternalSerialNumber": element['Batch_Serial'],
+          "Quantity": "1",
+        });
+
+        totalSerial.text = items.length.toString();
+
+        setState(() {
+          items;
+        });
+        index++;
+      }
+      if (items.length > double.parse(quantity.text).toInt()) {
+        items = [];
+        MaterialDialog.success(context,
+            title: 'Failed',
+            body: 'Serial Number can not be greater than ${widget.quantity}.');
+      }
+    });
+  }
+
   void onComplete() {
     try {
       if (items.length < int.parse(quantity.text)) {
@@ -142,7 +185,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'GRPO / Serialize',
+          'Serialize',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -194,7 +237,10 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
                   controller: textSerial,
                   label: 'Serial.',
                   placeholder: 'Serial',
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (widget.listAllSerial != true) return;
+                    onNavigateSerialList();
+                  },
                   icon: Icons.barcode_reader,
                   onEditingComplete: onEnterSerial,
                 ),
@@ -299,7 +345,7 @@ class ContentHeader extends StatelessWidget {
               ),
             ),
           ),
-          // Expanded(child: Text('Bin.')),
+          Expanded(child: Text('Qty.')),
           // Expanded(child: Text('Qty/Op.')),
         ],
       ),
@@ -332,7 +378,7 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               // Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
-              // Expanded(child: Text('${item['Quantity']}/0')),
+              Expanded(child: Text('${item['Quantity']}')),
             ],
           ),
           SizedBox(height: 6),

@@ -12,7 +12,6 @@ class RequestLoginOnlineEvent extends AuthorizationEvent {
 
   const RequestLoginOnlineEvent({required this.entity});
 }
-
 class RequestLoginOfflineEvent extends AuthorizationEvent {
   final LoginEntity entity;
 

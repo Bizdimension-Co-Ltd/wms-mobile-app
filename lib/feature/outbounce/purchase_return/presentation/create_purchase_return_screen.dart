@@ -463,7 +463,9 @@ class _CreatePurchaseReturnScreenState
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
-            isEdit: isEdit),
+            isEdit: isEdit,
+            listAllSerial: true,
+            ),
       ).then((value) {
         if (value == null) return;
 
@@ -480,7 +482,9 @@ class _CreatePurchaseReturnScreenState
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: batches,
-            isEdit: isEdit),
+            isEdit: isEdit,
+            listAllBatch: true,
+            ),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";
@@ -520,6 +524,8 @@ class _CreatePurchaseReturnScreenState
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
+            "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
         });
         // await Future.delayed(Duration(seconds: 1));
 

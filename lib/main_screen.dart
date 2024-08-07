@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
-import 'package:wms_mobile/mobile_function/dashboard.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
+import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
-import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
-import '/feature/middleware/presentation/login_screen.dart';
 import 'constant/style.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,7 +14,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  bool isPickedWarehuse = false;
+  bool isPickedWarehouse = false;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -27,33 +27,45 @@ class _MainScreenState extends State<MainScreen> {
     final value = await LocalStorageManger.getString('warehouse');
     if (value != '') {
       setState(() {
-        isPickedWarehuse = true;
+        isPickedWarehouse = true;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthorizationBloc, AuthorizationState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            // Define the default color for the date picker
-            colorScheme: const ColorScheme.light(
-              primary: PRIMARY_COLOR, // Change primary color
-              onPrimary: Colors.white, // Change text color
-            ),
-          ),
-          title: 'Flutter layout demo',
-          home: state is AuthorizationSuccess
-              ? isPickedWarehuse
-                  ? Dashboard()
-                  : WarehousePage(isPicker: true)
-              : const LoginScreen(),
-        );
+    return BlocListener<AuthorizationBloc, AuthorizationState>(
+      listener: (context, state) {
+        if (state is UnAuthorization) {
+          _navigatorKey.currentState?.pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen(fromLogout:true)),
+          );
+        } else if (state is AuthorizationSuccess) {
+          _navigatorKey.currentState?.pushReplacement(
+            MaterialPageRoute(builder: (context) => WarehousePage(isPicker: true)),
+          );
+        }
       },
+      child: MaterialApp(
+        navigatorKey: _navigatorKey,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: const ColorScheme.light(
+            primary: PRIMARY_COLOR,
+            onPrimary: Colors.white,
+          ),
+        ),
+        title: 'Flutter layout demo',
+        home: BlocBuilder<AuthorizationBloc, AuthorizationState>(
+          builder: (context, state) {
+            if (state is AuthorizationSuccess) {
+              return WarehousePage(isPicker: true);
+            } else {
+              return const LoginScreen();
+            }
+          },
+        ),
+      ),
     );
   }
 }

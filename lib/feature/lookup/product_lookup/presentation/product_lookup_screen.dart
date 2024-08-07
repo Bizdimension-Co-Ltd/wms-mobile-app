@@ -92,29 +92,30 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
         MaterialDialog.success(context, title: 'Opps.', body: "No Items");
         return;
       }
-      ;
       if (response["value"]?[0]?["IsSerial"] == "Y" ||
           response["value"]?[0]?["IsBatch"] == "Y") {
-        final serialOrBatch = await dio.get('/InventoryCountings?\$top=1');
+        final serialOrBatch = await dio.get(
+            "/sml.svc/WMS_SERIAL_BATCH?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
         if (mounted) {
           setState(() {
             items = [];
+            serialOrBatchList = [];
             items.addAll(response["value"]);
             serialOrBatchList.addAll(serialOrBatch.data["value"]);
-            print(serialOrBatchList);
+            setState(() {
+              print(response);
+            });
           });
         }
       } else {
         if (mounted) {
           setState(() {
             items = [];
+            serialOrBatchList = [];
             items.addAll(response["value"]);
           });
         }
       }
-      setState(() {
-        print(response);
-      });
 
       MaterialDialog.close(context);
     } catch (e) {
@@ -199,6 +200,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
               // Column(children: []),
               Column(
                 children: items
+                    .where((f) => f["OnHandQty"] > 0)
                     .map(
                       (item) => GestureDetector(
                         // onTap: () => onEdit(item),
@@ -285,7 +287,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                                 Expanded(
                                                   flex: 3,
                                                   child: Text(
-                                                    "Expiry",
+                                                    "Qty.",
                                                     style:
                                                         TextStyle(fontSize: 14),
                                                   ),
@@ -298,82 +300,53 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                     )
                                   : Container(),
                               item["IsSerial"] == "Y"
-                                  ? Row(
-                                      children: [
-                                        Expanded(flex: 1, child: Text("")),
-                                        Expanded(
-                                            flex: 11,
-                                            child: Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  5, 7, 5, 10),
-                                              color: Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                              child: Column(
-                                                children: const [
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 4,
-                                                          child: Text(
-                                                            "Serial A000001.",
-                                                            style: TextStyle(
-                                                                fontSize: 14),
-                                                          )),
-                                                      Expanded(
-                                                          flex: 3,
-                                                          child: Text(
-                                                              "3-10-2000",
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      14)))
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 4,
-                                                          child: Text(
-                                                            "Serial A000002.",
-                                                            style: TextStyle(
-                                                                fontSize: 14),
-                                                          )),
-                                                      Expanded(
-                                                          flex: 3,
-                                                          child: Text(
-                                                              "1-10-2000",
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      14)))
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 4,
-                                                          child: Text(
-                                                            "Serial A000003.",
-                                                            style: TextStyle(
-                                                                fontSize: 14),
-                                                          )),
-                                                      Expanded(
-                                                          flex: 3,
-                                                          child: Text(
-                                                              "2-20-2000",
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      14)))
-                                                    ],
-                                                  ),
+                                  ? Column(
+                                      children: serialOrBatchList
+                                          .where((e) =>
+                                              e["AbsEntry"] == item["BinID"])
+                                          .map((e) => Row(
+                                                children: [
+                                                  Expanded(
+                                                      flex: 1, child: Text("")),
+                                                  Expanded(
+                                                      flex: 11,
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.fromLTRB(
+                                                                5, 7, 5, 10),
+                                                        color: Color.fromARGB(
+                                                            255, 255, 255, 255),
+                                                        child: Column(
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Expanded(
+                                                                    flex: 4,
+                                                                    child: Text(
+                                                                      getDataFromDynamic(
+                                                                          e["Batch_Serial"]),
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14),
+                                                                    )),
+                                                                Expanded(
+                                                                    flex: 3,
+                                                                    child: Text(
+                                                                        "1",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                14)))
+                                                              ],
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      )),
                                                 ],
-                                              ),
-                                            )),
-                                      ],
+                                              ))
+                                          .toList(),
                                     )
                                   : Container(),
                               //Batch1111111111
@@ -452,57 +425,69 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                     )
                                   : Container(),
                               item["IsBatch"] == "Y"
-                                  ? Row(
-                                      children: [
-                                        Expanded(flex: 1, child: Text("")),
-                                        Expanded(
-                                            flex: 11,
-                                            child: Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  5, 10, 5, 10),
-                                              color: Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                              child: Column(
+                                  ? Column(
+                                      children: serialOrBatchList
+                                          .where((e) =>
+                                              e["AbsEntry"] == item["BinID"])
+                                          .map((e) => Row(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 4,
-                                                          child: Text(
-                                                            "Batch0000010", // Use null-aware operator to handle null
-                                                            style: TextStyle(
-                                                                fontSize: 14),
-                                                          )),
-                                                      Expanded(
-                                                          flex: 3,
-                                                          child: Text(
-                                                              getDataFromDynamic(
-                                                                  item[
-                                                                      'ExpDate']),
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      14))),
-                                                      Expanded(
-                                                          flex: 2,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    left: 5),
-                                                            child: Text(
-                                                              (getDataFromDynamic(
-                                                                  item[
-                                                                      'OnHandQty'])),
-                                                              style: TextStyle(
-                                                                  fontSize: 14),
+                                                  Expanded(
+                                                      flex: 1, child: Text("")),
+                                                  Expanded(
+                                                      flex: 11,
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.fromLTRB(
+                                                                5, 10, 5, 10),
+                                                        color: Color.fromARGB(
+                                                            255, 255, 255, 255),
+                                                        child: Column(
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Expanded(
+                                                                    flex: 4,
+                                                                    child: Text(
+                                                                      getDataFromDynamic(
+                                                                          e["Batch_Serial"]), // Use null-aware operator to handle null
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              14),
+                                                                    )),
+                                                                Expanded(
+                                                                    flex: 3,
+                                                                    child: Text(
+                                                                        getDataFromDynamic(e[
+                                                                            'ExpDate']),
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontSize: 14))),
+                                                                Expanded(
+                                                                    flex: 2,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              5),
+                                                                      child:
+                                                                          Text(
+                                                                        (getDataFromDynamic(
+                                                                            e['Quantity'])),
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                14),
+                                                                      ),
+                                                                    ))
+                                                              ],
                                                             ),
-                                                          ))
-                                                    ],
-                                                  ),
+                                                          ],
+                                                        ),
+                                                      )),
                                                 ],
-                                              ),
-                                            )),
-                                      ],
+                                              ))
+                                          .toList(),
                                     )
                                   : Container(),
                               // //End11111111111111
