@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 
+import '../../form/datePicker.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
 import '/helper/helper.dart';
@@ -37,7 +38,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   final totalSerial = TextEditingController();
   final textSerial = TextEditingController();
   final quantityPerBatch = TextEditingController();
-
+DateTime? _postingDate;
   List<dynamic> items = [];
   int updateIndex = -1;
 
@@ -77,18 +78,19 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       final index =
           items.indexWhere((e) => e['BatchNumber'] == textSerial.text);
       // Calculate the total added quantity so far
-      int totalAddedQuantity =
-          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
+      int totalAddedQuantity = items.fold(
+          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
 
       // Check if the current quantityPerBatch exceeds the remaining quantity
-      int currentQuantity = int.parse(quantityPerBatch.text);
+      int currentQuantity = double.parse(quantityPerBatch.text).toInt();
       if (currentQuantity <= 0) {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
-      if (totalAddedQuantity + currentQuantity > int.parse(widget.quantity) &&
+      if (totalAddedQuantity + currentQuantity >
+              double.parse(widget.quantity).toInt() &&
           updateIndex < 0) {
         throw Exception(
-            'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
+            'Quantity exceeds available. Remaining quantity is ${double.parse(widget.quantity).toInt() - totalAddedQuantity}.');
       }
 
       if (updateIndex < 0) {
@@ -104,15 +106,18 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
           "Quantity": quantityPerBatch.text,
         };
         items = temps;
-        if (items.fold(0, (sum, item) => sum + int.parse(item['Quantity'])) >
-                int.parse(widget.quantity) &&
+        if (items.fold(
+                    0,
+                    (sum, item) =>
+                        sum + double.parse(item['Quantity']).toInt()) >
+                double.parse(widget.quantity).toInt() &&
             updateIndex >= 0) {
           updateIndex = -1;
           quantityPerBatch.text = widget.quantity;
           textSerial.text = "";
           items = [];
           throw Exception(
-              'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
+              'Quantity exceeds available. Remaining quantity is ${double.parse(widget.quantity).toInt() - totalAddedQuantity}.');
         }
       }
 
@@ -162,13 +167,13 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
   void onComplete() {
     try {
-      final qty = int.tryParse(quantity.text) ?? 0;
+      final qty = double.parse(quantity.text).toInt();
 
       if (qty == 0) {
         throw Exception("Quantity must be greater than 0.");
       }
-      int totalAddedQuantity =
-          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
+      int totalAddedQuantity = items.fold(
+          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
       if (totalAddedQuantity < qty) {
         throw Exception("Can't generate document without complete batch.");
       }
@@ -185,31 +190,35 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     goTo(
         context,
         BatchListPage(
-          warehouse: '',
+          itemCode: itemCode.text,
         )).then((value) async {
       if (value == null) return;
 
       for (var element in value) {
         items.add({
-          "BatchNumber": element['Batch'],
+          "BatchNumber": element['Batch_Serial'],
           "Quantity": element['PickQty'] ?? "0",
         });
       }
-      int totalAddedQuantity =
-          items.fold(0, (sum, item) => sum + int.parse(item['Quantity']));
-      if (totalAddedQuantity > int.parse(widget.quantity)) {
+      int totalAddedQuantity = items.fold(
+          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
+      if (totalAddedQuantity > double.parse(widget.quantity).toInt()) {
         items = [];
         MaterialDialog.success(context,
             title: 'Failed',
             body:
-                'Quantity exceeds available. Remaining quantity is ${int.parse(widget.quantity) - totalAddedQuantity}.');
+                'Quantity exceeds available. Remaining quantity is ${double.parse(widget.quantity).toInt() - totalAddedQuantity}.');
       }
       setState(() {
         items;
       });
     });
   }
-
+void _selectPostingDate(DateTime date) async {
+    setState(() {
+      _postingDate = date;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -268,6 +277,13 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                   },
                   icon: Icons.barcode_reader,
                   onEditingComplete: onEnterSerial,
+                ),
+                DatePicker(
+                  title: "Expiry Date",
+                  restorationId: 'main_date_picker',
+                  req: 'true',
+                  onDateSelected: _selectPostingDate,
+                  defaultValue: _postingDate,
                 ),
                 const SizedBox(height: 12),
                 // Text('Batch No.'),

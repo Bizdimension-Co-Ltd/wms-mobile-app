@@ -14,7 +14,7 @@ class RequestingBin extends  SerialListState {}
 class RequestingPaginationBin extends  SerialListState {}
 
 class BinData extends  SerialListState {
-  final List<BinEntity> entities;
+  final List<dynamic> entities;
 
   const BinData(this.entities);
 }

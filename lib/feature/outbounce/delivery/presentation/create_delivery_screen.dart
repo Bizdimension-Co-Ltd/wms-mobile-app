@@ -474,8 +474,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: serialList,
-           isEdit: isEdit,
-           listAllSerial: true,
+          isEdit: isEdit,
+          listAllSerial: true,
         ),
       ).then((value) {
         if (value == null) return;
@@ -493,8 +493,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: batches,
-           isEdit: isEdit,
-           listAllBatch: true,
+          isEdit: isEdit,
+          listAllBatch: true,
         ),
       ).then((value) {
         if (value == null) return;

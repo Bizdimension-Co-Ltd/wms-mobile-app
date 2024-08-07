@@ -44,10 +44,6 @@ class _DashboardState extends State<Dashboard> {
     try {
       if (mounted) {
         // MaterialDialog.close(context);
-
-        BlocProvider.of<AuthorizationBloc>(context).add(
-          RequestLogoutEvent(),
-        );
       }
     } catch (e) {
       print(e);
@@ -73,7 +69,12 @@ class _DashboardState extends State<Dashboard> {
         goTo(context, const ProductLookUp());
         break;
       case 6:
-        _logout();
+        () {
+          BlocProvider.of<AuthorizationBloc>(context).add(
+            RequestLogoutEvent(),
+          );
+        };
+
         // goTo(context, const LoginScreen());
         // goTo(
         //     context,

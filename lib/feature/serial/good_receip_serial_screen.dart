@@ -41,11 +41,11 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   void initState() {
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
-    final serials = widget.serials ?? [];
-    totalSerial.text = serials.length.toString();
+    totalSerial.text = items.length.toString();
     if (widget.isEdit >= 0) {
       setState(() {
         items = widget.serials ?? [];
+        totalSerial.text = items.length.toString();
       });
     } else {
       setState(() {
@@ -128,24 +128,37 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         context,
         SerialListPage(
           warehouse: '',
+          itemCode: widget.itemCode,
         )).then((value) async {
       if (value == null) return;
       for (var element in value) {
+        dynamic index = 0;
+        if (items.length > 0) {
+          if (element["Batch_Serial"] ==
+              items[index]?["InternalSerialNumber"]) {
+            MaterialDialog.success(context,
+                title: 'Opps.',
+                body: 'Duplicate Serial Number ${element["Batch_Serial"]}.');
+            return;
+          }
+        }
         items.add({
-          "InternalSerialNumber": element['Serial'],
+          "InternalSerialNumber": element['Batch_Serial'],
           "Quantity": "1",
         });
 
-        if (items.length > double.parse(quantity.text).toInt()) {
-          items = [];
-          MaterialDialog.success(context,
-              title: 'Failed',
-              body:
-                  'Serial Number can not be greater than ${widget.quantity}.');
-        }
+        totalSerial.text = items.length.toString();
+
         setState(() {
           items;
         });
+        index++;
+      }
+      if (items.length > double.parse(quantity.text).toInt()) {
+        items = [];
+        MaterialDialog.success(context,
+            title: 'Failed',
+            body: 'Serial Number can not be greater than ${widget.quantity}.');
       }
     });
   }

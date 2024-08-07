@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
+import 'package:wms_mobile/helper/helper.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '../../domain/entity/list_batch_entity.dart';
 import '../cubit/batch_list_cubit.dart';
 import '/constant/style.dart';
 
 class BatchListPage extends StatefulWidget {
-  const BatchListPage({super.key, required this.warehouse});
+  const BatchListPage({super.key, required this.itemCode});
 
-  final String warehouse;
+  final String itemCode;
 
   @override
   State<BatchListPage> createState() => _BatchListPageState();
@@ -17,50 +20,17 @@ class BatchListPage extends StatefulWidget {
 class _BatchListPageState extends State<BatchListPage> {
   final ScrollController _scrollController = ScrollController();
 
-  String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
-  List<BinEntity> data1 = [];
-  List<Map<String, dynamic>> data = [
-    {
-      "Batch": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Batch": "A000013", "Qty": "20", "Bin": "LOCATION001"},
-    {"Batch": "A000014", "Qty": "30", "Bin": "DOCATION002"},
-    {"Batch": "A000015", "Qty": "45", "Bin": "LOCATION003"},
-    {"Batch": "B000016", "Qty": "50", "Bin": "EOCATION004"},
-    {
-      "Batch": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Batch": "A000013", "Qty": "20", "Bin": "LOCATION001"},
-    {"Batch": "A000014", "Qty": "30", "Bin": "BOCATION002"},
-    {"Batch": "A000015", "Qty": "45", "Bin": "LOCATION003"},
-    {"Batch": "C000016", "Qty": "50", "Bin": "AOCATION004"},
-    {
-      "Batch": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Batch": "D000013", "Qty": "20", "Bin": "LOCATION001"},
-    {"Batch": "A000014", "Qty": "30", "Bin": "LOCATION002"},
-    {"Batch": "A000015", "Qty": "45", "Bin": "LOCATION003"},
-    {"Batch": "A000016", "Qty": "50", "Bin": "COCATION004"},
-  ];
+  String query = "?\$top=10&\$skip=0";
+  List<dynamic> data = [];
   List<TextEditingController> controllers = [];
-  Set<int> selectedIndices = Set<int>();
-
+  Set<int> selectedIndices = <int>{};
+  TextEditingController filter = TextEditingController();
   late BatchListCubit _bloc;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers
-    controllers = List.generate(
-      data.length,
-      (index) => TextEditingController(),
-    );
+    init(context);
   }
 
   @override
@@ -70,6 +40,54 @@ class _BatchListPageState extends State<BatchListPage> {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  void init(BuildContext context) async {
+    try {
+      final warehouse = await LocalStorageManger.getString('warehouse');
+
+      _bloc = context.read<BatchListCubit>();
+      _bloc
+          .get(
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+          .then((value) {
+        if (mounted) {
+          setState(() {
+            data = value;
+            print(data);
+            controllers = List.generate(
+              data.length,
+              (index) => TextEditingController(),
+            );
+          });
+        }
+      });
+
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          final state = BlocProvider.of<BatchListCubit>(context).state;
+          if (state is BinData && data.isNotEmpty) {
+            _bloc
+                .next(
+                    "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                .then((value) {
+              if (mounted) {
+                setState(() {
+                  data = [...data, ...value];
+                  controllers.addAll(List.generate(
+                    value.length,
+                    (index) => TextEditingController(),
+                  ));
+                });
+              }
+            });
+          }
+        }
+      });
+    } catch (err) {
+      print(err);
+    }
   }
 
   void _onSelected(bool? selected, int index) {
@@ -83,37 +101,44 @@ class _BatchListPageState extends State<BatchListPage> {
   }
 
   void _onDone() {
-    List<Map<String, dynamic>> selectedData =
+    List<dynamic> selectedData =
         selectedIndices.map((index) => data[index]).toList();
     Navigator.of(context).pop(selectedData); // Pass selected data back
   }
+
   void _onChangeQty(String value, int index) {
     setState(() {
       data[index]["PickQty"] = value;
     });
   }
-  
+
   void onFilter() async {
+    final warehouse = await LocalStorageManger.getString('warehouse');
+
     setState(() {
       data = [];
     });
     _bloc
         .get(
-      "$query&\$filter=contains(ItemCode, '111')",
+      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'",
     )
         .then((value) {
       if (!mounted) return;
 
-      setState(() => data = value as dynamic);
+      setState(() {
+        data = value as dynamic;
+        controllers = List.generate(
+          data.length,
+          (index) => TextEditingController(),
+        );
+      });
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     // Sort data by Qty in descending order
-    data.sort((a, b) => int.parse(b["Qty"]).compareTo(int.parse(a["Qty"])));
+    data.sort((a, b) => (b["Quantity"]).compareTo((a["Quantity"])));
 
     return Scaffold(
       appBar: AppBar(
@@ -139,7 +164,7 @@ class _BatchListPageState extends State<BatchListPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: TextFormField(
-                  controller: null,
+                  controller: filter,
                   decoration: InputDecoration(
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.transparent)),
@@ -152,7 +177,7 @@ class _BatchListPageState extends State<BatchListPage> {
                         Icons.search,
                         color: PRIMARY_COLOR,
                       ),
-                      onPressed: () {},
+                      onPressed: onFilter,
                     ),
                   ),
                 ),
@@ -203,6 +228,7 @@ class _BatchListPageState extends State<BatchListPage> {
                   }
 
                   return ListView(
+                    controller: _scrollController,
                     children: [
                       ...data.asMap().entries.map(
                         (entry) {
@@ -243,7 +269,8 @@ class _BatchListPageState extends State<BatchListPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              batch["Batch"],
+                                              getDataFromDynamic(
+                                                  batch["Batch_Serial"]),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w800,
                                               ),
@@ -252,14 +279,15 @@ class _BatchListPageState extends State<BatchListPage> {
                                               height: 10,
                                             ),
                                             Text(
-                                              batch["Bin"],
+                                              getDataFromDynamic(
+                                                  batch["BinCode"]),
                                               style: TextStyle(fontSize: 13),
                                             ),
                                             SizedBox(
                                               height: 10,
                                             ),
                                             Row(
-                                              children: const [
+                                              children: [
                                                 Text(
                                                   "Expiry Date  :",
                                                   style: TextStyle(
@@ -270,7 +298,8 @@ class _BatchListPageState extends State<BatchListPage> {
                                                   width: 7,
                                                 ),
                                                 Text(
-                                                  "20-10-2024",
+                                                  getDataFromDynamic(
+                                                      batch["ExpDate"]),
                                                   style: TextStyle(
                                                       fontSize: 13,
                                                       color: Colors.red),
@@ -285,7 +314,7 @@ class _BatchListPageState extends State<BatchListPage> {
                                   Expanded(
                                     flex: 1,
                                     child: Text(
-                                      batch["Qty"],
+                                      getDataFromDynamic(batch["Quantity"]),
                                       style: TextStyle(
                                           // fontWeight: FontWeight.w800,
                                           ),
@@ -300,7 +329,9 @@ class _BatchListPageState extends State<BatchListPage> {
                                         width: 85,
                                         child: TextField(
                                           style: TextStyle(fontSize: 14),
-                                          controller: controllers[index],
+                                          controller: controllers.length > index
+                                              ? controllers[index]
+                                              : TextEditingController(),
                                           onChanged: (value) {
                                             _onChangeQty(value, index);
                                           },
@@ -349,7 +380,7 @@ class _BatchListPageState extends State<BatchListPage> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: size(context).height * 0.09,
+        height: MediaQuery.of(context).size.height * 0.09,
         padding: const EdgeInsets.all(12),
         color: Color.fromARGB(255, 243, 243, 243),
         child: Row(

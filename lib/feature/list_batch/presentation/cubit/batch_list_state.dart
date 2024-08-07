@@ -14,7 +14,7 @@ class RequestingBin extends  BatchListState {}
 class RequestingPaginationBin extends  BatchListState {}
 
 class BinData extends  BatchListState {
-  final List<BinEntity> entities;
+  final List<dynamic> entities;
 
   const BinData(this.entities);
 }

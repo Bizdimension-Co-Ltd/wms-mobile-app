@@ -48,9 +48,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           title: 'Flutter layout demo',
           home: state is AuthorizationSuccess
-              ? isPickedWarehuse
-                  ? Dashboard()
-                  : WarehousePage(isPicker: true)
+              ? (isPickedWarehuse ? Dashboard() : WarehousePage(isPicker: true,))
               : const LoginScreen(),
         );
       },

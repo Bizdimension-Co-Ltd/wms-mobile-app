@@ -4,13 +4,13 @@ import '../entity/list_batch_entity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/usecase/usecase.dart';
 
-class GetListBatchUseCase implements UseCase<List<BinEntity>, String> {
+class GetListBatchUseCase implements UseCase<List<dynamic>, String> {
   final ListBatchRepository repository;
 
   GetListBatchUseCase(this.repository);
 
   @override
-  Future<Either<Failure, List<BinEntity>>> call(String query) async {
+  Future<Either<Failure, List<dynamic>>> call(String query) async {
     return await repository.get(query);
   }
 }

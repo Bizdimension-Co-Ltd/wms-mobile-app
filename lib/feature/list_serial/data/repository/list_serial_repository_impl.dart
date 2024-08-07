@@ -12,9 +12,9 @@ class ListSerialRepositoryImpl implements ListSerialRepository {
   ListSerialRepositoryImpl(this.remote);
 
   @override
-  Future<Either<Failure, List<BinEntity>>> get(String query) async {
+  Future<Either<Failure, List<dynamic>>> get(String query) async {
     try {
-      final List<Bin> reponse = await remote.get(query);
+      final List<dynamic> reponse = await remote.get(query);
       return Right(reponse);
     } on Failure catch (error) {
       return Left(error);

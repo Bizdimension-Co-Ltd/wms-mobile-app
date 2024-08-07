@@ -11,7 +11,7 @@ class BatchListCubit extends Cubit<BatchListState> {
 
   BatchListCubit(this.useCase) : super(BinInitial());
 
-  Future<List<BinEntity>> get(String query) async {
+  Future<List<dynamic>> get(String query) async {
     emit(RequestingBin());
     final response = await useCase.call(query);
     return response.fold((error) {
@@ -23,7 +23,7 @@ class BatchListCubit extends Cubit<BatchListState> {
     });
   }
 
-  Future<List<BinEntity>> next(String query) async {
+  Future<List<dynamic>> next(String query) async {
     emit(RequestingPaginationBin());
     final response = await useCase.call(query);
     return response.fold((error) {
@@ -35,7 +35,7 @@ class BatchListCubit extends Cubit<BatchListState> {
     });
   }
 
-  Future<void> set(List<BinEntity> data) async {
+  Future<void> set(List<dynamic> data) async {
     emit(BinInitial());
     emit(BinData(data));
   }

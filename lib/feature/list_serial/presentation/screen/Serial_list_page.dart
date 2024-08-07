@@ -2,52 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/feature/list_serial/presentation/cubit/serialNumber_list_cubit.dart';
+import 'package:wms_mobile/helper/helper.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '../../domain/entity/list_serial_entity.dart';
 import '/constant/style.dart';
 
 class SerialListPage extends StatefulWidget {
-  const SerialListPage({super.key, required this.warehouse});
+  const SerialListPage(
+      {super.key, required this.warehouse, required this.itemCode});
 
   final String warehouse;
-
+  final String itemCode;
   @override
   State<SerialListPage> createState() => _SerialListPageState();
 }
 
 class _SerialListPageState extends State<SerialListPage> {
-  String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
+  final ScrollController _scrollController = ScrollController();
+
+  String query = "?\$top=10&\$skip=0";
   int check = 1;
-  List<BinEntity> data1 = [];
-  List<Map<String, dynamic>> data = [
-    {
-      "Serial": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Serial": "A000013", "Qty": "20", "Bin": "MOCATION001"},
-    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002"},
-    {"Serial": "D000015", "Qty": "45", "Bin": "LOCATION003"},
-    {"Serial": "E000016", "Qty": "50", "Bin": "DOCATION004"},
-    {
-      "Serial": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Serial": "A000013", "Qty": "20", "Bin": "AOCATION001"},
-    {"Serial": "A000014", "Qty": "30", "Bin": "LOCATION002"},
-    {"Serial": "C000015", "Qty": "45", "Bin": "EOCATION003"},
-    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004"},
-    {
-      "Serial": "A000012",
-      "Qty": "25",
-      "Bin": "SYSTEMBIN-LOCATION",
-    },
-    {"Serial": "A000013", "Qty": "20", "Bin": "LOCATION001"},
-    {"Serial": "A000014", "Qty": "30", "Bin": "BOCATION002"},
-    {"Serial": "B000015", "Qty": "45", "Bin": "LOCATION003"},
-    {"Serial": "A000016", "Qty": "50", "Bin": "LOCATION004"},
-  ];
-  List<TextEditingController> controllers = [];
+  List<dynamic> data = [];
+  TextEditingController filter = TextEditingController();
 
   late SerialListCubit _bloc;
   Set<int> selectedIndices = Set<int>();
@@ -56,19 +32,72 @@ class _SerialListPageState extends State<SerialListPage> {
   void initState() {
     super.initState();
     // Initialize controllers
-    controllers = List.generate(
-      data.length,
-      (index) => TextEditingController(),
-    );
+    init(context);
   }
 
   @override
   void dispose() {
     // Dispose controllers
-    for (var controller in controllers) {
-      controller.dispose();
-    }
     super.dispose();
+  }
+
+  void init(BuildContext context) async {
+    try {
+      final warehouse = await LocalStorageManger.getString('warehouse');
+
+      _bloc = context.read<SerialListCubit>();
+      _bloc
+          .get(
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+          .then((value) {
+        if (mounted) {
+          setState(() {
+            data = value;
+          });
+        }
+      });
+
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          final state = BlocProvider.of<SerialListCubit>(context).state;
+          if (state is BinData && data.isNotEmpty) {
+            _bloc
+                .next(
+                    "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                .then((value) {
+              if (mounted) {
+                setState(() {
+                  data = [...data, ...value];
+                  ;
+                });
+              }
+            });
+          }
+        }
+      });
+    } catch (err) {
+      print(err);
+    }
+  }
+
+  void onFilter() async {
+    final warehouse = await LocalStorageManger.getString('warehouse');
+
+    setState(() {
+      data = [];
+    });
+    _bloc
+        .get(
+      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'",
+    )
+        .then((value) {
+      if (!mounted) return;
+
+      setState(() {
+        data = value as dynamic;
+      });
+    });
   }
 
   void _onSelected(bool? selected, int index) {
@@ -82,7 +111,7 @@ class _SerialListPageState extends State<SerialListPage> {
   }
 
   void _onDone() {
-    List<Map<String, dynamic>> selectedData =
+    List<dynamic> selectedData =
         selectedIndices.map((index) => data[index]).toList();
     Navigator.of(context).pop(selectedData); // Pass selected data back
   }
@@ -95,7 +124,7 @@ class _SerialListPageState extends State<SerialListPage> {
 
   @override
   Widget build(BuildContext context) {
-    data.sort((a, b) => a["Bin"].compareTo(b["Bin"]));
+    data.sort((a, b) => a["BinCode"].compareTo(b["BinCode"]));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
@@ -129,7 +158,7 @@ class _SerialListPageState extends State<SerialListPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: TextFormField(
-                  controller: null,
+                  controller: filter,
                   decoration: InputDecoration(
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.transparent)),
@@ -142,7 +171,7 @@ class _SerialListPageState extends State<SerialListPage> {
                         Icons.search,
                         color: PRIMARY_COLOR,
                       ),
-                      onPressed: () {},
+                      onPressed: onFilter,
                     ),
                   ),
                 ),
@@ -229,7 +258,9 @@ class _SerialListPageState extends State<SerialListPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              Serial["Serial"],
+                                              getDataFromDynamic(
+                                                  Serial["Batch_Serial"])
+                                            ,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w800,
                                               ),
@@ -238,7 +269,8 @@ class _SerialListPageState extends State<SerialListPage> {
                                               height: 10,
                                             ),
                                             Text(
-                                              Serial["Bin"],
+                                           getDataFromDynamic(
+                                                  Serial["BinCode"]),
                                               style: TextStyle(fontSize: 13),
                                             ),
                                           ],
@@ -251,7 +283,8 @@ class _SerialListPageState extends State<SerialListPage> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40),
                                       child: Text(
-                                        Serial["Qty"],
+                                        getDataFromDynamic(Serial["Quantity"])
+                                       ,
                                         style: TextStyle(fontSize: 13),
                                       ),
                                     ),
