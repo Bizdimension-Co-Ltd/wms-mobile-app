@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
       listener: (context, state) {
         if (state is UnAuthorization) {
           _navigatorKey.currentState?.pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            MaterialPageRoute(builder: (context) => const LoginScreen(fromLogout:true)),
           );
         } else if (state is AuthorizationSuccess) {
           _navigatorKey.currentState?.pushReplacement(

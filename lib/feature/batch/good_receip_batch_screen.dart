@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
+import 'package:wms_mobile/utilies/formart.dart';
 
 import '../../form/datePicker.dart';
 import '/component/button/button.dart';
@@ -199,6 +200,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items.add({
           "BatchNumber": element['Batch_Serial'],
           "Quantity": element['PickQty'] ?? "0",
+          "ExpiryDate":element["ExpDate"]
         });
       }
       int totalAddedQuantity = items.fold(
@@ -422,7 +424,7 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               Expanded(child: Text(getDataFromDynamic(item['Quantity']))),
-              Expanded(child: Text('')),
+              Expanded(child: Text(splitDate2(item['ExpiryDate']))),
             ],
           ),
           SizedBox(height: 6),
