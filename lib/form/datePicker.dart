@@ -18,10 +18,10 @@ class DatePicker extends StatefulWidget {
   final DateTime? defaultValue;
 
   @override
-  State<DatePicker> createState() => _DatePickerState();
+  State<DatePicker> createState() => DatePickerState();
 }
 
-class _DatePickerState extends State<DatePicker> with RestorationMixin {
+class DatePickerState extends State<DatePicker> with RestorationMixin {
   @override
   String? get restorationId => widget.restorationId;
 
@@ -81,6 +81,14 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         widget.onDateSelected(newSelectedDate);
       });
     }
+  }
+
+  // Method to clear the selected date
+  void clearDate() {
+    setState(() {
+      date = null;  // Clear the displayed date
+      _selectedDate.value = widget.defaultValue ?? DateTime.now();  // Reset the selected date
+    });
   }
 
   @override

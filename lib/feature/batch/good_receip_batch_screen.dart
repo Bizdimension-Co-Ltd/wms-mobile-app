@@ -45,6 +45,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   int updateIndex = -1;
   bool clear = false;
   DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+  final GlobalKey<DatePickerState> _datePickerKey =
+      GlobalKey<DatePickerState>();
   @override
   void initState() {
     itemCode.text = widget.itemCode;
@@ -136,6 +138,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       textSerial.text = "";
       quantityPerBatch.text = "";
       setState(() {
+        expDate = null;
+        _datePickerKey.currentState?.clearDate();
         items;
         updateIndex = -1;
       });
@@ -299,6 +303,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                 widget.listAllBatch == true
                     ? Container()
                     : DatePicker(
+                        key: _datePickerKey,
                         title: "Expiry Date",
                         restorationId: 'main_date_picker',
                         req: 'true',
