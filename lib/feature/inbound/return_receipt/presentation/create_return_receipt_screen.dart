@@ -137,9 +137,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         throw Exception('Item is missing.');
       }
 
-      if (binId.text == '') {
-        throw Exception('Bin Location is missing.');
-      }
+      // if (binId.text == '') {
+      //   throw Exception('Bin Location is missing.');
+      // }
 
       if (quantity.text == '' || quantity.text == '0') {
         throw Exception('Quantity must be greater than zero.');
