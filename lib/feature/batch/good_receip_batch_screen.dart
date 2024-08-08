@@ -89,6 +89,12 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       if (currentQuantity <= 0) {
         throw Exception('Quantity must be greater than 0 on row $index.');
       }
+      if (widget.listAllBatch != true) {
+        if (expDate == null) {
+          throw Exception('Expiry Date is missing');
+        }
+      }
+
       if (totalAddedQuantity + currentQuantity >
               double.parse(widget.quantity).toInt() &&
           updateIndex < 0) {
@@ -145,6 +151,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void onEditOrDelete(String serial) {
     List<dynamic> data = [...items];
     MaterialDialog.warning(
+      title: "Opps.",
       context,
       body: 'Are you sure want to remove?',
       confirmLabel: 'Edit',
@@ -157,7 +164,12 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
         textSerial.text = items[index]['BatchNumber'] ?? "";
         quantityPerBatch.text = items[index]['Quantity'] ?? "";
-        expDate = DateTime.parse(items[index]['ExpiryDate']);
+        if (widget.listAllBatch != true) {
+          expDate = DateTime.parse(items[index]['ExpiryDate']);
+        }
+        if (items[index]['ExpiryDate'] != "") {
+          expDate = DateTime.parse(items[index]['ExpiryDate']);
+        }
         setState(() {
           updateIndex;
         });
@@ -226,6 +238,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       expDate = date;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
