@@ -45,7 +45,6 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
   @override
   void initState() {
-    expDate = DateTime.now();
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
     quantityPerBatch.text = widget.quantity;
@@ -99,7 +98,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items.add({
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
-          "ExpiryDate": expDate.toString()
+          "ExpiryDate": expDate.toString()=="null" ? "": expDate.toString()
         });
       } else {
         final temps = [...items];
@@ -107,7 +106,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         temps[updateIndex] = {
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
-          "ExpiryDate": expDate.toString()
+          "ExpiryDate": expDate.toString() == "null" ? "" : expDate.toString()
         };
         items = temps;
         if (items.fold(
@@ -424,7 +423,7 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               Expanded(child: Text(getDataFromDynamic(item['Quantity']))),
-              Expanded(child: Text(splitDate2(item['ExpiryDate']))),
+              Expanded(child: Text(splitDate2(item['ExpiryDate']) )),
             ],
           ),
           SizedBox(height: 6),

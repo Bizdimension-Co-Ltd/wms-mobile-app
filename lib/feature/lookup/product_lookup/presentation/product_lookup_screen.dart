@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
@@ -51,6 +52,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
           if (call.arguments['data'] == "decode error") return;
           //
           itemCode.text = call.arguments['data'];
+          onCompleteTextEditItem();
         });
       }
     });
@@ -70,6 +72,31 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
     });
   }
 
+  void onCompleteTextEditItem() async {
+    try {
+      if (itemCode.text == '') return;
+
+      //
+      MaterialDialog.loading(context);
+      final item = await _blocItem.find("('${itemCode.text}')");
+      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+        throw Exception('${itemCode.text} is not purchase item.');
+      }
+      if (mounted) {
+        MaterialDialog.close(context);
+      }
+
+      onSetItemTemp(item);
+    } catch (e) {
+      if (mounted) {
+        MaterialDialog.close(context);
+        if (e is ServerFailure) {
+          MaterialDialog.success(context, title: 'Failed', body: e.message);
+        }
+      }
+    }
+  }
   // void onChangeBin() async {
   //   goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
   //     if (value == null) return;

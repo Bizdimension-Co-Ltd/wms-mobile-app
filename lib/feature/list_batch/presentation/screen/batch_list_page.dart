@@ -28,6 +28,7 @@ class _BatchListPageState extends State<BatchListPage> {
   TextEditingController filter = TextEditingController();
   late BatchListCubit _bloc;
   bool loading = false;
+  bool isFilter = false;
 
   @override
   void initState() {
@@ -71,7 +72,8 @@ class _BatchListPageState extends State<BatchListPage> {
         if (mounted) {
           setState(() {
             data = value;
-            print(data);
+            // Assuming each item has a `quantity` field for sorting
+            data.sort((a, b) => (b["Quantity"]).compareTo(a["Quantity"]));
             controllers = List.generate(
               data.length,
               (index) => TextEditingController(),
@@ -85,20 +87,43 @@ class _BatchListPageState extends State<BatchListPage> {
             _scrollController.position.maxScrollExtent) {
           final state = BlocProvider.of<BatchListCubit>(context).state;
           if (state is BinData && data.isNotEmpty) {
-            _bloc
-                .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
-                .then((value) {
-              if (mounted) {
-                setState(() {
-                  data = [...data, ...value];
-                  controllers.addAll(List.generate(
-                    value.length,
-                    (index) => TextEditingController(),
-                  ));
-                });
-              }
-            });
+            if (isFilter) {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    // Sort combined list by quantity
+                    data.sort(
+                        (a, b) => (b["Quantity"]).compareTo(a["Quantity"]));
+                    controllers.addAll(List.generate(
+                      value.length,
+                      (index) => TextEditingController(),
+                    ));
+                  });
+                }
+              });
+            } else {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    // Sort combined list by quantity
+                    data.sort(
+                        (a, b) => (b["Quantity"]).compareTo(a["Quantity"]));
+                    controllers.addAll(List.generate(
+                      value.length,
+                      (index) => TextEditingController(),
+                    ));
+                  });
+                }
+              });
+            }
           }
         }
       });
@@ -134,6 +159,9 @@ class _BatchListPageState extends State<BatchListPage> {
 
     setState(() {
       data = [];
+      if (filter.text != "") {
+        isFilter = true;
+      }
     });
     _bloc
         .get(
@@ -144,6 +172,7 @@ class _BatchListPageState extends State<BatchListPage> {
 
       setState(() {
         data = value as dynamic;
+        data.sort((a, b) => (b["Quantity"]).compareTo(a["Quantity"]));
         controllers = List.generate(
           data.length,
           (index) => TextEditingController(),
@@ -155,7 +184,7 @@ class _BatchListPageState extends State<BatchListPage> {
   @override
   Widget build(BuildContext context) {
     // Sort data by Qty in descending order
-    data.sort((a, b) => (b["Quantity"]).compareTo((a["Quantity"])));
+    // data.sort((a, b) => (b["Quantity"]).compareTo((a["Quantity"])));
 
     return Scaffold(
       appBar: AppBar(

@@ -29,9 +29,9 @@ class _SerialListPageState extends State<SerialListPage> {
 
   late SerialListCubit _bloc;
   Set<int> selectedIndices = Set<int>();
+  bool isFilter = false;
 
   bool loading = false;
-
   @override
   void initState() {
     super.initState();
@@ -72,6 +72,7 @@ class _SerialListPageState extends State<SerialListPage> {
         if (mounted) {
           setState(() {
             data = value;
+            data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
           });
         }
       });
@@ -81,17 +82,33 @@ class _SerialListPageState extends State<SerialListPage> {
             _scrollController.position.maxScrollExtent) {
           final state = BlocProvider.of<SerialListCubit>(context).state;
           if (state is BinData && data.isNotEmpty) {
-            _bloc
-                .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
-                .then((value) {
-              if (mounted) {
-                setState(() {
-                  data = [...data, ...value];
-                  ;
-                });
-              }
-            });
+            if (isFilter) {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    // Sort combined list by Bin
+                    data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
+                  });
+                }
+              });
+            } else {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
+                    ;
+                  });
+                }
+              });
+            }
           }
         }
       });
@@ -105,6 +122,9 @@ class _SerialListPageState extends State<SerialListPage> {
 
     setState(() {
       data = [];
+      if (filter.text != "") {
+        isFilter = true;
+      }
     });
     _bloc
         .get(
@@ -115,6 +135,7 @@ class _SerialListPageState extends State<SerialListPage> {
 
       setState(() {
         data = value as dynamic;
+        data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
       });
     });
   }
@@ -143,7 +164,7 @@ class _SerialListPageState extends State<SerialListPage> {
 
   @override
   Widget build(BuildContext context) {
-    data.sort((a, b) => a["BinCode"].compareTo(b["BinCode"]));
+    // data.sort((a, b) => a["BinCode"].compareTo(b["BinCode"]));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
