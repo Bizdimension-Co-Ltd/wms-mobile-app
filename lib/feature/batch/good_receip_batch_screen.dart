@@ -45,7 +45,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
   @override
   void initState() {
-    expDate=DateTime.now();
+    expDate = DateTime.now();
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
     quantityPerBatch.text = widget.quantity;
@@ -198,9 +198,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
       for (var element in value) {
         items.add({
-          "BatchNumber": element['Batch_Serial'],
+          "BatchNumber": element['Batch_Serial'] ?? "",
           "Quantity": element['PickQty'] ?? "0",
-          "ExpiryDate":element["ExpDate"]
+          "ExpiryDate": element["ExpDate"] ?? ""
         });
       }
       int totalAddedQuantity = items.fold(

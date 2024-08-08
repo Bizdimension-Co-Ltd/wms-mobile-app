@@ -143,7 +143,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
           }
         }
         items.add({
-          "InternalSerialNumber": element['Batch_Serial'],
+          "InternalSerialNumber": element['Batch_Serial'] ?? "",
           "Quantity": "1",
         });
 
