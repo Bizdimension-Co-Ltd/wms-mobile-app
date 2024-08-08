@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
-import '../../domain/entity/list_batch_entity.dart';
+import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../cubit/batch_list_cubit.dart';
 import '/constant/style.dart';
 
@@ -26,10 +27,26 @@ class _BatchListPageState extends State<BatchListPage> {
   Set<int> selectedIndices = <int>{};
   TextEditingController filter = TextEditingController();
   late BatchListCubit _bloc;
+  bool loading = false;
 
   @override
   void initState() {
     super.initState();
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
+
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            filter.text = call.arguments['data'];
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     init(context);
   }
 

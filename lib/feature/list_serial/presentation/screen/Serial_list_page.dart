@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/feature/list_serial/presentation/cubit/serialNumber_list_cubit.dart';
 import 'package:wms_mobile/helper/helper.dart';
@@ -28,10 +30,27 @@ class _SerialListPageState extends State<SerialListPage> {
   late SerialListCubit _bloc;
   Set<int> selectedIndices = Set<int>();
 
+  bool loading = false;
+
   @override
   void initState() {
     super.initState();
     // Initialize controllers
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
+
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            filter.text = call.arguments['data'];
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     init(context);
   }
 
@@ -259,8 +278,7 @@ class _SerialListPageState extends State<SerialListPage> {
                                           children: [
                                             Text(
                                               getDataFromDynamic(
-                                                  Serial["Batch_Serial"])
-                                            ,
+                                                  Serial["Batch_Serial"]),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w800,
                                               ),
@@ -269,7 +287,7 @@ class _SerialListPageState extends State<SerialListPage> {
                                               height: 10,
                                             ),
                                             Text(
-                                           getDataFromDynamic(
+                                              getDataFromDynamic(
                                                   Serial["BinCode"]),
                                               style: TextStyle(fontSize: 13),
                                             ),
@@ -283,8 +301,7 @@ class _SerialListPageState extends State<SerialListPage> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40),
                                       child: Text(
-                                        getDataFromDynamic(Serial["Quantity"])
-                                       ,
+                                        getDataFromDynamic(Serial["Quantity"]),
                                         style: TextStyle(fontSize: 13),
                                       ),
                                     ),

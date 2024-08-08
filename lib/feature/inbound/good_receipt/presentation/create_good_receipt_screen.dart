@@ -85,7 +85,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           setState(() {
             if (call.arguments['data'] == "decode error") return;
             itemCode.text = call.arguments['data'];
-            onCompleteTextEditItem();
+            onCompleteTextEditItem();    
           });
         }
       });
