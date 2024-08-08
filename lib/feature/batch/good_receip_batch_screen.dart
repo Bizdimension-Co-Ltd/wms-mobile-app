@@ -89,7 +89,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       // Check if the current quantityPerBatch exceeds the remaining quantity
       int currentQuantity = double.parse(quantityPerBatch.text).toInt();
       if (currentQuantity <= 0) {
-        throw Exception('Quantity must be greater than 0 on row $index.');
+        throw Exception('Quantity must be greater than 0');
       }
       if (widget.listAllBatch != true) {
         if (expDate == null) {
@@ -136,7 +136,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
       totalSerial.text = items.length.toString();
       textSerial.text = "";
-      quantityPerBatch.text = "";
+      quantityPerBatch.text = "0";
       setState(() {
         expDate = null;
         _datePickerKey.currentState?.clearDate();
@@ -168,9 +168,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         quantityPerBatch.text = items[index]['Quantity'] ?? "";
         if (widget.listAllBatch != true) {
           expDate = DateTime.parse(items[index]['ExpiryDate']);
+            _datePickerKey.currentState?.updateDate(expDate);
         }
         if (items[index]['ExpiryDate'] != "") {
           expDate = DateTime.parse(items[index]['ExpiryDate']);
+            _datePickerKey.currentState?.updateDate(expDate);
         }
         setState(() {
           updateIndex;

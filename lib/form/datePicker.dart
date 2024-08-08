@@ -83,11 +83,21 @@ class DatePickerState extends State<DatePicker> with RestorationMixin {
     }
   }
 
-  // Method to clear the selected date
+  // Method to clear the selected date (set to null)
   void clearDate() {
     setState(() {
-      date = null;  // Clear the displayed date
+      date = null;  // Set the date to null
       _selectedDate.value = widget.defaultValue ?? DateTime.now();  // Reset the selected date
+    });
+  }
+
+  // Method to update the date based on expDate from parent
+  void updateDate(DateTime? newDate) {
+    setState(() {
+      if (newDate != null) {
+        _selectedDate.value = newDate;
+        date = DateFormat('yyyy-MM-dd').format(newDate);
+      }
     });
   }
 
@@ -114,7 +124,7 @@ class DatePickerState extends State<DatePicker> with RestorationMixin {
           Row(
             children: [
               Text(
-                date ?? 'Expiry Date', // Display blank if date is null
+                date ?? 'Expiry Date', // Display 'Expiry Date' if date is null
                 style: const TextStyle(
                   fontSize: 13,
                   color: Color.fromARGB(255, 7, 7, 7),
