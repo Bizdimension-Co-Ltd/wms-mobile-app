@@ -137,8 +137,6 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       quantityPerBatch.text = "";
       setState(() {
         items;
-        expDate = null;
-
         updateIndex = -1;
       });
       FocusScope.of(context).requestFocus(FocusNode());
