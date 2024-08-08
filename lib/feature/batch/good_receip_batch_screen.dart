@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 import 'package:wms_mobile/utilies/formart.dart';
@@ -42,7 +43,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   DateTime? expDate;
   List<dynamic> items = [];
   int updateIndex = -1;
-
+  bool clear = false;
+  DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   @override
   void initState() {
     itemCode.text = widget.itemCode;
@@ -98,7 +100,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items.add({
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
-          "ExpiryDate": expDate.toString()=="null" ? "": expDate.toString()
+          "ExpiryDate": expDate.toString() == "null" ? "" : expDate.toString()
         });
       } else {
         final temps = [...items];
@@ -127,9 +129,10 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       totalSerial.text = items.length.toString();
       textSerial.text = "";
       quantityPerBatch.text = "";
-      // quantity.text = "";
       setState(() {
         items;
+        expDate = null;
+
         updateIndex = -1;
       });
       FocusScope.of(context).requestFocus(FocusNode());
@@ -152,8 +155,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
         if (index < 0) return;
 
-        textSerial.text = items[index]['BatchNumber'];
-        quantityPerBatch.text = items[index]['Quantity'];
+        textSerial.text = items[index]['BatchNumber'] ?? "";
+        quantityPerBatch.text = items[index]['Quantity'] ?? "";
+        expDate = DateTime.parse(items[index]['ExpiryDate']);
         setState(() {
           updateIndex;
         });
@@ -222,7 +226,6 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       expDate = date;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -282,13 +285,15 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                   icon: Icons.barcode_reader,
                   onEditingComplete: onEnterSerial,
                 ),
-                DatePicker(
-                  title: "Expiry Date",
-                  restorationId: 'main_date_picker',
-                  req: 'true',
-                  onDateSelected: _selectPostingDate,
-                  defaultValue: expDate,
-                ),
+                widget.listAllBatch == true
+                    ? Container()
+                    : DatePicker(
+                        title: "Expiry Date",
+                        restorationId: 'main_date_picker',
+                        req: 'true',
+                        onDateSelected: _selectPostingDate,
+                        defaultValue: expDate,
+                      ),
                 const SizedBox(height: 12),
                 // Text('Batch No.'),
                 Button(
@@ -423,7 +428,7 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               Expanded(child: Text(getDataFromDynamic(item['Quantity']))),
-              Expanded(child: Text(splitDate2(item['ExpiryDate']) )),
+              Expanded(child: Text(splitDate2(item['ExpiryDate']))),
             ],
           ),
           SizedBox(height: 6),
