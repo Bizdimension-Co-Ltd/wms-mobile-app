@@ -11,10 +11,15 @@ import '/constant/style.dart';
 
 class SerialListPage extends StatefulWidget {
   const SerialListPage(
-      {super.key, required this.warehouse, required this.itemCode});
+      {super.key,
+      required this.warehouse,
+      required this.itemCode,
+      this.binCode});
 
   final String warehouse;
   final String itemCode;
+  final dynamic binCode;
+
   @override
   State<SerialListPage> createState() => _SerialListPageState();
 }
@@ -67,7 +72,7 @@ class _SerialListPageState extends State<SerialListPage> {
       _bloc = context.read<SerialListCubit>();
       _bloc
           .get(
-              "$query&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
           .then((value) {
         if (mounted) {
           setState(() {
@@ -85,7 +90,7 @@ class _SerialListPageState extends State<SerialListPage> {
             if (isFilter) {
               _bloc
                   .next(
-                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
                   .then((value) {
                 if (mounted) {
                   setState(() {
@@ -98,7 +103,7 @@ class _SerialListPageState extends State<SerialListPage> {
             } else {
               _bloc
                   .next(
-                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
                   .then((value) {
                 if (mounted) {
                   setState(() {
@@ -128,7 +133,7 @@ class _SerialListPageState extends State<SerialListPage> {
     });
     _bloc
         .get(
-      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'",
+      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'",
     )
         .then((value) {
       if (!mounted) return;

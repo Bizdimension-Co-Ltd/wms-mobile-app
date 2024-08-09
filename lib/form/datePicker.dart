@@ -86,8 +86,9 @@ class DatePickerState extends State<DatePicker> with RestorationMixin {
   // Method to clear the selected date (set to null)
   void clearDate() {
     setState(() {
-      date = null;  // Set the date to null
-      _selectedDate.value = widget.defaultValue ?? DateTime.now();  // Reset the selected date
+      date = null; // Set the date to null
+      _selectedDate.value =
+          widget.defaultValue ?? DateTime.now(); // Reset the selected date
     });
   }
 

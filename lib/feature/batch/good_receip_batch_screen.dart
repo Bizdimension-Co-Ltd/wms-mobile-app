@@ -23,6 +23,7 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllBatch,
+    this.binCode,
   });
 
   final String quantity;
@@ -30,6 +31,7 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final String itemCode;
   final List<dynamic>? serials;
   final dynamic isEdit;
+  final dynamic binCode;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -168,11 +170,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         quantityPerBatch.text = items[index]['Quantity'] ?? "";
         if (widget.listAllBatch != true) {
           expDate = DateTime.parse(items[index]['ExpiryDate']);
-            _datePickerKey.currentState?.updateDate(expDate);
+          _datePickerKey.currentState?.updateDate(expDate);
         }
         if (items[index]['ExpiryDate'] != "") {
           expDate = DateTime.parse(items[index]['ExpiryDate']);
-            _datePickerKey.currentState?.updateDate(expDate);
+          _datePickerKey.currentState?.updateDate(expDate);
         }
         setState(() {
           updateIndex;
@@ -212,6 +214,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         context,
         BatchListPage(
           itemCode: itemCode.text,
+          binCode:widget.binCode
         )).then((value) async {
       if (value == null) return;
 

@@ -461,6 +461,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
+             binCode: binCode.text,
             listAllSerial: true,
             isEdit: isEdit),
       ).then((value) {
@@ -480,6 +481,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             quantity: quantity.text,
             serials: batches,
             listAllBatch: true,
+            binCode: binCode.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;

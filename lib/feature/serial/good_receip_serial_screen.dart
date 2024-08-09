@@ -16,6 +16,7 @@ class GoodReceiptSerialScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllSerial,
+    this.binCode,
   });
 
   final String quantity;
@@ -23,6 +24,8 @@ class GoodReceiptSerialScreen extends StatefulWidget {
   final List<dynamic>? serials;
   final dynamic isEdit;
   final dynamic listAllSerial;
+  final dynamic binCode;
+
   @override
   State<GoodReceiptSerialScreen> createState() =>
       _GoodReceiptSerialScreenState();
@@ -123,49 +126,64 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
     );
   }
 
-  void onNavigateSerialList() async {
+void onNavigateSerialList() async {
     goTo(
-        context,
-        SerialListPage(
-          warehouse: '',
-          itemCode: widget.itemCode,
-        )).then((value) async {
+      context,
+      SerialListPage(
+        warehouse: '',
+        itemCode: widget.itemCode,
+        binCode: widget.binCode,
+      ),
+    ).then((value) async {
       if (value == null) return;
+
+      // Set to track unique serial numbers
+      Set<dynamic> serialNumbers =
+          items.map((item) => item["InternalSerialNumber"] ?? "").toSet();
+
       for (var element in value) {
-        dynamic index = 0;
-        if (items.length > 0) {
-          if (element["Batch_Serial"] ==
-              items[index]?["InternalSerialNumber"]) {
-            MaterialDialog.success(context,
-                title: 'Opps.',
-                body: 'Duplicate Serial Number ${element["Batch_Serial"]}.');
-            return;
-          }
+        String serial = element['Batch_Serial'] ?? "";
+
+        // Check for duplicates
+        if (serialNumbers.contains(serial)) {
+           MaterialDialog.success(
+            context,
+            title: 'Failed',
+            body: 'Duplicate found for SerialNumber: $serial.',
+          );
+          continue; // Skip adding the duplicate
         }
+
         items.add({
-          "InternalSerialNumber": element['Batch_Serial'] ?? "",
+          "InternalSerialNumber": serial,
           "Quantity": "1",
         });
+        serialNumbers.add(serial);
 
         totalSerial.text = items.length.toString();
 
         setState(() {
           items;
         });
-        index++;
       }
+
+      // Check if the number of serial numbers exceeds the allowed quantity
       if (items.length > double.parse(quantity.text).toInt()) {
-        items = [];
-        MaterialDialog.success(context,
-            title: 'Failed',
-            body: 'Serial Number can not be greater than ${widget.quantity}.');
+        items.removeRange(double.parse(quantity.text).toInt(), items.length);
+        MaterialDialog.success(
+          context,
+          title: 'Failed',
+          body: 'Serial Number cannot be greater than ${widget.quantity}.',
+        );
       }
     });
   }
 
+
+
   void onComplete() {
     try {
-      if (items.length < int.parse(quantity.text)) {
+      if (items.length < double.parse(quantity.text).toInt()) {
         throw Exception(
             'Cannot add document without complete selection of serial numbers.');
       }

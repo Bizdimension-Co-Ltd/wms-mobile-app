@@ -10,10 +10,10 @@ import '../cubit/batch_list_cubit.dart';
 import '/constant/style.dart';
 
 class BatchListPage extends StatefulWidget {
-  const BatchListPage({super.key, required this.itemCode});
+  const BatchListPage({super.key, required this.itemCode, this.binCode});
 
   final String itemCode;
-
+  final dynamic binCode;
   @override
   State<BatchListPage> createState() => _BatchListPageState();
 }
@@ -67,7 +67,7 @@ class _BatchListPageState extends State<BatchListPage> {
       _bloc = context.read<BatchListCubit>();
       _bloc
           .get(
-              "$query&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
           .then((value) {
         if (mounted) {
           setState(() {
@@ -90,7 +90,7 @@ class _BatchListPageState extends State<BatchListPage> {
             if (isFilter) {
               _bloc
                   .next(
-                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
                   .then((value) {
                 if (mounted) {
                   setState(() {
@@ -108,7 +108,7 @@ class _BatchListPageState extends State<BatchListPage> {
             } else {
               _bloc
                   .next(
-                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
                   .then((value) {
                 if (mounted) {
                   setState(() {
@@ -165,7 +165,7 @@ class _BatchListPageState extends State<BatchListPage> {
     });
     _bloc
         .get(
-      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'",
+      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'",
     )
         .then((value) {
       if (!mounted) return;
@@ -242,7 +242,7 @@ class _BatchListPageState extends State<BatchListPage> {
               child: Row(
                 children: const [
                   Expanded(
-                    flex: 5,
+                    flex: 4,
                     child: Text(
                       'Batch Number.',
                       style: TextStyle(
@@ -251,7 +251,7 @@ class _BatchListPageState extends State<BatchListPage> {
                     ),
                   ),
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: Padding(
                       padding: EdgeInsets.only(left: 10),
                       child: Text('Available Qty'),
@@ -259,7 +259,7 @@ class _BatchListPageState extends State<BatchListPage> {
                   ),
                   Expanded(
                     flex: 1,
-                    child: Text('Qty'),
+                    child: Text('Alc.Qty'),
                   ),
                 ],
               ),

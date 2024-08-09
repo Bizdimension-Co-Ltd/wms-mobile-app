@@ -471,12 +471,12 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       goTo(
         context,
         GoodReceiptSerialScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: serialList,
-          isEdit: isEdit,
-          listAllSerial: true,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: serialList,
+            isEdit: isEdit,
+            listAllSerial: true,
+            binCode: binCode.text),
       ).then((value) {
         if (value == null) return;
 
@@ -490,12 +490,12 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       goTo(
         context,
         GoodReceiptBatchScreen(
-          itemCode: itemCode.text,
-          quantity: quantity.text,
-          serials: batches,
-          isEdit: isEdit,
-          listAllBatch: true,
-        ),
+            itemCode: itemCode.text,
+            quantity: quantity.text,
+            serials: batches,
+            isEdit: isEdit,
+            listAllBatch: true,
+            binCode: binCode.text),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";

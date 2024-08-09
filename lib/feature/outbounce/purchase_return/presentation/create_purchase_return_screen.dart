@@ -460,12 +460,13 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptSerialScreen(
-            itemCode: itemCode.text,
-            quantity: quantity.text,
-            serials: serialList,
-            isEdit: isEdit,
-            listAllSerial: true,
-            ),
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: serialList,
+          isEdit: isEdit,
+          binCode: binCode.text,
+          listAllSerial: true,
+        ),
       ).then((value) {
         if (value == null) return;
 
@@ -479,12 +480,13 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptBatchScreen(
-            itemCode: itemCode.text,
-            quantity: quantity.text,
-            serials: batches,
-            isEdit: isEdit,
-            listAllBatch: true,
-            ),
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: batches,
+          binCode: binCode.text,
+          isEdit: isEdit,
+          listAllBatch: true,
+        ),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";
@@ -524,7 +526,7 @@ class _CreatePurchaseReturnScreenState
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
-            "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
           "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
         });
         // await Future.delayed(Duration(seconds: 1));
