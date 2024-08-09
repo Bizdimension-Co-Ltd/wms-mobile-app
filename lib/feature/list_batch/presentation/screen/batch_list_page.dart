@@ -273,7 +273,18 @@ class _BatchListPageState extends State<BatchListPage> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  return ListView(
+                  return data.length == 0
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            Container(
+                              child: Text("No Batch"),
+                            ),
+                          ],
+                        )
+                      : ListView(
                     controller: _scrollController,
                     children: [
                       ...data.asMap().entries.map(

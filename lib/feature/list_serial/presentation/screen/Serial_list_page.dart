@@ -33,7 +33,7 @@ class _SerialListPageState extends State<SerialListPage> {
   TextEditingController filter = TextEditingController();
 
   late SerialListCubit _bloc;
-  Set<int> selectedIndices = Set<int>();
+  Set<int> selectedIndices = <int>{};
   bool isFilter = false;
 
   bool loading = false;
@@ -109,7 +109,6 @@ class _SerialListPageState extends State<SerialListPage> {
                   setState(() {
                     data = [...data, ...value];
                     data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
-                    ;
                   });
                 }
               });
@@ -262,97 +261,114 @@ class _SerialListPageState extends State<SerialListPage> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  return ListView(
-                    children: [
-                      ...data.asMap().entries.map(
-                        (entry) {
-                          int index = entry.key;
-                          var Serial = entry.value;
-                          return GestureDetector(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 15, 10, 15),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    flex: 6,
+                  return data.length == 0
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            Container(
+                              child: Text("No Serial"),
+                            ),
+                          ],
+                        )
+                      : ListView(
+                          children: [
+                            ...data.asMap().entries.map(
+                              (entry) {
+                                int index = entry.key;
+                                var Serial = entry.value;
+                                return GestureDetector(
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 15, 10, 15),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    margin: const EdgeInsets.only(bottom: 8),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 7),
-                                          child: Checkbox(
-                                            value:
-                                                selectedIndices.contains(index),
-                                            onChanged: (bool? value) {
-                                              _onSelected(value, index);
-                                            },
-                                            checkColor: Colors
-                                                .white, // Color of the checkmark
-                                            activeColor: Colors.green.shade900,
+                                        Expanded(
+                                          flex: 6,
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 7),
+                                                child: Checkbox(
+                                                  value: selectedIndices
+                                                      .contains(index),
+                                                  onChanged: (bool? value) {
+                                                    _onSelected(value, index);
+                                                  },
+                                                  checkColor: Colors
+                                                      .white, // Color of the checkmark
+                                                  activeColor:
+                                                      Colors.green.shade900,
+                                                ),
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getDataFromDynamic(
+                                                        Serial["Batch_Serial"]),
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Text(
+                                                    getDataFromDynamic(
+                                                        Serial["BinCode"]),
+                                                    style:
+                                                        TextStyle(fontSize: 13),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
+                                        Expanded(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 40),
+                                            child: Text(
                                               getDataFromDynamic(
-                                                  Serial["Batch_Serial"]),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(
-                                              getDataFromDynamic(
-                                                  Serial["BinCode"]),
+                                                  Serial["Quantity"]),
                                               style: TextStyle(fontSize: 13),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 40),
-                                      child: Text(
-                                        getDataFromDynamic(Serial["Quantity"]),
-                                        style: TextStyle(fontSize: 13),
-                                      ),
+                                );
+                              },
+                            ).toList(),
+                            if (state is RequestingPaginationBin)
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      if (state is RequestingPaginationBin)
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              ),
-                            ),
-                          ),
-                        )
-                    ],
-                  );
+                                ),
+                              )
+                          ],
+                        );
                 },
               ),
             )
