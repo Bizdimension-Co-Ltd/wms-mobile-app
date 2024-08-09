@@ -191,7 +191,7 @@ class _BatchListPageState extends State<BatchListPage> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Batch Lists',
+          'Batches Lists',
           style: TextStyle(
               fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),

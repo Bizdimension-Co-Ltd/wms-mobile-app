@@ -253,7 +253,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Batch',
+          'Batches',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,

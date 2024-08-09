@@ -368,6 +368,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   }
 
   void onNavigateSerialOrBatch({bool force = false}) {
+    // return;
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
           ? []
@@ -383,6 +384,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             listAllSerial: true,
+            binCode: binCode.text,
             serials: serialList,
             isEdit: isEdit),
       ).then((value) {
@@ -402,6 +404,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             quantity: quantity.text,
             listAllBatch: true,
             serials: batches,
+            binCode: binCode.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
