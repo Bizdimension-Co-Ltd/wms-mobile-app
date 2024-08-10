@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -68,7 +70,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   void initState() {
     _bloc = context.read<BinlocationCountCubit>();
     _blocItem = context.read<ItemCubit>();
-
+    init();
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onScanResults") {
@@ -85,8 +87,13 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     super.initState();
   }
 
+  void init() async {
+    final whs = await LocalStorageManger.getString('warehouse');
+    warehouse.text = whs;
+  }
+
   void onSelectItem() async {
-    return;
+    // return;
     setState(() {
       isEdit = -1;
     });
@@ -217,7 +224,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   }
 
   void onChangeBin() async {
-    return;
+    // return;
     goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
       if (value == null) return;
 
@@ -257,13 +264,14 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           };
         }).toList(),
       };
-      final response = await _bloc.put(data, int.tryParse(cosDocEntry.text)!);
+
+      final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "BinLocation Count - ${cos.text}.",
+          body: "BinLocation Count - ${response["DocumentNumber"]}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -455,6 +463,13 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     }
   }
 
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -475,18 +490,18 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Input(
-                controller: cos,
-                label: 'CoS.',
-                placeholder: 'Counting Sheet',
-                onPressed: onSelectCos,
-              ),
+              // Input(
+              //   controller: cos,
+              //   label: 'CoS.',
+              //   placeholder: 'Counting Sheet',
+              //   onPressed: onSelectCos,
+              // ),
               Input(
                 label: 'Warehouse',
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               Input(
                 controller: itemCode,

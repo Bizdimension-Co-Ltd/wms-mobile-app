@@ -213,7 +213,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     });
   }
 
-  void onPostToSAP() async {
+ void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
@@ -227,6 +227,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               "UoMCode": item['UoMCode']
             }
           ];
+
           if (isSerialOrBatchs.isEmpty) {
             inventoryCountingLineUoMs = [];
           }
@@ -234,6 +235,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
+            "BinEntry": item["BinId"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
             "InventoryCountingSerialNumbers": item['Serials'] ?? [],
@@ -248,7 +250,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "Physical Count - ${cos.text}.",
+          body: "BinLocation Count - ${cos.text}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -308,29 +310,51 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       cos.text = getDataFromDynamic(value['DocumentNumber']);
       clear();
       if (value['DocumentEntry'] != null) {
-        final response =
-            await dio.get('/InventoryCountings(${value['DocumentEntry']})');
-        if (response.statusCode == 200) {
-          warehouse.text =
-              response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
-          items = [];
-          for (var element in response.data["InventoryCountingLines"]) {
-            items.add({
-              "ItemCode": element['ItemCode'],
-              "ItemDescription":
-                  element['ItemName'] ?? element['ItemDescription'],
-              "Quantity": getDataFromDynamic(element['CountedQuantity']),
-              "WarehouseCode": warehouse.text,
-              "UoMCode": element['UoMCode'],
-              "InventoryCountingLineUoMs": element["InventoryCountingLineUoMs"]
-            });
-          }
-        }
+        try {
+          final response =
+              await dio.get('/InventoryCountings(${value['DocumentEntry']})');
 
-        setState(() {
-          items;
-        });
-        if (mounted) MaterialDialog.close(context);
+          if (response.statusCode == 200) {
+            final binResponse = await dio.get(
+                "/BinLocations?\$filter=Warehouse eq '${response.data["InventoryCountingLines"]?[0]?["WarehouseCode"]}' & \$select=AbsEntry,Warehouse,BinCode");
+            warehouse.text =
+                response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
+            if (binResponse.statusCode == 200) {
+              final binData = binResponse.data['value'];
+              warehouse.text =
+                  response.data["InventoryCountingLines"]?[0]?["WarehouseCode"];
+              items = [];
+
+              for (var element in response.data["InventoryCountingLines"]) {
+                var binCode = binData.firstWhere(
+                  (e) => e["AbsEntry"] == element['BinEntry'],
+                  orElse: () => null,
+                )?['BinCode'];
+
+                items.add({
+                  "ItemCode": element['ItemCode'],
+                  "ItemDescription":
+                      element['ItemName'] ?? element['ItemDescription'],
+                  "Quantity": getDataFromDynamic(element['CountedQuantity']),
+                  "WarehouseCode": warehouse.text,
+                  "UoMCode": element['UoMCode'],
+                  "BinId": element['BinEntry'],
+                  "BinCode": binCode,
+                  "InventoryCountingLineUoMs":
+                      element['InventoryCountingLineUoMs'],
+                });
+              }
+            }
+          }
+
+          setState(() {
+            items = items;
+          });
+
+          if (mounted) MaterialDialog.close(context);
+        } catch (e) {
+          print('Error: $e');
+        }
       }
     } catch (e) {
       print(e);
@@ -408,6 +432,12 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 label: 'UoM.',
                 placeholder: 'Unit Of Measurement',
                 onPressed: onChangeUoM,
+              ),
+               Input(
+                controller: binCode,
+                label: 'Bin.',
+                placeholder: 'Bin Location',
+                onPressed: onChangeBin,
               ),
               Input(
                 controller: quantity,

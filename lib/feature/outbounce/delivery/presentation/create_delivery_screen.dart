@@ -263,7 +263,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);

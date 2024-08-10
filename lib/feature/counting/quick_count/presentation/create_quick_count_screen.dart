@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -47,6 +48,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   final batchesInput = TextEditingController();
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
+  final inWhsQty = TextEditingController();
 
   //
   final isBatch = TextEditingController();
@@ -213,12 +215,27 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     );
   }
 
+  final DioClient dio = DioClient();
+
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
       binCode.text = getDataFromDynamic(value.code);
+      dio
+          .get(
+              "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}' and BinCode eq '${binCode.text}'")
+          .then((e) {
+        final onHandQty = e.data["value"][0]["OnHandQty"];
+        setState(() {
+          inWhsQty.text = "0";
+          if (onHandQty != null && onHandQty.toString().isNotEmpty) {
+            inWhsQty.text = onHandQty.toString();
+          }
+        });
+      });
     });
   }
 
@@ -261,8 +278,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             "BinEntry": item["BinId"],
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "InventoryPostingSerialNumbers": [],
-            "InventoryPostingBatchNumbers": [],
+            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
+            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
             "InventoryPostingLineUoMs": inventoryPostingLineUoMs
           };
         }).toList(),
@@ -369,6 +386,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onNavigateSerialOrBatch({bool force = false}) {
     // return;
+    if(double.parse(inWhsQty.text).toInt() == double.parse(quantity.text).toInt()) return;
+
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
           ? []
@@ -377,13 +396,12 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       if (force == false && (quantity.text == serialList.length.toString())) {
         return;
       }
-
       goTo(
         context,
         GoodReceiptSerialScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            listAllSerial: true,
+            listAllSerial:double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
             binCode: binCode.text,
             serials: serialList,
             isEdit: isEdit),
@@ -402,7 +420,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptBatchScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            listAllBatch: true,
+            noReq:true,
+            listAllBatch: double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
             serials: batches,
             binCode: binCode.text,
             isEdit: isEdit),
@@ -464,6 +483,12 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 label: 'Bin.',
                 placeholder: 'Bin Location',
                 onPressed: onChangeBin,
+              ),
+              Input(
+                controller: inWhsQty,
+                label: 'In Whs Qty.',
+                placeholder: 'Total Qty',
+                readOnly: true,
               ),
               Input(
                 controller: quantity,

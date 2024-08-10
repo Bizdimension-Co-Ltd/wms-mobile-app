@@ -258,7 +258,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   // }
 
   void onChangeSBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
       if (value == null) return;
 
       sbinId.text = getDataFromDynamic((value as BinEntity).id);
@@ -267,7 +267,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   }
 
   void onChangeTBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
       if (value == null) return;
       tbinId.text = getDataFromDynamic((value as BinEntity).id);
       tbinCode.text = getDataFromDynamic((value as BinEntity).code);

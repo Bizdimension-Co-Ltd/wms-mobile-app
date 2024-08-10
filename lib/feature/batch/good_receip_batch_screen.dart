@@ -23,7 +23,7 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllBatch,
-    this.binCode,
+    this.binCode, this.noReq,
   });
 
   final String quantity;
@@ -32,6 +32,7 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final List<dynamic>? serials;
   final dynamic isEdit;
   final dynamic binCode;
+  final dynamic noReq;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -199,7 +200,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       }
       int totalAddedQuantity = items.fold(
           0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
-      if (totalAddedQuantity < qty) {
+      if (totalAddedQuantity < qty && widget.noReq != true) {
         throw Exception("Can't generate document without complete batch.");
       }
       Navigator.of(context)
@@ -210,12 +211,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   }
 
   void onNavigateBatchList() async {
-    goTo(
-        context,
-        BatchListPage(
-          itemCode: itemCode.text,
-          binCode:widget.binCode
-        )).then((value) async {
+    goTo(context,
+            BatchListPage(itemCode: itemCode.text, binCode: widget.binCode))
+        .then((value) async {
       if (value == null) return;
 
       for (var element in value) {

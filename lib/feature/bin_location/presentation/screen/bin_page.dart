@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/helper/helper.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../domain/entity/bin_entity.dart';
 import '../cubit/bin_cubit.dart';
 import '/constant/style.dart';
 
 class BinPage extends StatefulWidget {
-  const BinPage({super.key, required this.warehouse});
+  const BinPage({super.key, required this.warehouse, this.itemCode});
 
   final String warehouse;
+  final dynamic itemCode;
 
   @override
   State<BinPage> createState() => _BinPageState();
@@ -16,14 +19,16 @@ class BinPage extends StatefulWidget {
 class _BinPageState extends State<BinPage> {
   String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
 
-  int check = 1;
+  int check = -1;
   List<BinEntity> data = [];
   late BinCubit _bloc;
-
+  final DioClient dio = DioClient();
+  List<dynamic> qty = [];
   @override
   void initState() {
     super.initState();
     if (mounted) {
+      getGetdataInit();
       _bloc = context.read<BinCubit>();
       final state = context.read<BinCubit>().state;
 
@@ -43,6 +48,24 @@ class _BinPageState extends State<BinPage> {
 
       setState(() {
         data;
+      });
+    }
+  }
+
+  void getGetdataInit() async {
+    if (widget.itemCode == "") {
+      setState(() {
+        check = 1;
+      });
+      return;
+    }
+    ;
+    final response = await dio.get(
+        "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
+    if (response.statusCode == 200) {
+      setState(() {
+        qty.addAll(response.data["value"]);
+        check = 1;
       });
     }
   }
@@ -71,7 +94,36 @@ class _BinPageState extends State<BinPage> {
         color: Color.fromARGB(255, 243, 243, 243),
         child: Column(
           children: [
-            const Divider(thickness: 0.1, height: 15),
+            const Divider(thickness: 0.001, height: 15),
+            Container(
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 232, 234, 235),
+                border: Border(
+                  bottom: BorderSide(width: 0.1),
+                  top: BorderSide(width: 0.1),
+                ),
+              ),
+              child: Row(
+                children: const [
+                  Expanded(
+                    flex: 5,
+                    child: Text(
+                      'BinLocation Code',
+                      style: TextStyle(),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 5),
+                      child: Text('Total Qty'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(thickness: 0.01, height: 10),
             Expanded(
               child: BlocConsumer<BinCubit, BinState>(
                 listener: (context, state) {},
@@ -80,35 +132,8 @@ class _BinPageState extends State<BinPage> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  return ListView(
-                    children: [
-                      ...data
-                          .map(
-                            (bin) => GestureDetector(
-                              onTap: () => Navigator.of(context).pop(bin),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                ),
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      bin.code,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      if (state is RequestingPaginationBin)
-                        Container(
+                  return check == -1
+                      ? Container(
                           margin: const EdgeInsets.symmetric(vertical: 20),
                           child: Center(
                             child: SizedBox(
@@ -120,8 +145,74 @@ class _BinPageState extends State<BinPage> {
                             ),
                           ),
                         )
-                    ],
-                  );
+                      : ListView(
+                          children: [
+                            ...data
+                                .map(
+                                  (bin) => GestureDetector(
+                                    onTap: () => Navigator.of(context).pop(bin),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                      ),
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 6,
+                                                child: Text(
+                                                  bin.code,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  getDataFromDynamic(
+                                                      qty.firstWhere(
+                                                    (e) =>
+                                                        e["BinCode"] ==
+                                                        bin.code,
+                                                    orElse: () => {
+                                                      "OnHandQty": 0
+                                                    }, // Default value if not found
+                                                  )["OnHandQty"]),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            if (state is RequestingPaginationBin)
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ),
+                                  ),
+                                ),
+                              )
+                          ],
+                        );
                 },
               ),
             )
