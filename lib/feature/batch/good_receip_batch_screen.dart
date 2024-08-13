@@ -23,7 +23,9 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllBatch,
-    this.binCode, this.noReq,
+    this.binCode,
+    this.isQuickCount,
+    this.alcQty,
   });
 
   final String quantity;
@@ -32,7 +34,8 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final List<dynamic>? serials;
   final dynamic isEdit;
   final dynamic binCode;
-  final dynamic noReq;
+  final dynamic isQuickCount;
+  final dynamic alcQty;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -54,7 +57,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void initState() {
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
-    quantityPerBatch.text = widget.quantity;
+    if (widget.isQuickCount == true) {
+      quantityPerBatch.text = widget.alcQty.toString();
+    } else {
+      quantityPerBatch.text = widget.quantity;
+    }
     if (widget.isEdit >= 0) {
       setState(() {
         items = widget.serials ?? [];
@@ -194,13 +201,12 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void onComplete() {
     try {
       final qty = double.parse(quantity.text).toInt();
-
+      int totalAddedQuantity = items.fold(
+          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
       if (qty == 0) {
         throw Exception("Quantity must be greater than 0.");
       }
-      int totalAddedQuantity = items.fold(
-          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
-      if (totalAddedQuantity < qty && widget.noReq != true) {
+      if (totalAddedQuantity < qty && widget.isQuickCount != true) {
         throw Exception("Can't generate document without complete batch.");
       }
       Navigator.of(context)

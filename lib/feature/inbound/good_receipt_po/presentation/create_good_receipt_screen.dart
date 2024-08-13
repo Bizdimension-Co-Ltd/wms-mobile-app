@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
@@ -93,44 +94,101 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void init() async {
-    final whs = await LocalStorageManger.getString('warehouse');
-    warehouse.text = whs;
+    try {
+      // Retrieve warehouse information
+      final whs = await LocalStorageManger.getString('warehouse');
+      warehouse.text = whs;
 
-    if (widget.po != null) {
-      poText.text = getDataFromDynamic(widget.po['DocNum']);
-      cardCode.text = getDataFromDynamic(widget.po['CardCode']);
-      cardName.text = getDataFromDynamic(widget.po['CardName']);
+      if (widget.po != null) {
+        // Populate text fields with PO data
+        poText.text = getDataFromDynamic(widget.po['DocNum']);
+        cardCode.text = getDataFromDynamic(widget.po['CardCode']);
+        cardName.text = getDataFromDynamic(widget.po['CardName']);
 
-      if (mounted) MaterialDialog.loading(context);
+        // Show loading indicator
+        if (mounted) MaterialDialog.loading(context);
 
-      items = [];
-      for (var element in widget.po['DocumentLines']) {
-        final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+        // Initialize the list of items
+        List<Map<String, dynamic>> rawItems = [];
 
-        items.add({
-          "ItemCode": element['ItemCode'],
-          "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
-          "WarehouseCode": warehouse.text,
-          "UoMEntry": getDataFromDynamic(element['UoMEntry']),
-          "UoMCode": element['UoMCode'],
-          "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
-          "BinId": binId.text,
-          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
-          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
-        });
-        // await Future.delayed(Duration(seconds: 1));
-        itemCodeFilter.add(element['ItemCode']);
+        for (var element in widget.po['DocumentLines']) {
+          final itemResponse =
+              await _blocItem.find("('${element['ItemCode']}')");
+
+          rawItems.add({
+            "ItemCode": element['ItemCode'],
+            "ItemDescription":
+                element['ItemName'] ?? element['ItemDescription'],
+            "Quantity": getDataFromDynamic(element['Quantity']),
+            "WarehouseCode": warehouse.text,
+            "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+            "UoMCode": element['UoMCode'],
+            "UoMGroupDefinitionCollection":
+                itemResponse['UoMGroupDefinitionCollection'],
+            "BaseUoM": itemResponse['BaseUoM'],
+            "BinId": binId.text,
+            "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+            "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+          });
+
+          itemCodeFilter.add(element['ItemCode']);
+        }
+
+        // Combine items with the same ItemCode and UoMCode
+        items = combineItems(rawItems);
+
+        // Close loading indicator
+        if (mounted) MaterialDialog.close(context);
+
+        // Update state with combined items
+        if (mounted) {
+          setState(() {
+            items;
+          });
+        }
       }
-
-      if (mounted) MaterialDialog.close(context);
-
-      setState(() {
-        items;
-      });
+    } catch (e) {
+      // Handle errors
+      if (mounted) {
+        MaterialDialog.close(context);
+        // Optionally show an error message
+        // MaterialDialog.showError(context, 'An error occurred: $e');
+      }
     }
+  }
+
+  List<Map<String, dynamic>> combineItems(List<Map<String, dynamic>> rawItems) {
+    Map<String, Map<String, dynamic>> combinedItemsMap = {};
+
+    for (var item in rawItems) {
+      // Convert quantity to double
+      double quantity = double.tryParse(item["Quantity"].toString()) ?? 0.0;
+
+      String key = '${item["ItemCode"]}_${item["UoMCode"]}';
+
+      if (combinedItemsMap.containsKey(key)) {
+        // Add to the existing quantity
+        combinedItemsMap[key]!["Quantity"] =
+            (combinedItemsMap[key]!["Quantity"] as double) + quantity;
+      } else {
+        // Add a new item
+        combinedItemsMap[key] = {
+          "ItemCode": item["ItemCode"],
+          "ItemDescription": item["ItemDescription"],
+          "Quantity": quantity,
+          "WarehouseCode": item["WarehouseCode"],
+          "UoMEntry": item["UoMEntry"],
+          "UoMCode": item["UoMCode"],
+          "UoMGroupDefinitionCollection": item["UoMGroupDefinitionCollection"],
+          "BaseUoM": item["BaseUoM"],
+          "BinId": item["BinId"],
+          "ManageSerialNumbers": item["ManageSerialNumbers"],
+          "ManageBatchNumbers": item["ManageBatchNumbers"],
+        };
+      }
+    }
+
+    return combinedItemsMap.values.toList();
   }
 
   void onSelectItem() async {
@@ -243,8 +301,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -302,7 +360,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -318,6 +377,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onPostToSAP() async {
+    setState(() {
+      print(items);
+    });
     try {
       Map<String, dynamic> data = {
         "BPL_IDAssignedToInvoice": 1,
@@ -337,24 +399,30 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
           int baseType = -1;
           dynamic baseEntry = null;
           dynamic baseLine = null;
-          if (widget.po != null) {
-            final lines = (widget.po['DocumentLines'] ?? []) as List<dynamic>;
-            final ele =
-                lines.singleWhere((row) => row['ItemCode'] == item['ItemCode']);
+          // if (widget.po != null) {
+          //   final lines = (widget.po['DocumentLines'] ?? []) as List<dynamic>;
+          //   final ele =
+          //       lines.singleWhere((row) => row['ItemCode'] == item['ItemCode']);
 
-            if (ele != null) {
-              baseType = 22;
-              baseEntry = ele['DocEntry'];
-              baseLine = ele['LineNum'];
-            }
+          //   if (ele != null) {
+          //     baseType = 22;
+          //     baseEntry = ele['DocEntry'];
+          //     baseLine = ele['LineNum'];
+          //   }
+          // }
+          dynamic qty = 0;
+          if (item['Quantity'] is double) {
+            qty = item['Quantity'].toString();
+          } else {
+            // Handle other types if necessary, e.g., if it's already a string
+            qty = item['Quantity'];
           }
-
           List<dynamic> binAllocations = [
             {
               "Quantity": convertQuantityUoM(
                 alternativeUoM['BaseQuantity'],
                 alternativeUoM['AlternateQuantity'],
-                double.tryParse(item['Quantity']) ?? 0.00,
+                double.tryParse(qty) ?? 0.00,
               ),
               "BinAbsEntry": item['BinId'],
               "BaseLineNumber": parentIndex,
@@ -363,14 +431,14 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             }
           ];
 
-          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (_isBatch || _isSerial) {
+          if (isBatch || isSerial) {
             binAllocations = [];
 
             List<dynamic> batchOrSerialLines =
-                _isSerial ? item['Serials'] : item['Batches'];
+                isSerial ? item['Serials'] ?? [] : item['Batches'] ?? [];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
@@ -418,6 +486,10 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         ];
       }
       MaterialDialog.loading(context);
+      setState(() {
+        print(data);
+      });
+      // return;
       final response = await _bloc.post(data);
       if (mounted) {
         if (widget.po != null) {
@@ -493,23 +565,42 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     try {
       if (itemCode.text == '') return;
 
-      //
-      MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
-      }
-      if (mounted) {
-        MaterialDialog.close(context);
+      final duplicateItem =
+          items.where((e) => e["ItemCode"] == itemCode.text).toList();
+
+      if (duplicateItem.isEmpty) {
+        MaterialDialog.success(context, title: 'Opps.', body: "Item not found");
+        return;
       }
 
-      onSetItemTemp(item);
+      if (duplicateItem.length > 1) {
+        goTo(
+            context,
+            DuplicateItemGPOPage(
+              itemCode: itemCode.text,
+              items: duplicateItem,
+            )).then((item) {
+          if (item == null) return;
+          final index = items.indexWhere((e) =>
+              e['ItemCode'] == item['ItemCode'] &&
+              e['UoMEntry'] == item['UoMEntry']);
+          onEdit(item, index);
+        });
+
+        return;
+      }
+      // Continue processing if there is only one matching item
+      final item =
+          await items.firstWhere((e) => e["ItemCode"] == itemCode.text);
+      final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+      onEdit(item, index);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
         if (e is ServerFailure) {
           MaterialDialog.success(context, title: 'Failed', body: e.message);
+        } else {
+          MaterialDialog.success(context, title: 'Failed', body: e.toString());
         }
       }
     }
@@ -656,13 +747,17 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
-              ),
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
+              )
             ],
           ),
         ),

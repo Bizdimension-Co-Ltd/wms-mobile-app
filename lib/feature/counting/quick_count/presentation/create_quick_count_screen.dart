@@ -142,6 +142,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         "BaseUoM": baseUoM.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
+        "InWhsQty": inWhsQty.text,
         "ManageSerialNumbers": isSerial.text,
         "ManageBatchNumbers": isBatch.text,
         "Serials":
@@ -167,8 +168,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -195,7 +196,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
         serialsInput.text = jsonEncode(item['Serials'] ?? []);
-
+        inWhsQty.text = getDataFromDynamic(item["InWhsQty"]);
         setState(() {
           isEdit = index;
 
@@ -228,13 +229,21 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           .get(
               "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}' and BinCode eq '${binCode.text}'")
           .then((e) {
-        final onHandQty = e.data["value"][0]["OnHandQty"];
-        setState(() {
-          inWhsQty.text = "0";
-          if (onHandQty != null && onHandQty.toString().isNotEmpty) {
-            inWhsQty.text = onHandQty.toString();
-          }
-        });
+        final data = e.data["value"];
+        if (data != null && data.isNotEmpty) {
+          final onHandQty = data[0]["OnHandQty"] ?? 0;
+          setState(() {
+            if (onHandQty != null && onHandQty.toString().isNotEmpty) {
+              inWhsQty.text = onHandQty.toString();
+            } else {
+              inWhsQty.text = "0";
+            }
+          });
+        } else {
+          setState(() {
+            inWhsQty.text = "0";
+          });
+        }
       });
     });
   }
@@ -271,22 +280,40 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           if (isBatch || isSerial) {
             inventoryPostingLineUoMs = [];
           }
+
           return {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
             "BinEntry": item["BinId"],
+            "Variance": double.parse(item["Quantity"]).toInt() -
+                double.parse(item["InWhsQty"]).toInt(),
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
-            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
+            "InventoryPostingSerialNumbers":
+                (item['Serials'] as List<dynamic>).map((b) {
+              return {
+                "InternalSerialNumber": b["InternalSerialNumber"],
+                "Quantity": double.parse(item["Quantity"]).toInt() -
+                            double.parse(item["InWhsQty"]).toInt() <
+                        0
+                    ? -1
+                    : 1,
+              };
+            }).toList(),
+            "InventoryPostingBatchNumbers":
+                (item['Batches'] as List<dynamic>).map((b) {
+              return {
+                "BatchNumber": b["BatchNumber"],
+                "Quantity": double.parse(item["Quantity"]).toInt() -
+                    double.parse(item["InWhsQty"]).toInt(),
+                "ExpiryDate": b["ExpiryDate"]
+              };
+            }).toList(),
             "InventoryPostingLineUoMs": inventoryPostingLineUoMs
           };
         }).toList(),
       };
-      setState(() {
-        print(data);
-      });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -322,6 +349,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     docEntry.text = '';
     refLineNo.text = '';
     isEdit = -1;
+    inWhsQty.text = "0";
   }
 
   void onSetItemTemp(dynamic value) {
@@ -386,7 +414,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onNavigateSerialOrBatch({bool force = false}) {
     // return;
-    if(double.parse(inWhsQty.text).toInt() == double.parse(quantity.text).toInt()) return;
+    if (double.parse(inWhsQty.text).toInt() ==
+        double.parse(quantity.text).toInt()) return;
 
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
@@ -401,9 +430,13 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptSerialScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            listAllSerial:double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
+            listAllSerial: double.parse(inWhsQty.text).toInt() <
+                    double.parse(quantity.text).toInt()
+                ? null
+                : true,
             binCode: binCode.text,
             serials: serialList,
+            isQuickCount: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -420,8 +453,13 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptBatchScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            noReq:true,
-            listAllBatch: double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
+            isQuickCount: true,
+            alcQty: double.parse(quantity.text).toInt() -
+                double.parse(inWhsQty.text).toInt(),
+            listAllBatch: double.parse(inWhsQty.text).toInt() <
+                    double.parse(quantity.text).toInt()
+                ? null
+                : true,
             serials: batches,
             binCode: binCode.text,
             isEdit: isEdit),
@@ -505,12 +543,16 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
               ),
             ],
           ),

@@ -202,8 +202,8 @@ class _CreatePurchaseReturnScreenState
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item,int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -260,7 +260,8 @@ class _CreatePurchaseReturnScreenState
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -628,12 +629,16 @@ class _CreatePurchaseReturnScreenState
                   child: Scrollbar(
                     child: ListView(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
+                      children: items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+
+                        return GestureDetector(
+                          onTap: () =>
+                              onEdit(item, index), // Pass both item and index
+                          child: ItemRow(item: item),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),

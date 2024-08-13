@@ -201,7 +201,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
+  void onEdit(dynamic item,int index) {
     final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
@@ -614,14 +614,18 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
               ),
               const SizedBox(height: 40),
               ContentHeader(),
-              Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
-              ),
+               Column(
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
+              )
             ],
           ),
         ),

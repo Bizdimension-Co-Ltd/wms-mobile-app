@@ -204,8 +204,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item,index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -646,12 +646,16 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                   child: Scrollbar(
                     child: ListView(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
+                      children: items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+
+                        return GestureDetector(
+                          onTap: () =>
+                              onEdit(item, index), // Pass both item and index
+                          child: ItemRow(item: item),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -660,6 +664,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           ),
         ),
       ),
+      
       bottomNavigationBar: Container(
         height: size(context).height * 0.09,
         padding: const EdgeInsets.all(12),
