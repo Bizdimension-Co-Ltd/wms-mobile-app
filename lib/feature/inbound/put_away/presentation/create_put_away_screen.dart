@@ -197,7 +197,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     }
   }
 
-  void onEdit(dynamic item,int index) {
+  void onEdit(dynamic item, int index) {
     // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
@@ -258,7 +258,8 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   // }
 
   void onChangeSBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       sbinId.text = getDataFromDynamic((value as BinEntity).id);
@@ -267,7 +268,8 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   }
 
   void onChangeTBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
       tbinId.text = getDataFromDynamic((value as BinEntity).id);
       tbinCode.text = getDataFromDynamic((value as BinEntity).code);
@@ -285,13 +287,13 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BPLID": 1,
+        // "BPLID": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "FromWarehouse": warehouse.text,
         "ToWarehouse": warehouse.text,
         "DocumentStatus": "bost_Open",
-        "U_tl_sobincode": tbinCode.text,
+        // "U_tl_sobincode": tbinCode.text,
         "StockTransferLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
@@ -359,7 +361,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
-            "UoMEntry": item['UoMEntry'],
+            // "UoMEntry": item['UoMEntry'],
             "Quantity": item['Quantity'],
             "WarehouseCode": warehouse.text,
             "FromWarehouseCode": warehouse.text,

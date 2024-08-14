@@ -287,7 +287,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       }
 
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,

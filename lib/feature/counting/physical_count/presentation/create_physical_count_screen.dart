@@ -217,7 +217,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "DocumentNumber": cos.text,
         "InventoryCountingLines": items.map((item) {
           List<dynamic> inventoryCountingLineUoMs = [

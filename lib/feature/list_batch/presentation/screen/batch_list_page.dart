@@ -285,151 +285,160 @@ class _BatchListPageState extends State<BatchListPage> {
                           ],
                         )
                       : ListView(
-                    controller: _scrollController,
-                    children: [
-                      ...data.asMap().entries.map(
-                        (entry) {
-                          int index = entry.key;
-                          var batch = entry.value;
-                          return GestureDetector(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 15, 10, 15),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    flex: 5,
+                          controller: _scrollController,
+                          children: [
+                            ...data.asMap().entries.map(
+                              (entry) {
+                                int index = entry.key;
+                                var batch = entry.value;
+                                return GestureDetector(
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 15, 10, 15),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    margin: const EdgeInsets.only(bottom: 8),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 7),
-                                          child: Checkbox(
-                                            value:
-                                                selectedIndices.contains(index),
-                                            onChanged: (bool? value) {
-                                              _onSelected(value, index);
-                                            },
-                                            checkColor: Colors
-                                                .white, // Color of the checkmark
-                                            activeColor: Colors.green.shade900,
+                                        Expanded(
+                                          flex: 5,
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 7),
+                                                child: Checkbox(
+                                                  value: selectedIndices
+                                                      .contains(index),
+                                                  onChanged: (bool? value) {
+                                                    _onSelected(value, index);
+                                                  },
+                                                  checkColor: Colors
+                                                      .white, // Color of the checkmark
+                                                  activeColor:
+                                                      Colors.green.shade900,
+                                                ),
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getDataFromDynamic(
+                                                        batch["Batch_Serial"]),
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Text(
+                                                    getDataFromDynamic(
+                                                        batch["BinCode"]),
+                                                    style:
+                                                        TextStyle(fontSize: 13),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Expiry Date  :",
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.grey),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 7,
+                                                      ),
+                                                      Text(
+                                                        getDataFromDynamic(
+                                                            batch["ExpDate"]),
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.red),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              getDataFromDynamic(
-                                                  batch["Batch_Serial"]),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w800,
+                                        Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            getDataFromDynamic(
+                                                batch["Quantity"]),
+                                            style: TextStyle(
+                                                // fontWeight: FontWeight.w800,
+                                                ),
+                                          ),
+                                        ),
+                                        // Input field here
+                                        Expanded(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 40),
+                                            child: SizedBox(
+                                              width: 85,
+                                              child: TextField(
+                                                style: TextStyle(fontSize: 14),
+                                                controller: controllers.length >
+                                                        index
+                                                    ? controllers[index]
+                                                    : TextEditingController(),
+                                                onChanged: (value) {
+                                                  _onChangeQty(value, index);
+                                                },
+                                                decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText: 'Qty',
+                                                  hintStyle: TextStyle(
+                                                    fontSize: 14.0,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 10,
+                                                          horizontal: 10),
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.number,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(
-                                              getDataFromDynamic(
-                                                  batch["BinCode"]),
-                                              style: TextStyle(fontSize: 13),
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  "Expiry Date  :",
-                                                  style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.grey),
-                                                ),
-                                                SizedBox(
-                                                  width: 7,
-                                                ),
-                                                Text(
-                                                  getDataFromDynamic(
-                                                      batch["ExpDate"]),
-                                                  style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.red),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      getDataFromDynamic(batch["Quantity"]),
-                                      style: TextStyle(
-                                          // fontWeight: FontWeight.w800,
-                                          ),
+                                );
+                              },
+                            ).toList(),
+                            if (state is RequestingPaginationBin)
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
                                     ),
                                   ),
-                                  // Input field here
-                                  Expanded(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 40),
-                                      child: SizedBox(
-                                        width: 85,
-                                        child: TextField(
-                                          style: TextStyle(fontSize: 14),
-                                          controller: controllers.length > index
-                                              ? controllers[index]
-                                              : TextEditingController(),
-                                          onChanged: (value) {
-                                            _onChangeQty(value, index);
-                                          },
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: 'Qty',
-                                            hintStyle: TextStyle(
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 10),
-                                          ),
-                                          keyboardType: TextInputType.number,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      if (state is RequestingPaginationBin)
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              ),
-                            ),
-                          ),
-                        )
-                    ],
-                  );
+                                ),
+                              )
+                          ],
+                        );
                 },
               ),
             )

@@ -287,7 +287,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   void onPostToSAP() async {
     try {
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "U_tl_grtype": grType.text,

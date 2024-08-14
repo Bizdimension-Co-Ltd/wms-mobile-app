@@ -225,7 +225,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
 
   void onChangeBin() async {
     // return;
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text,itemCode: itemCode.text,)).then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -237,15 +237,15 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "DocumentNumber": cos.text,
         "InventoryCountingLines": items.map((item) {
           List<dynamic> inventoryCountingLineUoMs = [
-            {
-              "UoMCountedQuantity": item["Quantity"],
-              "CountedQuantity": item["Quantity"],
-              "UoMCode": item['UoMCode']
-            }
+            // {
+            //   "UoMCountedQuantity": item["Quantity"],
+            //   "CountedQuantity": item["Quantity"],
+            //   "UoMCode": item['UoMCode']
+            // }
           ];
 
           if (isSerialOrBatchs.isEmpty) {
@@ -309,7 +309,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       uoMGroupDefinitionCollection.text = jsonEncode(

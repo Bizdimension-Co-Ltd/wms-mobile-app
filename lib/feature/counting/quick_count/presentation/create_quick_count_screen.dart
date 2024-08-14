@@ -259,19 +259,19 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "Reference2": ref.text,
         "InventoryPostingLines": items.asMap().entries.map((entry) {
           int index = entry.key;
           Map<String, dynamic> item = entry.value;
           List<dynamic> inventoryPostingLineUoMs = [
-            {
-              "LineNumber": index + 1,
-              "ChildNumber": 1,
-              "UoMCountedQuantity": item["Quantity"],
-              "CountedQuantity": item["Quantity"],
-              "UoMCode": item['UoMCode']
-            }
+            // {
+            //   "LineNumber": index + 1,
+            //   "ChildNumber": 1,
+            //   "UoMCountedQuantity": item["Quantity"],
+            //   "CountedQuantity": item["Quantity"],
+            //   "UoMCode": item['UoMCode']
+            // }
           ];
 
           bool isBatch = item['ManageBatchNumbers'] == 'tYES';
@@ -286,6 +286,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
             "BinEntry": item["BinId"],
+            "Price": 1,
             "Variance": double.parse(item["Quantity"]).toInt() -
                 double.parse(item["InWhsQty"]).toInt(),
             "CountedQuantity": item["Quantity"],
@@ -314,6 +315,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           };
         }).toList(),
       };
+      setState(() {
+        print(data);
+      });
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();

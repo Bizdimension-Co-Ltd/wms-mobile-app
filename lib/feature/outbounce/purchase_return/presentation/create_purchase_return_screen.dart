@@ -278,7 +278,7 @@ class _CreatePurchaseReturnScreenState
       // }
 
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,

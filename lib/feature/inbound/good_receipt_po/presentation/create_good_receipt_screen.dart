@@ -389,7 +389,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     });
     try {
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
@@ -894,7 +894,7 @@ class ItemRow extends StatelessWidget {
               ),
               Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
               Expanded(
-                  child: Text('${item['TotalQuantity']}/${item['Quantity']}')),
+                  child: Text('${getDataFromDynamic(item['TotalQuantity'])}/${item['Quantity']}')),
             ],
           ),
           SizedBox(height: 6),

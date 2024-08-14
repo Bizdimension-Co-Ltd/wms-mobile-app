@@ -34,22 +34,32 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
 
   void init(BuildContext context) async {
     try {
-      final warehouse = await LocalStorageManger.getString('warehouse');
+      // final warehouse = await LocalStorageManger.getString('warehouse');
 
       _bloc = context.read<PurchaseOrderCubit>();
+      // _bloc
+      //     .get(
+      //         "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
+      //     .then((value) => setState(() => data = value));
       _bloc
-          .get(
-              "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse'")
+          .get("$query&\$filter=DocumentStatus eq 'bost_Open'")
           .then((value) => setState(() => data = value));
-
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent) {
           final state = BlocProvider.of<PurchaseOrderCubit>(context).state;
           if (state is PurchaseOrderData && data.length > 0) {
+            // _bloc
+            //     .next(
+            //         "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+            //     .then((value) {
+            //   if (!mounted) return;
+
+            //   setState(() => data = [...data, ...value]);
+            // });
             _bloc
                 .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode,'${filter.text}')")
+                    "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode,'${filter.text}')")
                 .then((value) {
               if (!mounted) return;
 
@@ -77,10 +87,19 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
       data = [];
     });
 
-    final warehouse = await LocalStorageManger.getString('warehouse');
+    // final warehouse = await LocalStorageManger.getString('warehouse');
+    // _bloc
+    //     .get(
+    //         "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode, '${filter.text}')")
+    //     .then((value) {
+    //   if (!mounted) return;
+
+    //   setState(() => data = value);
+    // });
+    // final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=DocumentStatus eq 'bost_Open' and U_tl_whsdesc eq '$warehouse' and contains(CardCode, '${filter.text}')")
+            "$query&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode, '${filter.text}')")
         .then((value) {
       if (!mounted) return;
 
