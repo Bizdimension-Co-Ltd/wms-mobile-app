@@ -58,6 +58,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   final binCode = TextEditingController();
   final serialsInput = TextEditingController();
   final batchesInput = TextEditingController();
+  final barCode = TextEditingController();
 
   //
   final isBatch = TextEditingController();
@@ -87,7 +88,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         setState(() {
           if (call.arguments['data'] == "decode error") return;
           //
-          itemCode.text = call.arguments['data'];
+          barCode.text = call.arguments['data'];
           onCompleteTextEditItem();
         });
       }
@@ -132,6 +133,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             "BinId": binId.text,
             "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
             "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+            "BarCode": element['BarCode'],
           });
 
           itemCodeFilter.add(element['ItemCode']);
@@ -189,6 +191,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
           "BinId": item["BinId"],
           "ManageSerialNumbers": item["ManageSerialNumbers"],
           "ManageBatchNumbers": item["ManageBatchNumbers"],
+          "BarCode": item['BarCode'],
         };
       }
     }
@@ -264,7 +267,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         "UoMGroupDefinitionCollection":
             jsonDecode(uoMGroupDefinitionCollection.text) ?? [],
         "BaseUoM": baseUoM.text,
-        "TotalQuantity":totalQuantity.text,
+        "TotalQuantity": totalQuantity.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
         "ManageSerialNumbers": isSerial.text,
@@ -273,6 +276,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
         "Batches":
             batchesInput.text == "" ? [] : jsonDecode(batchesInput.text) ?? [],
+        "BarCode": barCode.text,
       };
 
       if (isEdit == -1) {
@@ -335,7 +339,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
         serialsInput.text = jsonEncode(item['Serials'] ?? []);
-
+        barCode.text = getDataFromDynamic(item['BarCode']);
         setState(() {
           isEdit = index;
 
@@ -406,17 +410,17 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
           int baseType = -1;
           dynamic baseEntry = null;
           dynamic baseLine = null;
-          // if (widget.po != null) {
-          //   final lines = (widget.po['DocumentLines'] ?? []) as List<dynamic>;
-          //   final ele =
-          //       lines.singleWhere((row) => row['ItemCode'] == item['ItemCode']);
+          if (widget.po != null) {
+            final lines = (widget.po['DocumentLines'] ?? []) as List<dynamic>;
+            final ele =
+                lines.singleWhere((row) => row['ItemCode'] == item['ItemCode']);
 
-          //   if (ele != null) {
-          //     baseType = 22;
-          //     baseEntry = ele['DocEntry'];
-          //     baseLine = ele['LineNum'];
-          //   }
-          // }
+            if (ele != null) {
+              baseType = 22;
+              baseEntry = ele['DocEntry'];
+              baseLine = ele['LineNum'];
+            }
+          }
           dynamic qty = 0;
           if (item['Quantity'] is double) {
             qty = item['Quantity'].toString();
@@ -570,10 +574,10 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
+      if (barCode.text == '') return;
 
       final duplicateItem =
-          items.where((e) => e["ItemCode"] == itemCode.text).toList();
+          items.where((e) => e["BarCode"] == barCode.text).toList();
 
       if (duplicateItem.isEmpty) {
         MaterialDialog.success(context, title: 'Opps.', body: "Item not found");
@@ -584,22 +588,21 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         goTo(
             context,
             DuplicateItemGPOPage(
-              itemCode: itemCode.text,
+              barCode: barCode.text,
               items: duplicateItem,
             )).then((item) {
           if (item == null) return;
           final index = items.indexWhere((e) =>
-              e['ItemCode'] == item['ItemCode'] &&
-              e['UoMEntry'] == item['UoMEntry']);
+              e['BarCode'] == item['BarCode'] &&
+              e['ItemCode'] == item['ItemCode']);
           onEdit(item, index);
         });
 
         return;
       }
       // Continue processing if there is only one matching item
-      final item =
-          await items.firstWhere((e) => e["ItemCode"] == itemCode.text);
-      final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+      final item = await items.firstWhere((e) => e["BarCode"] == barCode.text);
+      final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
       onEdit(item, index);
     } catch (e) {
       if (mounted) {
@@ -894,7 +897,8 @@ class ItemRow extends StatelessWidget {
               ),
               Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
               Expanded(
-                  child: Text('${getDataFromDynamic(item['TotalQuantity'])}/${item['Quantity']}')),
+                  child: Text(
+                      '${getDataFromDynamic(item['TotalQuantity'])}/${item['Quantity']}')),
             ],
           ),
           SizedBox(height: 6),

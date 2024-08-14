@@ -5,9 +5,9 @@ import 'package:wms_mobile/utilies/dio_client.dart';
 import '/constant/style.dart';
 
 class DuplicateItemGPOPage extends StatefulWidget {
-  const DuplicateItemGPOPage({super.key, this.itemCode, required this.items});
+  const DuplicateItemGPOPage({super.key, this.barCode, required this.items});
 
-  final dynamic itemCode;
+  final dynamic barCode;
   final List<dynamic> items;
   @override
   State<DuplicateItemGPOPage> createState() => _DuplicateItemGPOPageState();
@@ -27,7 +27,7 @@ class _DuplicateItemGPOPageState extends State<DuplicateItemGPOPage> {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
-            SnackBar(content: Text("Duplicate ItemCode (${widget.itemCode})")));
+            SnackBar(content: Text("Duplicate ItemCode (${widget.barCode})")));
     });
     setState(() {
       print(widget.items);
