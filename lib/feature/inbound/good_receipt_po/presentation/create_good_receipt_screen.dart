@@ -45,6 +45,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   final poText = TextEditingController();
   final uomText = TextEditingController();
   final quantity = TextEditingController();
+  final totalQuantity = TextEditingController();
+
   final warehouse = TextEditingController();
   final uom = TextEditingController();
   final uomAbEntry = TextEditingController();
@@ -119,7 +121,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             "ItemCode": element['ItemCode'],
             "ItemDescription":
                 element['ItemName'] ?? element['ItemDescription'],
-            "Quantity": getDataFromDynamic(element['Quantity']),
+            "Quantity": "0",
+            "TotalQuantity": getDataFromDynamic(element['Quantity']),
             "WarehouseCode": warehouse.text,
             "UoMEntry": getDataFromDynamic(element['UoMEntry']),
             "UoMCode": element['UoMCode'],
@@ -162,20 +165,22 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
     for (var item in rawItems) {
       // Convert quantity to double
-      double quantity = double.tryParse(item["Quantity"].toString()) ?? 0.0;
+      double quantity =
+          double.tryParse(item["TotalQuantity"].toString()) ?? 0.0;
 
       String key = '${item["ItemCode"]}_${item["UoMCode"]}';
 
       if (combinedItemsMap.containsKey(key)) {
         // Add to the existing quantity
-        combinedItemsMap[key]!["Quantity"] =
-            (combinedItemsMap[key]!["Quantity"] as double) + quantity;
+        combinedItemsMap[key]!["TotalQuantity"] =
+            (combinedItemsMap[key]!["TotalQuantity"] as double) + quantity;
       } else {
         // Add a new item
         combinedItemsMap[key] = {
           "ItemCode": item["ItemCode"],
           "ItemDescription": item["ItemDescription"],
-          "Quantity": quantity,
+          "Quantity": "0",
+          "TotalQuantity": quantity,
           "WarehouseCode": item["WarehouseCode"],
           "UoMEntry": item["UoMEntry"],
           "UoMCode": item["UoMCode"],
@@ -259,6 +264,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         "UoMGroupDefinitionCollection":
             jsonDecode(uoMGroupDefinitionCollection.text) ?? [],
         "BaseUoM": baseUoM.text,
+        "TotalQuantity":totalQuantity.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
         "ManageSerialNumbers": isSerial.text,
@@ -324,6 +330,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         uoMGroupDefinitionCollection.text = jsonEncode(
           item['UoMGroupDefinitionCollection'],
         );
+        totalQuantity.text = getDataFromDynamic(item['TotalQuantity']);
         isSerial.text = getDataFromDynamic(item['ManageSerialNumbers']);
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
@@ -486,9 +493,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         ];
       }
       MaterialDialog.loading(context);
-      setState(() {
-        print(data);
-      });
+      // setState(() {
+      //   print(data);
+      // });
       // return;
       final response = await _bloc.post(data);
       if (mounted) {
@@ -886,7 +893,8 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
-              Expanded(child: Text('${item['Quantity']}/0')),
+              Expanded(
+                  child: Text('${item['TotalQuantity']}/${item['Quantity']}')),
             ],
           ),
           SizedBox(height: 6),

@@ -21,7 +21,7 @@ class WarehousePage extends StatefulWidget {
 class _WarehousePageState extends State<WarehousePage> {
   final ScrollController _scrollController = ScrollController();
 
-  String query = "?\$top=10&\$skip=0&\$filter=BusinessPlaceID eq 1";
+  String query = "?\$top=10&\$skip=0";
 
   TextEditingController filter = TextEditingController();
   List<WarehouseEntity> data = [];
@@ -53,7 +53,7 @@ class _WarehousePageState extends State<WarehousePage> {
         if (state is WarehouseData && data.isNotEmpty) {
           _bloc
               .next(
-                  "?\$top=10&\$skip=${data.length}&\$filter=BusinessPlaceID eq 1 and contains(WarehouseCode,'${filter.text}')")
+                  "?\$top=10&\$skip=${data.length}&\$filter=contains(WarehouseCode,'${filter.text}')")
               .then((value) {
             if (mounted) {
               _bloc.set([...data, ...value]);
@@ -79,7 +79,7 @@ class _WarehousePageState extends State<WarehousePage> {
     });
     _bloc
         .get(
-            "$query&\$filter=BusinessPlaceID eq 1 and contains(WarehouseCode, '${filter.text}')")
+            "$query&\$filter=contains(WarehouseCode, '${filter.text}')")
         .then((value) {
       if (mounted) {
         setState(() => data = value);
