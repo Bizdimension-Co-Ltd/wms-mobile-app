@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
@@ -56,7 +57,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   late QuickCountCubit _bloc;
   late ItemCubit _blocItem;
-
+  final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
@@ -70,15 +73,21 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+      try {
+        IscanDataPlugin.methodChannel
+            .setMethodCallHandler((MethodCall call) async {
+          if (call.method == "onScanResults") {
+            if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
+            setState(() {
+              if (call.arguments['data'] == "decode error") return;
+              barCode.text = call.arguments['data'];
+              onCompleteTextEditItem();
+            });
+          }
         });
+      } catch (e) {
+        print("Error setting method call handler: $e");
       }
     });
     super.initState();
@@ -215,8 +224,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       },
     );
   }
-
-  final DioClient dio = DioClient();
 
   void onChangeBin() async {
     goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
@@ -385,22 +392,83 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     }
   }
 
+  // void onCompleteTextEditItem() async {
+  //   try {
+  //     if (itemCode.text == '') return;
+
+  //     //
+  //     MaterialDialog.loading(context);
+  //     final item = await _blocItem.find("('${itemCode.text}')");
+  //     if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+  //         getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+  //       throw Exception('${itemCode.text} is not purchase item.');
+  //     }
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //     }
+
+  //     onSetItemTemp(item);
+  //   } catch (e) {
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //       if (e is ServerFailure) {
+  //         MaterialDialog.success(context, title: 'Failed', body: e.message);
+  //       }
+  //     }
+  //   }
+  // }
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
+      quantity.text = '';
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+            uom.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+            uomAbEntry.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+            onSetItemTemp(value);
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+        uomAbEntry.text =
+            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);

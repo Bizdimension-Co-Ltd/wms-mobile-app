@@ -119,7 +119,7 @@ class _DuplicateItemGPOPageState extends State<DuplicateItemGPOPage> {
                                   Expanded(
                                       child: Text(
                                           getDataFromDynamic(i['UoMCode']))),
-                                  Expanded(child: Text('${i['Quantity']}/0')),
+                                  Expanded(child: Text('${getDataFromDynamic(i['TotalQuantity'])}/${i['Quantity']}')),
                                 ],
                               ),
                               SizedBox(height: 6),

@@ -35,6 +35,24 @@ String getDataFromDynamic(dynamic value, {bool isDate = false}) {
   }
 }
 
+String getDataFromDynamicO(dynamic value, {bool isDate = false}) {
+  try {
+    if (value == null) return '0';
+    if (value == "") return '0';
+    if (isDate) {
+      return (value as String).split('T')[0];
+    }
+
+    if (value is int) return value.toString();
+
+    if (value is double) return value.toStringAsFixed(2);
+
+    return value;
+  } catch (e) {
+    return '0';
+  }
+}
+
 String getItemTypeQueryString(ItemType type) {
   switch (type) {
     case ItemType.sale:

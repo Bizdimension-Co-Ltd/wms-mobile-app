@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wms_mobile/core/error/failure.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../item/presentation/cubit/item_cubit.dart';
@@ -29,11 +30,12 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
   final warehouse = TextEditingController();
   final itemCode = TextEditingController();
   final itemName = TextEditingController();
-  final DioClient dio = DioClient();
 
   late ProductLookUpCubit _bloc;
   late ItemCubit _blocItem;
-
+  final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
   List<dynamic> items = [];
   List<dynamic> serialOrBatchList = [];
   bool loading = false;
@@ -44,18 +46,22 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            barCode.text = call.arguments['data'];
+            onCompleteTextEditItem();
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     super.initState();
   }
 
@@ -72,22 +78,75 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
     });
   }
 
+  // void onCompleteTextEditItem() async {
+  //   try {
+  //     if (itemCode.text == '') return;
+
+  //     //
+  //     MaterialDialog.loading(context);
+  //     final item = await _blocItem.find("('${itemCode.text}')");
+  //     if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+  //         getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+  //       throw Exception('${itemCode.text} is not purchase item.');
+  //     }
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //     }
+
+  //     onSetItemTemp(item);
+  //   } catch (e) {
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //       if (e is ServerFailure) {
+  //         MaterialDialog.success(context, title: 'Failed', body: e.message);
+  //       }
+  //     }
+  //   }
+  // }
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            onSetItemTemp(value);
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);

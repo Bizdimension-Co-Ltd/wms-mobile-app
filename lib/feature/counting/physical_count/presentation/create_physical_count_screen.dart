@@ -148,7 +148,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       };
 
       if (isEdit == -1) {
-
         data.add(item);
       } else {
         data[isEdit] = item;
@@ -165,7 +164,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     }
   }
 
-  void onEdit(dynamic item,int index) {
+  void onEdit(dynamic item, int index) {
     // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
@@ -213,7 +212,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     });
   }
 
- void onPostToSAP() async {
+  void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
@@ -386,6 +385,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -419,7 +419,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 readOnly: true,
                 onPressed: () {},
               ),
-
               Input(
                 controller: itemCode,
                 onEditingComplete: onCompleteTextEditItem,
@@ -433,7 +432,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 placeholder: 'Unit Of Measurement',
                 onPressed: onChangeUoM,
               ),
-               Input(
+              Input(
                 controller: binCode,
                 label: 'Bin.',
                 placeholder: 'Bin Location',

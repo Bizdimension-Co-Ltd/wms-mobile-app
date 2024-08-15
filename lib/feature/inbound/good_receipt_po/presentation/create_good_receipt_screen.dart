@@ -9,6 +9,7 @@ import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicat
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
 import '/feature/bin_location/presentation/screen/bin_page.dart';
 import '/feature/business_partner/presentation/screen/business_partner_page.dart';
@@ -67,6 +68,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   late PurchaseGoodReceiptCubit _bloc;
   late ItemCubit _blocItem;
   late PurchaseOrderCubit _blocCubit;
+  final DioClient dio = DioClient();
 
   int isEdit = -1;
   bool isSerialOrBatch = false;
@@ -209,7 +211,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     } else {
-      // return;
+      return;
       goTo(
               context,
               ItemByCodePage(
@@ -575,35 +577,85 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   void onCompleteTextEditItem() async {
     try {
       if (barCode.text == '') return;
+      if (widget.po != null) {
+        final duplicateItem =
+            items.where((e) => e["BarCode"] == barCode.text).toList();
+        if (duplicateItem.isEmpty) {
+          MaterialDialog.success(context,
+              title: 'Opps.', body: "Item not found");
+          return;
+        }
+        if (duplicateItem.length > 1) {
+          goTo(
+              context,
+              DuplicateItemGPOPage(
+                barCode: barCode.text,
+                items: duplicateItem,
+              )).then((item) {
+            if (item == null) return;
+            final index = items.indexWhere((e) =>
+                e['BarCode'] == item['BarCode'] &&
+                e['ItemCode'] == item['ItemCode']);
+            onEdit(item, index);
+          });
 
-      final duplicateItem =
-          items.where((e) => e["BarCode"] == barCode.text).toList();
-
-      if (duplicateItem.isEmpty) {
-        MaterialDialog.success(context, title: 'Opps.', body: "Item not found");
-        return;
+          return;
+        }
+        // Continue processing if there is only one matching item
+        final item =
+            await items.firstWhere((e) => e["BarCode"] == barCode.text);
+        final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
+        onEdit(item, index);
+      } else {
+        quantity.text = '';
+        MaterialDialog.loading(context);
+        final barcodeRes = await dio.get(
+            "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+        if (barcodeRes.statusCode == 200) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+          if (barcodeRes.data["value"].length > 1) {
+            for (var element in barcodeRes.data["value"]) {
+              itemCodeFilter.add(element['ItemCode']);
+            }
+            goTo(
+                    context,
+                    ItemByCodePage(
+                        type: ItemType.purchase,
+                        itemCode: itemCodeFilter
+                            .map((item) => "ItemCode eq '$item'")
+                            .join(' or ')))
+                .then((value) {
+              if (value == null) return;
+              if (mounted) {
+                MaterialDialog.close(context);
+              }
+              uom.text =
+                  getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+              uomAbEntry.text =
+                  getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+              onSetItemTemp(value);
+            });
+            return;
+          }
+          final item = await _blocItem
+              .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+          if (mounted) {
+            MaterialDialog.close(context);
+          }
+          uom.text =
+              getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+          uomAbEntry.text =
+              getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+          onSetItemTemp(item);
+        }
       }
-
-      if (duplicateItem.length > 1) {
-        goTo(
-            context,
-            DuplicateItemGPOPage(
-              barCode: barCode.text,
-              items: duplicateItem,
-            )).then((item) {
-          if (item == null) return;
-          final index = items.indexWhere((e) =>
-              e['BarCode'] == item['BarCode'] &&
-              e['ItemCode'] == item['ItemCode']);
-          onEdit(item, index);
-        });
-
-        return;
-      }
-      // Continue processing if there is only one matching item
-      final item = await items.firstWhere((e) => e["BarCode"] == barCode.text);
-      final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
-      onEdit(item, index);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -764,7 +816,10 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                   return GestureDetector(
                     onTap: () =>
                         onEdit(item, index), // Pass both item and index
-                    child: ItemRow(item: item),
+                    child: ItemRow(
+                      item: item,
+                      po: widget.po,
+                    ),
                   );
                 }).toList(),
               )
@@ -871,16 +926,23 @@ class ContentHeader extends StatelessWidget {
   }
 }
 
-class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item});
-
+class ItemRow extends StatefulWidget {
+  const ItemRow({super.key, required this.item, this.po});
+  final dynamic po;
   final dynamic item;
 
+  @override
+  _ItemRowState createState() => _ItemRowState();
+}
+
+class _ItemRowState extends State<ItemRow> {
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 0.1))),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(width: 0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -889,20 +951,28 @@ class ItemRow extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Text(
-                  getDataFromDynamic(item['ItemCode']),
+                  getDataFromDynamic(widget.item['ItemCode']),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
               Expanded(
-                  child: Text(
-                      '${getDataFromDynamic(item['TotalQuantity'])}/${item['Quantity']}')),
+                child: Text(getDataFromDynamic(widget.item['UoMCode'])),
+              ),
+              Expanded(
+                child: widget.po != null
+                    ? Text(
+                        '${getDataFromDynamic(widget.item['TotalQuantity'])}/${widget.item['Quantity']}',
+                      )
+                    : Text(
+                        '${getDataFromDynamic(widget.item['Quantity'])}/${getDataFromDynamicO(widget.item['TotalQuantity'])}',
+                      ),
+              ),
             ],
           ),
           SizedBox(height: 6),
-          Text(getDataFromDynamic(item['ItemDescription']))
+          Text(getDataFromDynamic(widget.item['ItemDescription'])),
         ],
       ),
     );

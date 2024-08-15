@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
 import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -68,6 +70,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
+ final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
 
   @override
   void initState() {
@@ -84,8 +89,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
           setState(() {
             if (call.arguments['data'] == "decode error") return;
-            itemCode.text = call.arguments['data'];
-            onCompleteTextEditItem();    
+            barCode.text = call.arguments['data'];
+            onCompleteTextEditItem();
           });
         }
       });
@@ -201,7 +206,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     }
   }
 
-  void onEdit(dynamic item,int index) {
+  void onEdit(dynamic item, int index) {
     final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
@@ -260,7 +265,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -412,7 +418,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
       // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      // uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
       uoMGroupDefinitionCollection.text = jsonEncode(
@@ -435,20 +441,56 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
+      quantity.text = '';
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+            uom.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+            uomAbEntry.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+            onSetItemTemp(value);
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+        uomAbEntry.text =
+            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -614,7 +656,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
               ),
               const SizedBox(height: 40),
               ContentHeader(),
-               Column(
+              Column(
                 children: items.asMap().entries.map((entry) {
                   final index = entry.key;
                   final item = entry.value;
