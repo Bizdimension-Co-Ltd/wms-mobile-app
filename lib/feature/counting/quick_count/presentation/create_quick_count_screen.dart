@@ -363,29 +363,50 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     inWhsQty.text = "0";
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      MaterialDialog.loading(context);
+       itemCode.text = getDataFromDynamic(value['ItemCode']);
       FocusScope.of(context).requestFocus(FocusNode());
+      final bin = await dio.get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        final totalQtyWh = await dio.get(
+            "/sml.svc/WMS_SERIAL_BATCH?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
+             if (totalQtyWh.statusCode == 200) {
+              inWhsQty.text = totalQtyWh.data["value"]
+              .map((item) => item["Quantity"])
+              .reduce((a, b) => a + b);
+          setState(() {
+            print(totalQtyWh);
+            print(itemCode.text);
+            print(warehouse.text);
+          });
+        }
+      }
 
-      itemCode.text = getDataFromDynamic(value['ItemCode']);
-      itemName.text = getDataFromDynamic(value['ItemName']);
-      // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
-      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      uoMGroupDefinitionCollection.text = jsonEncode(
-        value['UoMGroupDefinitionCollection'] ?? [],
-      );
+     
+      // itemCode.text = getDataFromDynamic(value['ItemCode']);
+      // itemName.text = getDataFromDynamic(value['ItemName']);
+      // // quantity.text = '0';
+      // // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      // baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
+      // uoMGroupDefinitionCollection.text = jsonEncode(
+      //   value['UoMGroupDefinitionCollection'] ?? [],
+      // );
+      // inWhsQty.text = '0.00';
+      // isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
+      // isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
 
-      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
-      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
-
-      if (value['ManageSerialNumbers'] == 'tYES' ||
-          value['ManageBatchNumbers'] == 'tYES') {
-        setState(() {
-          isSerialOrBatch = true;
-        });
+      // if (value['ManageSerialNumbers'] == 'tYES' ||
+      //     value['ManageBatchNumbers'] == 'tYES') {
+      //   setState(() {
+      //     isSerialOrBatch = true;
+      //   });
+      // }
+      if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);

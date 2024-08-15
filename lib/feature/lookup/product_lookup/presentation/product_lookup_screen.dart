@@ -189,7 +189,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
             items.addAll(response["value"]);
             serialOrBatchList.addAll(serialOrBatch.data["value"]);
             setState(() {
-              print(response);
+              print(serialOrBatchList);
             });
           });
         }
