@@ -62,8 +62,13 @@ class _BatchListPageState extends State<BatchListPage> {
 
   void init(BuildContext context) async {
     try {
+  ;
       final warehouse = await LocalStorageManger.getString('warehouse');
-
+    setState(() {
+        print(warehouse);
+          print(widget.binCode);
+            print(widget.itemCode);
+      });
       _bloc = context.read<BatchListCubit>();
       _bloc
           .get(
@@ -338,7 +343,7 @@ class _BatchListPageState extends State<BatchListPage> {
                                                     height: 10,
                                                   ),
                                                   Text(
-                                                    getDataFromDynamic(
+                                                    getDataFromDynamicBin(
                                                         batch["BinCode"]),
                                                     style:
                                                         TextStyle(fontSize: 13),

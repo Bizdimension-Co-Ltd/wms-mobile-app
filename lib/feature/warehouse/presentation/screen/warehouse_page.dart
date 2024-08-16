@@ -78,8 +78,7 @@ class _WarehousePageState extends State<WarehousePage> {
       data = [];
     });
     _bloc
-        .get(
-            "$query&\$filter=contains(WarehouseCode, '${filter.text}')")
+        .get("$query&\$filter=contains(WarehouseCode, '${filter.text}')")
         .then((value) {
       if (mounted) {
         setState(() => data = value);
@@ -92,13 +91,14 @@ class _WarehousePageState extends State<WarehousePage> {
       LocalStorageManger.setString('warehouse', code);
       goTo(context, Dashboard(), removeAllPreviousRoutes: true);
     } else {
+      LocalStorageManger.setString('warehouse', code);
       Navigator.pop(context, code);
     }
   }
 
   Future<bool> _onWillPop() async {
     if (widget.isPicker) {
-     SystemNavigator.pop();
+      SystemNavigator.pop();
       return false; // Prevent the back navigation
     } else {
       return true; // Allow the back navigation
@@ -115,7 +115,10 @@ class _WarehousePageState extends State<WarehousePage> {
           leading: IconButton(
             onPressed: () {
               if (widget.isPicker) {
-                MaterialDialog.success(context, title: 'Opps.', body: "Please Selecting the warehouse is a prerequisite before proceeding");
+                MaterialDialog.success(context,
+                    title: 'Opps.',
+                    body:
+                        "Please Selecting the warehouse is a prerequisite before proceeding");
                 return;
               }
               Navigator.of(context).pop();
@@ -127,7 +130,7 @@ class _WarehousePageState extends State<WarehousePage> {
           title: const Text(
             'Warehouse Lists',
             style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
           ),
         ),
         body: Container(
@@ -138,7 +141,8 @@ class _WarehousePageState extends State<WarehousePage> {
             children: [
               if (!widget.isPicker)
                 Container(
-                  padding: const EdgeInsets.only(left: 14, right: 14, bottom: 6, top: 4),
+                  padding: const EdgeInsets.only(
+                      left: 14, right: 14, bottom: 6, top: 4),
                   width: double.infinity,
                   decoration: BoxDecoration(color: Colors.white),
                   child: TextFormField(
@@ -183,7 +187,8 @@ class _WarehousePageState extends State<WarehousePage> {
                                   ),
                                   margin: const EdgeInsets.only(bottom: 8),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         warehouse.code,

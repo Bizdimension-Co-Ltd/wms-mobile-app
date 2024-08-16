@@ -149,9 +149,9 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         throw Exception('Item is missing.');
       }
 
-      if (binId.text == '') {
-        throw Exception('Bin Location is missing.');
-      }
+      // if (binId.text == '') {
+      //   throw Exception('Bin Location is missing.');
+      // }
 
       final item = {
         "ItemCode": itemCode.text,

@@ -34,7 +34,23 @@ String getDataFromDynamic(dynamic value, {bool isDate = false}) {
     return '';
   }
 }
+String getDataFromDynamicBin(dynamic value, {bool isDate = false}) {
+  try {
+    if (value == null) return 'NO BINLOCATION';
 
+    if (isDate) {
+      return (value as String).split('T')[0];
+    }
+
+    if (value is int) return value.toString();
+
+    if (value is double) return value.toStringAsFixed(2);
+
+    return value;
+  } catch (e) {
+    return 'No BinLocation';
+  }
+}
 String getDataFromDynamicO(dynamic value, {bool isDate = false}) {
   try {
     if (value == null) return '0';

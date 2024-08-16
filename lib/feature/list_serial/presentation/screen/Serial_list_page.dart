@@ -326,7 +326,7 @@ class _SerialListPageState extends State<SerialListPage> {
                                                     height: 10,
                                                   ),
                                                   Text(
-                                                    getDataFromDynamic(
+                                                    getDataFromDynamicBin(
                                                         Serial["BinCode"]),
                                                     style:
                                                         TextStyle(fontSize: 13),

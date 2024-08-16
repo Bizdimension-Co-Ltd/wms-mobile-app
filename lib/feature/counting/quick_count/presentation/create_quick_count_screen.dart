@@ -96,6 +96,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void init() async {
     final whs = await LocalStorageManger.getString('warehouse');
     warehouse.text = whs;
+    inWhsQty.text = '0';
   }
 
   void onSelectItem() async {
@@ -366,45 +367,57 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      binId.text = '';
+      binCode.text = '';
       MaterialDialog.loading(context);
-       itemCode.text = getDataFromDynamic(value['ItemCode']);
+      itemCode.text = getDataFromDynamic(value['ItemCode']);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio.get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
       if (bin.data["value"].length == 0) {
         final totalQtyWh = await dio.get(
-            "/sml.svc/WMS_SERIAL_BATCH?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
-             if (totalQtyWh.statusCode == 200) {
-              inWhsQty.text = totalQtyWh.data["value"]
-              .map((item) => item["Quantity"])
-              .reduce((a, b) => a + b);
-          setState(() {
-            print(totalQtyWh);
-            print(itemCode.text);
-            print(warehouse.text);
-          });
+            "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
+        if (totalQtyWh.statusCode == 200) {
+          try {
+            // Sum the OnHandQty values from the response
+            inWhsQty.text = "0";
+            dynamic totalQty = totalQtyWh.data["value"]
+                .map<dynamic>((item) => item["OnHandQty"] as dynamic)
+                .reduce((a, b) => a + b);
+
+            // Update the inWhsQty TextEditingController with the total quantity
+            inWhsQty.text = totalQty.toString();
+
+            // Set the state to reflect the changes
+            setState(() {
+              print(totalQtyWh);
+            });
+          } catch (e) {
+            print('Error occurred while processing the data: $e');
+          }
         }
       }
 
-     
-      // itemCode.text = getDataFromDynamic(value['ItemCode']);
-      // itemName.text = getDataFromDynamic(value['ItemName']);
-      // // quantity.text = '0';
-      // // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      // uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
-      // baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      // uoMGroupDefinitionCollection.text = jsonEncode(
-      //   value['UoMGroupDefinitionCollection'] ?? [],
-      // );
-      // inWhsQty.text = '0.00';
-      // isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
-      // isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
+      itemCode.text = getDataFromDynamic(value['ItemCode']);
+      itemName.text = getDataFromDynamic(value['ItemName']);
+      // quantity.text = '0';
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
 
-      // if (value['ManageSerialNumbers'] == 'tYES' ||
-      //     value['ManageBatchNumbers'] == 'tYES') {
-      //   setState(() {
-      //     isSerialOrBatch = true;
-      //   });
-      // }
+      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
+      uoMGroupDefinitionCollection.text = jsonEncode(
+        value['UoMGroupDefinitionCollection'] ?? [],
+      );
+
+      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
+      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
+
+      if (value['ManageSerialNumbers'] == 'tYES' ||
+          value['ManageBatchNumbers'] == 'tYES') {
+        setState(() {
+          isSerialOrBatch = true;
+        });
+      }
       if (mounted) {
         MaterialDialog.close(context);
       }

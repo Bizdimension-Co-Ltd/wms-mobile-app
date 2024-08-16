@@ -305,7 +305,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                   Expanded(
                                     flex: 3,
                                     child: Text(
-                                      getDataFromDynamic(item['BinCode']),
+                                      getDataFromDynamicBin(item['BinCode']),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),
