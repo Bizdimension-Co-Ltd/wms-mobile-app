@@ -276,6 +276,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
             "BinEntry": item["BinId"],
+            "InWarehouseQuantity":inWhsQty.text,
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
             "InventoryPostingSerialNumbers": item['Serials'] ?? [],
