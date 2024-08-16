@@ -297,9 +297,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
+          final alternativeUoM = uomCollections.firstWhere(
+          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          orElse: () => null, // Provide a default value if not found
+        );
+
+        if (alternativeUoM == null) {
+          throw Exception("No matching UoM found for item ${item['ItemCode']}");
+        }
 
           List<dynamic> binAllocations = [
             {
