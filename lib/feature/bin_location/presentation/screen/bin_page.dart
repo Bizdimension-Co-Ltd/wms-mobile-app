@@ -7,11 +7,11 @@ import '../cubit/bin_cubit.dart';
 import '/constant/style.dart';
 
 class BinPage extends StatefulWidget {
-  const BinPage({super.key, required this.warehouse, this.itemCode});
+  const BinPage({super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
 
   final String warehouse;
   final dynamic itemCode;
-
+  final dynamic fromBinlookUp;
   @override
   State<BinPage> createState() => _BinPageState();
 }
@@ -105,7 +105,7 @@ class _BinPageState extends State<BinPage> {
                 ),
               ),
               child: Row(
-                children: const [
+                children:  [
                   Expanded(
                     flex: 5,
                     child: Text(
@@ -117,7 +117,8 @@ class _BinPageState extends State<BinPage> {
                     flex: 2,
                     child: Padding(
                       padding: EdgeInsets.only(left: 5),
-                      child: Text('Total Qty'),
+                      child: widget.fromBinlookUp == true ? Text('')
+                          :Text('Total Qty'),
                     ),
                   ),
                 ],
@@ -174,7 +175,7 @@ class _BinPageState extends State<BinPage> {
                                               ),
                                               Expanded(
                                                 flex: 2,
-                                                child: Text(
+                                                child: widget.fromBinlookUp == true ? Text(''): Text(
                                                   getDataFromDynamic(
                                                       qty.firstWhere(
                                                     (e) =>

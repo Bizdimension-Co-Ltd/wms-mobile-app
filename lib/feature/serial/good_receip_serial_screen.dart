@@ -16,7 +16,7 @@ class GoodReceiptSerialScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllSerial,
-    this.binCode,
+    this.binCode, this.isQuickCount,
   });
 
   final String quantity;
@@ -25,7 +25,7 @@ class GoodReceiptSerialScreen extends StatefulWidget {
   final dynamic isEdit;
   final dynamic listAllSerial;
   final dynamic binCode;
-
+  final dynamic isQuickCount;
   @override
   State<GoodReceiptSerialScreen> createState() =>
       _GoodReceiptSerialScreenState();
@@ -126,7 +126,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
     );
   }
 
-void onNavigateSerialList() async {
+  void onNavigateSerialList() async {
     goTo(
       context,
       SerialListPage(
@@ -146,7 +146,7 @@ void onNavigateSerialList() async {
 
         // Check for duplicates
         if (serialNumbers.contains(serial)) {
-           MaterialDialog.success(
+          MaterialDialog.success(
             context,
             title: 'Failed',
             body: 'Duplicate found for SerialNumber: $serial.',
@@ -159,8 +159,12 @@ void onNavigateSerialList() async {
           "Quantity": "1",
         });
         serialNumbers.add(serial);
-
-        totalSerial.text = items.length.toString();
+        if(widget.isQuickCount && widget.listAllSerial == true){
+          totalSerial.text = "-${items.length}";
+        }else{
+           totalSerial.text = items.length.toString();
+        }
+       
 
         setState(() {
           items;
@@ -179,11 +183,9 @@ void onNavigateSerialList() async {
     });
   }
 
-
-
   void onComplete() {
     try {
-      if (items.length < double.parse(quantity.text).toInt()) {
+      if (items.length < double.parse(quantity.text).toInt() && widget.isQuickCount != true) {
         throw Exception(
             'Cannot add document without complete selection of serial numbers.');
       }

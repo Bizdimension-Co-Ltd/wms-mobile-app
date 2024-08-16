@@ -273,6 +273,7 @@ class _SerialListPageState extends State<SerialListPage> {
                           ],
                         )
                       : ListView(
+                          controller: _scrollController,
                           children: [
                             ...data.asMap().entries.map(
                               (entry) {

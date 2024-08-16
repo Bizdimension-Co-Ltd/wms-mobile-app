@@ -15,7 +15,8 @@ class CosPage extends StatefulWidget {
 class _CosPageState extends State<CosPage> {
   final ScrollController _scrollController = ScrollController();
 
-  String query = "?\$top=10&\$skip=0&\$select=DocumentNumber,DocumentStatus,DocumentEntry";
+  String query =
+      "?\$top=10&\$skip=0&\$select=DocumentNumber,DocumentStatus,DocumentEntry";
 
   int _skip = 0;
 
@@ -29,11 +30,11 @@ class _CosPageState extends State<CosPage> {
     super.initState();
     if (mounted) {
       _bloc = context.read<CosCubit>();
-      final state = context.read<CosCubit>().state;
+      // final state = context.read<CosCubit>().state;
 
-      if (state is CosData) {
-        data = state.entities;
-      }
+      // if (state is CosData) {
+      //   data = state.entities;
+      // }
 
       if (data.length == 0) {
         query = "$query&\$filter=DocumentStatus eq 'cdsOpen'";
@@ -166,8 +167,8 @@ class _CosPageState extends State<CosPage> {
                       ...data
                           .map(
                             (cos) => GestureDetector(
-                              onTap: () =>
-                                  onFind(getDataFromDynamic(cos['DocumentEntry'])),
+                              onTap: () => onFind(
+                                  getDataFromDynamic(cos['DocumentEntry'])),
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(

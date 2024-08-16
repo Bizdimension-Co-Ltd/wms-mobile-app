@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
@@ -56,7 +57,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   late QuickCountCubit _bloc;
   late ItemCubit _blocItem;
-
+  final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
@@ -70,15 +73,21 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+      try {
+        IscanDataPlugin.methodChannel
+            .setMethodCallHandler((MethodCall call) async {
+          if (call.method == "onScanResults") {
+            if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
+            setState(() {
+              if (call.arguments['data'] == "decode error") return;
+              barCode.text = call.arguments['data'];
+              onCompleteTextEditItem();
+            });
+          }
         });
+      } catch (e) {
+        print("Error setting method call handler: $e");
       }
     });
     super.initState();
@@ -142,6 +151,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         "BaseUoM": baseUoM.text,
         "BinId": binId.text,
         "BinCode": binCode.text,
+        "InWhsQty": inWhsQty.text,
         "ManageSerialNumbers": isSerial.text,
         "ManageBatchNumbers": isBatch.text,
         "Serials":
@@ -167,8 +177,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -195,7 +205,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
         serialsInput.text = jsonEncode(item['Serials'] ?? []);
-
+        inWhsQty.text = getDataFromDynamic(item["InWhsQty"]);
         setState(() {
           isEdit = index;
 
@@ -215,8 +225,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     );
   }
 
-  final DioClient dio = DioClient();
-
   void onChangeBin() async {
     goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
         .then((value) {
@@ -228,13 +236,21 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           .get(
               "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}' and BinCode eq '${binCode.text}'")
           .then((e) {
-        final onHandQty = e.data["value"][0]["OnHandQty"];
-        setState(() {
-          inWhsQty.text = "0";
-          if (onHandQty != null && onHandQty.toString().isNotEmpty) {
-            inWhsQty.text = onHandQty.toString();
-          }
-        });
+        final data = e.data["value"];
+        if (data != null && data.isNotEmpty) {
+          final onHandQty = data[0]["OnHandQty"] ?? 0;
+          setState(() {
+            if (onHandQty != null && onHandQty.toString().isNotEmpty) {
+              inWhsQty.text = onHandQty.toString();
+            } else {
+              inWhsQty.text = "0";
+            }
+          });
+        } else {
+          setState(() {
+            inWhsQty.text = "0";
+          });
+        }
       });
     });
   }
@@ -250,19 +266,19 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "Reference2": ref.text,
         "InventoryPostingLines": items.asMap().entries.map((entry) {
           int index = entry.key;
           Map<String, dynamic> item = entry.value;
           List<dynamic> inventoryPostingLineUoMs = [
-            {
-              "LineNumber": index + 1,
-              "ChildNumber": 1,
-              "UoMCountedQuantity": item["Quantity"],
-              "CountedQuantity": item["Quantity"],
-              "UoMCode": item['UoMCode']
-            }
+            // {
+            //   "LineNumber": index + 1,
+            //   "ChildNumber": 1,
+            //   "UoMCountedQuantity": item["Quantity"],
+            //   "CountedQuantity": item["Quantity"],
+            //   "UoMCode": item['UoMCode']
+            // }
           ];
 
           bool isBatch = item['ManageBatchNumbers'] == 'tYES';
@@ -271,16 +287,37 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
           if (isBatch || isSerial) {
             inventoryPostingLineUoMs = [];
           }
+
           return {
             "ItemCode": item['ItemCode'],
             "ItemDescription": item['ItemDescription'],
             "UoMCode": item['UoMCode'],
             "BinEntry": item["BinId"],
-            "InWarehouseQuantity":inWhsQty.text,
+            "Price": 1,
+            "Variance": double.parse(item["Quantity"]).toInt() -
+                double.parse(item["InWhsQty"]).toInt(),
             "CountedQuantity": item["Quantity"],
             "WarehouseCode": warehouse.text,
-            "InventoryPostingSerialNumbers": item['Serials'] ?? [],
-            "InventoryPostingBatchNumbers": item['Batches'] ?? [],
+            "InventoryPostingSerialNumbers":
+                (item['Serials'] as List<dynamic>).map((b) {
+              return {
+                "InternalSerialNumber": b["InternalSerialNumber"],
+                "Quantity": double.parse(item["Quantity"]).toInt() -
+                            double.parse(item["InWhsQty"]).toInt() <
+                        0
+                    ? -1
+                    : 1,
+              };
+            }).toList(),
+            "InventoryPostingBatchNumbers":
+                (item['Batches'] as List<dynamic>).map((b) {
+              return {
+                "BatchNumber": b["BatchNumber"],
+                "Quantity": double.parse(item["Quantity"]).toInt() -
+                    double.parse(item["InWhsQty"]).toInt(),
+                "ExpiryDate": b["ExpiryDate"]
+              };
+            }).toList(),
             "InventoryPostingLineUoMs": inventoryPostingLineUoMs
           };
         }).toList(),
@@ -323,53 +360,136 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     docEntry.text = '';
     refLineNo.text = '';
     isEdit = -1;
+    inWhsQty.text = "0";
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      MaterialDialog.loading(context);
+       itemCode.text = getDataFromDynamic(value['ItemCode']);
       FocusScope.of(context).requestFocus(FocusNode());
+      final bin = await dio.get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        final totalQtyWh = await dio.get(
+            "/sml.svc/WMS_SERIAL_BATCH?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
+             if (totalQtyWh.statusCode == 200) {
+              inWhsQty.text = totalQtyWh.data["value"]
+              .map((item) => item["Quantity"])
+              .reduce((a, b) => a + b);
+          setState(() {
+            print(totalQtyWh);
+            print(itemCode.text);
+            print(warehouse.text);
+          });
+        }
+      }
 
-      itemCode.text = getDataFromDynamic(value['ItemCode']);
-      itemName.text = getDataFromDynamic(value['ItemName']);
-      // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
-      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
-      uoMGroupDefinitionCollection.text = jsonEncode(
-        value['UoMGroupDefinitionCollection'] ?? [],
-      );
+     
+      // itemCode.text = getDataFromDynamic(value['ItemCode']);
+      // itemName.text = getDataFromDynamic(value['ItemName']);
+      // // quantity.text = '0';
+      // // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      // baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
+      // uoMGroupDefinitionCollection.text = jsonEncode(
+      //   value['UoMGroupDefinitionCollection'] ?? [],
+      // );
+      // inWhsQty.text = '0.00';
+      // isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
+      // isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
 
-      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
-      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
-
-      if (value['ManageSerialNumbers'] == 'tYES' ||
-          value['ManageBatchNumbers'] == 'tYES') {
-        setState(() {
-          isSerialOrBatch = true;
-        });
+      // if (value['ManageSerialNumbers'] == 'tYES' ||
+      //     value['ManageBatchNumbers'] == 'tYES') {
+      //   setState(() {
+      //     isSerialOrBatch = true;
+      //   });
+      // }
+      if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);
     }
   }
 
+  // void onCompleteTextEditItem() async {
+  //   try {
+  //     if (itemCode.text == '') return;
+
+  //     //
+  //     MaterialDialog.loading(context);
+  //     final item = await _blocItem.find("('${itemCode.text}')");
+  //     if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+  //         getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+  //       throw Exception('${itemCode.text} is not purchase item.');
+  //     }
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //     }
+
+  //     onSetItemTemp(item);
+  //   } catch (e) {
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //       if (e is ServerFailure) {
+  //         MaterialDialog.success(context, title: 'Failed', body: e.message);
+  //       }
+  //     }
+  //   }
+  // }
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
+      quantity.text = '';
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+            uom.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+            uomAbEntry.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+            onSetItemTemp(value);
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+        uomAbEntry.text =
+            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -387,7 +507,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onNavigateSerialOrBatch({bool force = false}) {
     // return;
-    if(double.parse(inWhsQty.text).toInt() == double.parse(quantity.text).toInt()) return;
+    if (double.parse(inWhsQty.text).toInt() ==
+        double.parse(quantity.text).toInt()) return;
 
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
@@ -402,9 +523,13 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptSerialScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            listAllSerial:double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
+            listAllSerial: double.parse(inWhsQty.text).toInt() <
+                    double.parse(quantity.text).toInt()
+                ? null
+                : true,
             binCode: binCode.text,
             serials: serialList,
+            isQuickCount: true,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -421,8 +546,13 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptBatchScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            noReq:true,
-            listAllBatch: double.parse(inWhsQty.text).toInt() < double.parse(quantity.text).toInt() ? null: true,
+            isQuickCount: true,
+            alcQty: double.parse(quantity.text).toInt() -
+                double.parse(inWhsQty.text).toInt(),
+            listAllBatch: double.parse(inWhsQty.text).toInt() <
+                    double.parse(quantity.text).toInt()
+                ? null
+                : true,
             serials: batches,
             binCode: binCode.text,
             isEdit: isEdit),
@@ -506,12 +636,16 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
               ),
             ],
           ),

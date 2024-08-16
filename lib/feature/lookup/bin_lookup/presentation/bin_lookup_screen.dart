@@ -75,7 +75,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text,fromBinlookUp:true)).then((value) {
       if (value == null) return;
 
       binCode.text = getDataFromDynamic(value.code);

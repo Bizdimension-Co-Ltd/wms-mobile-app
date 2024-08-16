@@ -148,7 +148,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       };
 
       if (isEdit == -1) {
-
         data.add(item);
       } else {
         data[isEdit] = item;
@@ -165,8 +164,8 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -213,11 +212,11 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     });
   }
 
- void onPostToSAP() async {
+  void onPostToSAP() async {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "DocumentNumber": cos.text,
         "InventoryCountingLines": items.map((item) {
           List<dynamic> inventoryCountingLineUoMs = [
@@ -386,6 +385,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -419,7 +419,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 readOnly: true,
                 onPressed: () {},
               ),
-
               Input(
                 controller: itemCode,
                 onEditingComplete: onCompleteTextEditItem,
@@ -433,7 +432,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 placeholder: 'Unit Of Measurement',
                 onPressed: onChangeUoM,
               ),
-               Input(
+              Input(
                 controller: binCode,
                 label: 'Bin.',
                 placeholder: 'Bin Location',
@@ -448,12 +447,16 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
               ),
             ],
           ),
