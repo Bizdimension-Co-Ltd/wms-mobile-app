@@ -60,7 +60,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   final serialsInput = TextEditingController();
   final batchesInput = TextEditingController();
   final barCode = TextEditingController();
-
+  List<dynamic> isBin = [{}];
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
@@ -112,7 +112,11 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
         // Show loading indicator
         if (mounted) MaterialDialog.loading(context);
-
+        final bin = await dio
+            .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+        if (bin.data["value"].length == 0) {
+          isBin.clear();
+        }
         // Initialize the list of items
         List<Map<String, dynamic>> rawItems = [];
 
@@ -390,9 +394,6 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   }
 
   void onPostToSAP() async {
-    setState(() {
-      print(items);
-    });
     try {
       Map<String, dynamic> data = {
         // "BPL_IDAssignedToInvoice": 1,
@@ -405,10 +406,14 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
+          final alternativeUoM = uomCollections.firstWhere(
+          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          orElse: () => null, // Provide a default value if not found
+        );
 
+        if (alternativeUoM == null) {
+          throw Exception("No matching UoM found for item ${item['ItemCode']}");
+        }
           int baseType = -1;
           dynamic baseEntry = null;
           dynamic baseLine = null;
@@ -482,7 +487,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             "BaseLine": baseLine,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -544,11 +550,16 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      }
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -568,6 +579,9 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         setState(() {
           isSerialOrBatch = true;
         });
+      }
+      if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);

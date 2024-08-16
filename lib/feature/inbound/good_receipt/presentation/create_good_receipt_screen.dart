@@ -65,12 +65,12 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
   late GoodReceiptCubit _bloc;
   late ItemCubit _blocItem;
-
+  List<dynamic> isBin = [{}];
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
- final barCode = TextEditingController();
+  final barCode = TextEditingController();
   final DioClient dio = DioClient();
   List<dynamic> itemCodeFilter = [];
 
@@ -304,9 +304,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
+          final alternativeUoM = uomCollections.firstWhere(
+          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          orElse: () => null, // Provide a default value if not found
+        );
+
+        if (alternativeUoM == null) {
+          throw Exception("No matching UoM found for item ${item['ItemCode']}");
+        }
 
           List<dynamic> binAllocations = [
             {
@@ -363,7 +368,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             "UseBaseUnits": "tNO",
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":isBin.length > 0? binAllocations:[]
           };
         }).toList(),
       };
@@ -409,11 +414,16 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+        MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      };
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -433,6 +443,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         setState(() {
           isSerialOrBatch = true;
         });
+      }
+      if(mounted){
+          MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);

@@ -304,10 +304,15 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
           Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
-
-          final alternativeUoM = uomCollections.singleWhere(
+          final alternativeUoM = uomCollections.firstWhere(
             (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
           );
+
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
 
           List<dynamic> binAllocations = [
             {

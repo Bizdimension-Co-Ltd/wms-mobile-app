@@ -62,7 +62,7 @@ class _CreatePurchaseReturnScreenState
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
-
+  List<dynamic> isBin = [{}];
   late PurchaseReturnCubit _bloc;
   late ItemCubit _blocItem;
 
@@ -174,7 +174,7 @@ class _CreatePurchaseReturnScreenState
             serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
         "Batches":
             batchesInput.text == "" ? [] : jsonDecode(batchesInput.text) ?? [],
-             "BarCode": barCode.text,
+        "BarCode": barCode.text,
       };
 
       if (isEdit == -1) {
@@ -297,10 +297,15 @@ class _CreatePurchaseReturnScreenState
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
+          final alternativeUoM = uomCollections.firstWhere(
             (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
           );
 
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
           List<dynamic> binAllocations = [
             {
               "Quantity": convertQuantityUoM(
@@ -353,7 +358,8 @@ class _CreatePurchaseReturnScreenState
             "BaseLine": parentIndex,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -564,7 +570,11 @@ class _CreatePurchaseReturnScreenState
       //   items;
       // });
       if (mounted) MaterialDialog.loading(context);
-
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      }
       // Initialize the list of items
       List<Map<String, dynamic>> rawItems = [];
 

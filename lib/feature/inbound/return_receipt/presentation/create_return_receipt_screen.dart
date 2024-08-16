@@ -54,7 +54,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
   final barCode = TextEditingController();
-
+ List<dynamic> isBin = [{}];
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
@@ -292,9 +292,14 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
+        final alternativeUoM = uomCollections.firstWhere(
+          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          orElse: () => null, // Provide a default value if not found
+        );
+
+        if (alternativeUoM == null) {
+          throw Exception("No matching UoM found for item ${item['ItemCode']}");
+        }
 
           List<dynamic> binAllocations = [
             {
@@ -347,7 +352,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+             "DocumentLinesBinAllocations":isBin.length > 0? binAllocations:[]
           };
         }).toList(),
       };
@@ -388,11 +393,16 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value)async {
     try {
       if (value == null) return;
+       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-
+ final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      };
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -412,6 +422,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         setState(() {
           isSerialOrBatch = true;
         });
+      }
+       if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);

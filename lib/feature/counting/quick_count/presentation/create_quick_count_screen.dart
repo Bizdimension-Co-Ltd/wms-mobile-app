@@ -99,7 +99,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     inWhsQty.text = '0';
   }
 
-  void onSelectItem() async {
+  onSelectItem() async {
     setState(() {
       isEdit = -1;
     });
@@ -520,6 +520,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onNavigateSerialOrBatch({bool force = false}) {
     // return;
+    if (quantity.text == "") return;
     if (double.parse(inWhsQty.text).toInt() ==
         double.parse(quantity.text).toInt()) return;
 

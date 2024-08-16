@@ -56,7 +56,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   final refLineNo = TextEditingController();
   final giType = TextEditingController();
   final giTypeName = TextEditingController();
-
+  List<dynamic> isBin = [{}];
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
@@ -354,7 +354,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             // "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -396,11 +397,17 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      }
+      ;
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -420,6 +427,9 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         setState(() {
           isSerialOrBatch = true;
         });
+      }
+      if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);
