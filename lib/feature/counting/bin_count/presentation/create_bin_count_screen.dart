@@ -494,6 +494,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   }
 
   void onNavigateSerialOrBatch({bool force = false}) {
+    return;
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
           ? []
@@ -509,6 +510,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: serialList,
+          isEdit: isEdit,
         ),
       ).then((value) {
         if (value == null) return;
@@ -526,6 +528,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: batches,
+          isEdit: isEdit,
         ),
       ).then((value) {
         if (value == null) return;
