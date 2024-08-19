@@ -14,8 +14,7 @@ class GrtRemoteDataSourceImpl implements GrtRemoteDataSource {
   @override
   Future<List<Grt>> get(String query) async {
     try {
-      print('/sml.svc/TL_OGIN$query');
-      final response = await dio.get('/sml.svc/TL_OGIN$query');
+      final response = await dio.get('/OIGN$query');
 
       if (response.statusCode != 200) {
         throw ServerFailure(message: 'error');

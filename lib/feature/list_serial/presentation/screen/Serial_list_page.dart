@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/feature/list_serial/presentation/cubit/serialNumber_list_cubit.dart';
 import 'package:wms_mobile/helper/helper.dart';
@@ -9,10 +11,15 @@ import '/constant/style.dart';
 
 class SerialListPage extends StatefulWidget {
   const SerialListPage(
-      {super.key, required this.warehouse, required this.itemCode});
+      {super.key,
+      required this.warehouse,
+      required this.itemCode,
+      this.binCode});
 
   final String warehouse;
   final String itemCode;
+  final dynamic binCode;
+
   @override
   State<SerialListPage> createState() => _SerialListPageState();
 }
@@ -26,12 +33,29 @@ class _SerialListPageState extends State<SerialListPage> {
   TextEditingController filter = TextEditingController();
 
   late SerialListCubit _bloc;
-  Set<int> selectedIndices = Set<int>();
+  Set<int> selectedIndices = <int>{};
+  bool isFilter = false;
 
+  bool loading = false;
   @override
   void initState() {
     super.initState();
     // Initialize controllers
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
+
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            filter.text = call.arguments['data'];
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     init(context);
   }
 
@@ -48,11 +72,12 @@ class _SerialListPageState extends State<SerialListPage> {
       _bloc = context.read<SerialListCubit>();
       _bloc
           .get(
-              "$query&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
           .then((value) {
         if (mounted) {
           setState(() {
             data = value;
+            data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
           });
         }
       });
@@ -62,17 +87,32 @@ class _SerialListPageState extends State<SerialListPage> {
             _scrollController.position.maxScrollExtent) {
           final state = BlocProvider.of<SerialListCubit>(context).state;
           if (state is BinData && data.isNotEmpty) {
-            _bloc
-                .next(
-                    "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '$warehouse'")
-                .then((value) {
-              if (mounted) {
-                setState(() {
-                  data = [...data, ...value];
-                  ;
-                });
-              }
-            });
+            if (isFilter) {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    // Sort combined list by Bin
+                    data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
+                  });
+                }
+              });
+            } else {
+              _bloc
+                  .next(
+                      "?\$top=10&\$skip=${data.length}&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
+                  .then((value) {
+                if (mounted) {
+                  setState(() {
+                    data = [...data, ...value];
+                    data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
+                  });
+                }
+              });
+            }
           }
         }
       });
@@ -86,16 +126,20 @@ class _SerialListPageState extends State<SerialListPage> {
 
     setState(() {
       data = [];
+      if (filter.text != "") {
+        isFilter = true;
+      }
     });
     _bloc
         .get(
-      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') and WhsCode eq '$warehouse'",
+      "$query&\$filter=ItemCode eq '${widget.itemCode}' and contains(Batch_Serial,'${filter.text}') ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'",
     )
         .then((value) {
       if (!mounted) return;
 
       setState(() {
         data = value as dynamic;
+        data.sort((a, b) => (a["BinCode"]).compareTo(b["BinCode"]));
       });
     });
   }
@@ -124,7 +168,7 @@ class _SerialListPageState extends State<SerialListPage> {
 
   @override
   Widget build(BuildContext context) {
-    data.sort((a, b) => a["BinCode"].compareTo(b["BinCode"]));
+    // data.sort((a, b) => a["BinCode"].compareTo(b["BinCode"]));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
@@ -217,99 +261,115 @@ class _SerialListPageState extends State<SerialListPage> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  return ListView(
-                    children: [
-                      ...data.asMap().entries.map(
-                        (entry) {
-                          int index = entry.key;
-                          var Serial = entry.value;
-                          return GestureDetector(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 15, 10, 15),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    flex: 6,
+                  return data.length == 0
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            Container(
+                              child: Text("No Serial"),
+                            ),
+                          ],
+                        )
+                      : ListView(
+                          controller: _scrollController,
+                          children: [
+                            ...data.asMap().entries.map(
+                              (entry) {
+                                int index = entry.key;
+                                var Serial = entry.value;
+                                return GestureDetector(
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 15, 10, 15),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    margin: const EdgeInsets.only(bottom: 8),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 7),
-                                          child: Checkbox(
-                                            value:
-                                                selectedIndices.contains(index),
-                                            onChanged: (bool? value) {
-                                              _onSelected(value, index);
-                                            },
-                                            checkColor: Colors
-                                                .white, // Color of the checkmark
-                                            activeColor: Colors.green.shade900,
+                                        Expanded(
+                                          flex: 6,
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 7),
+                                                child: Checkbox(
+                                                  value: selectedIndices
+                                                      .contains(index),
+                                                  onChanged: (bool? value) {
+                                                    _onSelected(value, index);
+                                                  },
+                                                  checkColor: Colors
+                                                      .white, // Color of the checkmark
+                                                  activeColor:
+                                                      Colors.green.shade900,
+                                                ),
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getDataFromDynamic(
+                                                        Serial["Batch_Serial"]),
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Text(
+                                                    getDataFromDynamicBin(
+                                                        Serial["BinCode"]),
+                                                    style:
+                                                        TextStyle(fontSize: 13),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
+                                        Expanded(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 40),
+                                            child: Text(
                                               getDataFromDynamic(
-                                                  Serial["Batch_Serial"])
-                                            ,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(
-                                           getDataFromDynamic(
-                                                  Serial["BinCode"]),
+                                                  Serial["Quantity"]),
                                               style: TextStyle(fontSize: 13),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 40),
-                                      child: Text(
-                                        getDataFromDynamic(Serial["Quantity"])
-                                       ,
-                                        style: TextStyle(fontSize: 13),
-                                      ),
+                                );
+                              },
+                            ).toList(),
+                            if (state is RequestingPaginationBin)
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      if (state is RequestingPaginationBin)
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              ),
-                            ),
-                          ),
-                        )
-                    ],
-                  );
+                                ),
+                              )
+                          ],
+                        );
                 },
               ),
             )

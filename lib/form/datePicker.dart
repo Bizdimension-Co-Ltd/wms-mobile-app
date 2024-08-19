@@ -8,26 +8,25 @@ class DatePicker extends StatefulWidget {
     required this.title,
     this.req,
     required this.onDateSelected,
-    this.defaultValue, // Add defaultValue parameter
+    this.defaultValue,
   });
 
   final String? title;
   final String? restorationId;
   final String? req;
   final ValueChanged<DateTime> onDateSelected;
-  final DateTime? defaultValue; // Add defaultValue field
+  final DateTime? defaultValue;
 
   @override
-  State<DatePicker> createState() => _DatePickerState();
+  State<DatePicker> createState() => DatePickerState();
 }
 
-class _DatePickerState extends State<DatePicker> with RestorationMixin {
+class DatePickerState extends State<DatePicker> with RestorationMixin {
   @override
   String? get restorationId => widget.restorationId;
 
-  late final RestorableDateTime _selectedDate = RestorableDateTime(
-      widget.defaultValue ??
-          DateTime.now()); // Initialize with defaultValue or current date
+  late final RestorableDateTime _selectedDate =
+      RestorableDateTime(widget.defaultValue ?? DateTime.now());
 
   late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
       RestorableRouteFuture<DateTime?>(
@@ -66,7 +65,8 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         _restorableDatePickerRouteFuture, 'date_picker_route_future');
   }
 
-  var date;
+  String? date;
+
   void _selectDate(DateTime? newSelectedDate) {
     if (newSelectedDate != null) {
       setState(() {
@@ -78,19 +78,33 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
         ));
 
         date = DateFormat('yyyy-MM-dd').format(newSelectedDate);
-        widget.onDateSelected(newSelectedDate); // Call the callback function
+        widget.onDateSelected(newSelectedDate);
       });
     }
   }
 
+  // Method to clear the selected date (set to null)
+  void clearDate() {
+    setState(() {
+      date = null; // Set the date to null
+      _selectedDate.value =
+          widget.defaultValue ?? DateTime.now(); // Reset the selected date
+    });
+  }
+
+  // Method to update the date based on expDate from parent
+  void updateDate(DateTime? newDate) {
+    setState(() {
+      if (newDate != null) {
+        _selectedDate.value = newDate;
+        date = DateFormat('yyyy-MM-dd').format(newDate);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    date = date ??
-        DateFormat('yyyy-MM-dd')
-            .format(_selectedDate.value); // Format the default value date
-
     return Container(
-      // padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
       width: double.infinity,
       height: 50,
       decoration: const BoxDecoration(
@@ -111,7 +125,7 @@ class _DatePickerState extends State<DatePicker> with RestorationMixin {
           Row(
             children: [
               Text(
-                "${date ?? ''}",
+                date ?? 'Expiry Date', // Display 'Expiry Date' if date is null
                 style: const TextStyle(
                   fontSize: 13,
                   color: Color.fromARGB(255, 7, 7, 7),

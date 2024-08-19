@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../purchase_return_request/presentation/purchase_return_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -53,11 +55,14 @@ class _CreatePurchaseReturnScreenState
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
   List<dynamic> itemCodeFilter = [];
-
+  List<dynamic> baseEntry = [];
+  final totalQty = TextEditingController();
+  final DioClient dio = DioClient();
+  final barCode = TextEditingController();
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
-
+  List<dynamic> isBin = [{}];
   late PurchaseReturnCubit _bloc;
   late ItemCubit _blocItem;
 
@@ -80,7 +85,7 @@ class _CreatePurchaseReturnScreenState
         setState(() {
           if (call.arguments['data'] == "decode error") return;
           //
-          itemCode.text = call.arguments['data'];
+          barCode.text = call.arguments['data'];
           onCompleteTextEditItem();
         });
       }
@@ -154,6 +159,7 @@ class _CreatePurchaseReturnScreenState
         "Quantity": quantity.text,
         "WarehouseCode": warehouse.text,
         "UoMEntry": uomAbEntry.text,
+        "TotalQuantity": totalQty.text,
         "UoMCode": uom.text,
         "BaseEntry": docEntry.text,
         "BaseLine": refLineNo.text,
@@ -168,6 +174,7 @@ class _CreatePurchaseReturnScreenState
             serialsInput.text == "" ? [] : jsonDecode(serialsInput.text) ?? [],
         "Batches":
             batchesInput.text == "" ? [] : jsonDecode(batchesInput.text) ?? [],
+        "BarCode": barCode.text,
       };
 
       if (isEdit == -1) {
@@ -202,8 +209,8 @@ class _CreatePurchaseReturnScreenState
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -221,6 +228,7 @@ class _CreatePurchaseReturnScreenState
         binCode.text = getDataFromDynamic(item['BinCode']);
         binId.text = getDataFromDynamic(item['BinId']);
         baseUoM.text = getDataFromDynamic(item['BaseUoM']);
+        totalQty.text = getDataFromDynamic(item['TotalQuantity']);
         refLineNo.text = getDataFromDynamic(item['BaseLine']);
         uoMGroupDefinitionCollection.text = jsonEncode(
           item['UoMGroupDefinitionCollection'],
@@ -229,6 +237,7 @@ class _CreatePurchaseReturnScreenState
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
         serialsInput.text = jsonEncode(item['Serials'] ?? []);
+        barCode.text = getDataFromDynamic(item['BarCode']);
 
         setState(() {
           isEdit = index;
@@ -260,7 +269,8 @@ class _CreatePurchaseReturnScreenState
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -277,7 +287,7 @@ class _CreatePurchaseReturnScreenState
       // }
 
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
@@ -287,10 +297,15 @@ class _CreatePurchaseReturnScreenState
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
+          final alternativeUoM = uomCollections.firstWhere(
             (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
           );
 
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
           List<dynamic> binAllocations = [
             {
               "Quantity": convertQuantityUoM(
@@ -343,7 +358,8 @@ class _CreatePurchaseReturnScreenState
             "BaseLine": parentIndex,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -418,20 +434,34 @@ class _CreatePurchaseReturnScreenState
 
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
-      MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      if (barCode.text == '') return;
+      quantity.text = "";
+      final duplicateItem =
+          items.where((e) => e["BarCode"] == barCode.text).toList();
+      if (duplicateItem.isEmpty) {
+        MaterialDialog.success(context, title: 'Opps.', body: "Item not found");
+        return;
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
+      if (duplicateItem.length > 1) {
+        goTo(
+            context,
+            DuplicateItemGPOPage(
+              barCode: barCode.text,
+              items: duplicateItem,
+            )).then((item) {
+          if (item == null) return;
+          final index = items.indexWhere((e) =>
+              e['BarCode'] == item['BarCode'] &&
+              e['ItemCode'] == item['ItemCode']);
+          onEdit(item, index);
+        });
 
-      onSetItemTemp(item);
+        return;
+      }
+      // Continue processing if there is only one matching item
+      final item = await items.firstWhere((e) => e["BarCode"] == barCode.text);
+      final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
+      onEdit(item, index);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -460,12 +490,13 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptSerialScreen(
-            itemCode: itemCode.text,
-            quantity: quantity.text,
-            serials: serialList,
-            isEdit: isEdit,
-            listAllSerial: true,
-            ),
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: serialList,
+          isEdit: isEdit,
+          binCode: binCode.text,
+          listAllSerial: true,
+        ),
       ).then((value) {
         if (value == null) return;
 
@@ -479,12 +510,13 @@ class _CreatePurchaseReturnScreenState
       goTo(
         context,
         GoodReceiptBatchScreen(
-            itemCode: itemCode.text,
-            quantity: quantity.text,
-            serials: batches,
-            isEdit: isEdit,
-            listAllBatch: true,
-            ),
+          itemCode: itemCode.text,
+          quantity: quantity.text,
+          serials: batches,
+          binCode: binCode.text,
+          isEdit: isEdit,
+          listAllBatch: true,
+        ),
       ).then((value) {
         if (value == null) return;
         quantity.text = value['quantity'] ?? "0";
@@ -502,21 +534,60 @@ class _CreatePurchaseReturnScreenState
       poText.text = getDataFromDynamic(value['DocNum']);
       docEntry.text = getDataFromDynamic(value['DocEntry']);
 
-      if (mounted) MaterialDialog.loading(context);
+      // if (mounted) MaterialDialog.loading(context);
 
-      items = [];
-      itemCodeFilter = [];
+      // items = [];
+      // itemCodeFilter = [];
+
+      // for (var element in value['DocumentLines']) {
+      //   final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
+
+      //   items.add({
+      //     "DocEntry": element['DocEntry'],
+      //     "BaseEntry": element['DocEntry'],
+      //     "BaseLine": element['LineNum'],
+      //     "ItemCode": element['ItemCode'],
+      //     "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
+      //     "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+      //     "WarehouseCode": warehouse.text,
+      //     "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+      //     "UoMCode": element['UoMCode'],
+      //     "UoMGroupDefinitionCollection":
+      //         itemResponse['UoMGroupDefinitionCollection'],
+      //     "BaseUoM": itemResponse['BaseUoM'],
+      //     "BinId": binId.text,
+      //     "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+      //     "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+      //   });
+      //   // await Future.delayed(Duration(seconds: 1));
+
+      //   itemCodeFilter.add(element['ItemCode']);
+      // }
+
+      // if (mounted) MaterialDialog.close(context);
+
+      // setState(() {
+      //   items;
+      // });
+      if (mounted) MaterialDialog.loading(context);
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      }
+      // Initialize the list of items
+      List<Map<String, dynamic>> rawItems = [];
 
       for (var element in value['DocumentLines']) {
         final itemResponse = await _blocItem.find("('${element['ItemCode']}')");
 
-        items.add({
+        rawItems.add({
           "DocEntry": element['DocEntry'],
           "BaseEntry": element['DocEntry'],
-          "BaseLine": element['LineNum'],
           "ItemCode": element['ItemCode'],
           "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          "Quantity": "0",
+          "TotalQuantity": getDataFromDynamic(element['Quantity']),
           "WarehouseCode": warehouse.text,
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
@@ -524,20 +595,69 @@ class _CreatePurchaseReturnScreenState
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
-            "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
           "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+          "BarCode": element['BarCode'],
         });
-        // await Future.delayed(Duration(seconds: 1));
-
+        baseEntry.add({
+          "BaseEntry": element['DocEntry'],
+          "ItemCode": element['ItemCode'],
+        });
         itemCodeFilter.add(element['ItemCode']);
       }
 
+      // Combine items with the same ItemCode and UoMCode
+      items = combineItems(rawItems);
+
+      // Close loading indicator
       if (mounted) MaterialDialog.close(context);
 
-      setState(() {
-        items;
-      });
+      // Update state with combined items
+      if (mounted) {
+        setState(() {
+          items;
+        });
+      }
     });
+  }
+
+  List<Map<String, dynamic>> combineItems(List<Map<String, dynamic>> rawItems) {
+    Map<String, Map<String, dynamic>> combinedItemsMap = {};
+
+    for (var item in rawItems) {
+      // Convert quantity to double
+      double quantity =
+          double.tryParse(item["TotalQuantity"].toString()) ?? 0.0;
+
+      String key = '${item["ItemCode"]}_${item["UoMCode"]}';
+
+      if (combinedItemsMap.containsKey(key)) {
+        // Add to the existing quantity
+        combinedItemsMap[key]!["TotalQuantity"] =
+            (combinedItemsMap[key]!["TotalQuantity"] as double) + quantity;
+      } else {
+        // Add a new item
+        combinedItemsMap[key] = {
+          "DocEntry": item['DocEntry'],
+          "BaseEntry": item['DocEntry'],
+          "ItemCode": item["ItemCode"],
+          "ItemDescription": item["ItemDescription"],
+          "Quantity": "0",
+          "TotalQuantity": quantity,
+          "WarehouseCode": item["WarehouseCode"],
+          "UoMEntry": item["UoMEntry"],
+          "UoMCode": item["UoMCode"],
+          "UoMGroupDefinitionCollection": item["UoMGroupDefinitionCollection"],
+          "BaseUoM": item["BaseUoM"],
+          "BinId": item["BinId"],
+          "ManageSerialNumbers": item["ManageSerialNumbers"],
+          "ManageBatchNumbers": item["ManageBatchNumbers"],
+          "BarCode": item['BarCode'],
+        };
+      }
+    }
+
+    return combinedItemsMap.values.toList();
   }
 
   @override
@@ -626,12 +746,16 @@ class _CreatePurchaseReturnScreenState
                   child: Scrollbar(
                     child: ListView(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
+                      children: items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+
+                        return GestureDetector(
+                          onTap: () =>
+                              onEdit(item, index), // Pass both item and index
+                          child: ItemRow(item: item),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -739,16 +863,23 @@ class ContentHeader extends StatelessWidget {
   }
 }
 
-class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item});
-
+class ItemRow extends StatefulWidget {
+  const ItemRow({super.key, required this.item, this.po});
+  final dynamic po;
   final dynamic item;
 
+  @override
+  _ItemRowState createState() => _ItemRowState();
+}
+
+class _ItemRowState extends State<ItemRow> {
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 0.1))),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(width: 0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -757,18 +888,23 @@ class ItemRow extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Text(
-                  getDataFromDynamic(item['ItemCode']),
+                  getDataFromDynamic(widget.item['ItemCode']),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
-              Expanded(child: Text('${item['Quantity']}/0')),
+              Expanded(
+                child: Text(getDataFromDynamic(widget.item['UoMCode'])),
+              ),
+              Expanded(
+                  child: Text(
+                '${getDataFromDynamic(widget.item['TotalQuantity'])}/${widget.item['Quantity']}',
+              )),
             ],
           ),
           SizedBox(height: 6),
-          Text(getDataFromDynamic(item['ItemDescription']))
+          Text(getDataFromDynamic(widget.item['ItemDescription'])),
         ],
       ),
     );

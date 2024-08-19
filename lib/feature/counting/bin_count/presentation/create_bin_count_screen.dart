@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/screen/cos_page.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -53,7 +56,9 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   final isSerial = TextEditingController();
   late BinlocationCountCubit _bloc;
   late ItemCubit _blocItem;
-
+  final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> isSerialOrBatchs = [{}];
@@ -62,31 +67,39 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   bool loading = false;
   String queryBin = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
   List<BinEntity> dataBin = [];
-  final DioClient dio = DioClient();
 
   @override
   void initState() {
     _bloc = context.read<BinlocationCountCubit>();
     _blocItem = context.read<ItemCubit>();
-
+    init();
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    try {
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            barCode.text = call.arguments['data'];
+            onCompleteTextEditItem();
+          });
+        }
+      });
+    } catch (e) {
+      print("Error setting method call handler: $e");
+    }
     super.initState();
   }
 
+  void init() async {
+    final whs = await LocalStorageManger.getString('warehouse');
+    warehouse.text = whs;
+  }
+
   void onSelectItem() async {
-    return;
+    // return;
     setState(() {
       isEdit = -1;
     });
@@ -136,9 +149,9 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         throw Exception('Item is missing.');
       }
 
-      if (binId.text == '') {
-        throw Exception('Bin Location is missing.');
-      }
+      // if (binId.text == '') {
+      //   throw Exception('Bin Location is missing.');
+      // }
 
       final item = {
         "ItemCode": itemCode.text,
@@ -177,8 +190,8 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -217,8 +230,13 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   }
 
   void onChangeBin() async {
-    return;
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    // return;
+    goTo(
+        context,
+        BinPage(
+          warehouse: warehouse.text,
+          itemCode: itemCode.text,
+        )).then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -230,15 +248,15 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BranchID": 1,
+        // "BranchID": 1,
         "DocumentNumber": cos.text,
         "InventoryCountingLines": items.map((item) {
           List<dynamic> inventoryCountingLineUoMs = [
-            {
-              "UoMCountedQuantity": item["Quantity"],
-              "CountedQuantity": item["Quantity"],
-              "UoMCode": item['UoMCode']
-            }
+            // {
+            //   "UoMCountedQuantity": item["Quantity"],
+            //   "CountedQuantity": item["Quantity"],
+            //   "UoMCode": item['UoMCode']
+            // }
           ];
 
           if (isSerialOrBatchs.isEmpty) {
@@ -257,13 +275,14 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           };
         }).toList(),
       };
-      final response = await _bloc.put(data, int.tryParse(cosDocEntry.text)!);
+
+      final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "BinLocation Count - ${cos.text}.",
+          body: "BinLocation Count - ${response["DocumentNumber"]}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -301,7 +320,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       uoMGroupDefinitionCollection.text = jsonEncode(
@@ -382,22 +401,83 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     }
   }
 
+  // void onCompleteTextEditItem() async {
+  //   try {
+  //     if (itemCode.text == '') return;
+
+  //     //
+  //     MaterialDialog.loading(context);
+  //     final item = await _blocItem.find("('${itemCode.text}')");
+  //     if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+  //         getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+  //       throw Exception('${itemCode.text} is not purchase item.');
+  //     }
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //     }
+
+  //     onSetItemTemp(item);
+  //   } catch (e) {
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //       if (e is ServerFailure) {
+  //         MaterialDialog.success(context, title: 'Failed', body: e.message);
+  //       }
+  //     }
+  //   }
+  // }
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
+      quantity.text = '';
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+            uom.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+            uomAbEntry.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+            onSetItemTemp(value);
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+        uomAbEntry.text =
+            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -414,6 +494,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
   }
 
   void onNavigateSerialOrBatch({bool force = false}) {
+    return;
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
           ? []
@@ -429,6 +510,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: serialList,
+          isEdit: isEdit,
         ),
       ).then((value) {
         if (value == null) return;
@@ -446,6 +528,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
           itemCode: itemCode.text,
           quantity: quantity.text,
           serials: batches,
+          isEdit: isEdit,
         ),
       ).then((value) {
         if (value == null) return;
@@ -453,6 +536,13 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         batchesInput.text = jsonEncode(value['items']);
       });
     }
+  }
+
+  void onChangeWhs() async {
+    goTo(context, WarehousePage()).then((value) {
+      if (value == null) return;
+      warehouse.text = getDataFromDynamic(value);
+    });
   }
 
   @override
@@ -475,18 +565,18 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Input(
-                controller: cos,
-                label: 'CoS.',
-                placeholder: 'Counting Sheet',
-                onPressed: onSelectCos,
-              ),
+              // Input(
+              //   controller: cos,
+              //   label: 'CoS.',
+              //   placeholder: 'Counting Sheet',
+              //   onPressed: onSelectCos,
+              // ),
               Input(
                 label: 'Warehouse',
                 placeholder: 'Warehouse',
                 controller: warehouse,
                 readOnly: true,
-                onPressed: () {},
+                onPressed: onChangeWhs,
               ),
               Input(
                 controller: itemCode,
@@ -522,12 +612,16 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
               const SizedBox(height: 40),
               ContentHeader(),
               Column(
-                children: items
-                    .map((item) => GestureDetector(
-                          onTap: () => onEdit(item),
-                          child: ItemRow(item: item),
-                        ))
-                    .toList(),
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return GestureDetector(
+                    onTap: () =>
+                        onEdit(item, index), // Pass both item and index
+                    child: ItemRow(item: item),
+                  );
+                }).toList(),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 import 'package:wms_mobile/utilies/formart.dart';
@@ -22,6 +23,9 @@ class GoodReceiptBatchScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllBatch,
+    this.binCode,
+    this.isQuickCount,
+    this.alcQty,
   });
 
   final String quantity;
@@ -29,6 +33,9 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final String itemCode;
   final List<dynamic>? serials;
   final dynamic isEdit;
+  final dynamic binCode;
+  final dynamic isQuickCount;
+  final dynamic alcQty;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -42,13 +49,19 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   DateTime? expDate;
   List<dynamic> items = [];
   int updateIndex = -1;
-
+  bool clear = false;
+  DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+  final GlobalKey<DatePickerState> _datePickerKey =
+      GlobalKey<DatePickerState>();
   @override
   void initState() {
-    expDate=DateTime.now();
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
-    quantityPerBatch.text = widget.quantity;
+    if (widget.isQuickCount == true) {
+      quantityPerBatch.text = widget.alcQty.toString();
+    } else {
+      quantityPerBatch.text = widget.quantity;
+    }
     if (widget.isEdit >= 0) {
       setState(() {
         items = widget.serials ?? [];
@@ -86,8 +99,14 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       // Check if the current quantityPerBatch exceeds the remaining quantity
       int currentQuantity = double.parse(quantityPerBatch.text).toInt();
       if (currentQuantity <= 0) {
-        throw Exception('Quantity must be greater than 0 on row $index.');
+        throw Exception('Quantity must be greater than 0');
       }
+      if (widget.listAllBatch != true) {
+        if (expDate == null) {
+          throw Exception('Expiry Date is missing');
+        }
+      }
+
       if (totalAddedQuantity + currentQuantity >
               double.parse(widget.quantity).toInt() &&
           updateIndex < 0) {
@@ -99,7 +118,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items.add({
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
-          "ExpiryDate": expDate.toString()
+          "ExpiryDate": expDate.toString() == "null" ? "" : expDate.toString()
         });
       } else {
         final temps = [...items];
@@ -107,7 +126,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         temps[updateIndex] = {
           "BatchNumber": textSerial.text,
           "Quantity": quantityPerBatch.text,
-          "ExpiryDate": expDate.toString()
+          "ExpiryDate": expDate.toString() == "null" ? "" : expDate.toString()
         };
         items = temps;
         if (items.fold(
@@ -127,9 +146,10 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
       totalSerial.text = items.length.toString();
       textSerial.text = "";
-      quantityPerBatch.text = "";
-      // quantity.text = "";
+      quantityPerBatch.text = "0";
       setState(() {
+        expDate = null;
+        _datePickerKey.currentState?.clearDate();
         items;
         updateIndex = -1;
       });
@@ -143,6 +163,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void onEditOrDelete(String serial) {
     List<dynamic> data = [...items];
     MaterialDialog.warning(
+      title: "Opps.",
       context,
       body: 'Are you sure want to remove?',
       confirmLabel: 'Edit',
@@ -153,8 +174,16 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
         if (index < 0) return;
 
-        textSerial.text = items[index]['BatchNumber'];
-        quantityPerBatch.text = items[index]['Quantity'];
+        textSerial.text = items[index]['BatchNumber'] ?? "";
+        quantityPerBatch.text = items[index]['Quantity'] ?? "";
+        if (widget.listAllBatch != true) {
+          expDate = DateTime.parse(items[index]['ExpiryDate']);
+          _datePickerKey.currentState?.updateDate(expDate);
+        }
+        if (items[index]['ExpiryDate'] != "") {
+          expDate = DateTime.parse(items[index]['ExpiryDate']);
+          _datePickerKey.currentState?.updateDate(expDate);
+        }
         setState(() {
           updateIndex;
         });
@@ -172,13 +201,12 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void onComplete() {
     try {
       final qty = double.parse(quantity.text).toInt();
-
+      int totalAddedQuantity = items.fold(
+          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
       if (qty == 0) {
         throw Exception("Quantity must be greater than 0.");
       }
-      int totalAddedQuantity = items.fold(
-          0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
-      if (totalAddedQuantity < qty) {
+      if (totalAddedQuantity < qty && widget.isQuickCount != true) {
         throw Exception("Can't generate document without complete batch.");
       }
       Navigator.of(context)
@@ -189,18 +217,16 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   }
 
   void onNavigateBatchList() async {
-    goTo(
-        context,
-        BatchListPage(
-          itemCode: itemCode.text,
-        )).then((value) async {
+    goTo(context,
+            BatchListPage(itemCode: itemCode.text, binCode: widget.binCode))
+        .then((value) async {
       if (value == null) return;
 
       for (var element in value) {
         items.add({
-          "BatchNumber": element['Batch_Serial'],
+          "BatchNumber": element['Batch_Serial'] ?? "",
           "Quantity": element['PickQty'] ?? "0",
-          "ExpiryDate":element["ExpDate"]
+          "ExpiryDate": element["ExpDate"] ?? ""
         });
       }
       int totalAddedQuantity = items.fold(
@@ -231,7 +257,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Batch',
+          'Batches',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -283,13 +309,16 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                   icon: Icons.barcode_reader,
                   onEditingComplete: onEnterSerial,
                 ),
-                DatePicker(
-                  title: "Expiry Date",
-                  restorationId: 'main_date_picker',
-                  req: 'true',
-                  onDateSelected: _selectPostingDate,
-                  defaultValue: expDate,
-                ),
+                widget.listAllBatch == true
+                    ? Container()
+                    : DatePicker(
+                        key: _datePickerKey,
+                        title: "Expiry Date",
+                        restorationId: 'main_date_picker',
+                        req: 'true',
+                        onDateSelected: _selectPostingDate,
+                        defaultValue: expDate,
+                      ),
                 const SizedBox(height: 12),
                 // Text('Batch No.'),
                 Button(

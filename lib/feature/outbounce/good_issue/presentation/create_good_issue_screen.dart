@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/good_isuse_select/domain/entity/grt_entity.dart';
 import 'package:wms_mobile/feature/good_isuse_select/presentation/screen/grt_page.dart';
+import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
@@ -54,13 +56,16 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   final refLineNo = TextEditingController();
   final giType = TextEditingController();
   final giTypeName = TextEditingController();
+  List<dynamic> isBin = [{}];
   //
   final isBatch = TextEditingController();
   final isSerial = TextEditingController();
 
   late GoodIssueCubit _bloc;
   late ItemCubit _blocItem;
-
+  final barCode = TextEditingController();
+  final DioClient dio = DioClient();
+  List<dynamic> itemCodeFilter = [];
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
@@ -74,15 +79,21 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+      try {
+        IscanDataPlugin.methodChannel
+            .setMethodCallHandler((MethodCall call) async {
+          if (call.method == "onScanResults") {
+            if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
+            setState(() {
+              if (call.arguments['data'] == "decode error") return;
+              barCode.text = call.arguments['data'];
+              onCompleteTextEditItem();
+            });
+          }
         });
+      } catch (e) {
+        print("Error setting method call handler: $e");
       }
     });
     super.initState();
@@ -203,8 +214,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     }
   }
 
-  void onEdit(dynamic item) {
-    final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+  void onEdit(dynamic item, int index) {
+    // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
 
@@ -262,7 +273,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, itemCode: itemCode.text))
+        .then((value) {
       if (value == null) return;
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
@@ -274,7 +286,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     try {
       MaterialDialog.loading(context);
       Map<String, dynamic> data = {
-        "BPL_IDAssignedToInvoice": 1,
+        // "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
         "U_tl_whsdesc": warehouse.text,
@@ -285,9 +297,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
           List<dynamic> uomCollections =
               item["UoMGroupDefinitionCollection"] ?? [];
 
-          final alternativeUoM = uomCollections.singleWhere(
-            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          );
+          final alternativeUoM = uomCollections.firstWhere(
+          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+          orElse: () => null, // Provide a default value if not found
+        );
+
+        if (alternativeUoM == null) {
+          throw Exception("No matching UoM found for item ${item['ItemCode']}");
+        }
 
           List<dynamic> binAllocations = [
             {
@@ -342,7 +359,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             // "BaseLine": item['BaseLine'],
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations": binAllocations
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -384,11 +402,17 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-
+      final bin = await dio
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      if (bin.data["value"].length == 0) {
+        isBin.clear();
+      }
+      ;
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -409,27 +433,91 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
           isSerialOrBatch = true;
         });
       }
+      if (mounted) {
+        MaterialDialog.close(context);
+      }
     } catch (e) {
       print(e);
     }
   }
 
+  // void onCompleteTextEditItem() async {
+  //   try {
+  //     if (itemCode.text == '') return;
+
+  //     //
+  //     MaterialDialog.loading(context);
+  //     final item = await _blocItem.find("('${itemCode.text}')");
+  //     if (getDataFromDynamic(item['PurchaseItem']) == '' ||
+  //         getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+  //       throw Exception('${itemCode.text} is not purchase item.');
+  //     }
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //     }
+
+  //     onSetItemTemp(item);
+  //   } catch (e) {
+  //     if (mounted) {
+  //       MaterialDialog.close(context);
+  //       if (e is ServerFailure) {
+  //         MaterialDialog.success(context, title: 'Failed', body: e.message);
+  //       }
+  //     }
+  //   }
+  // }
   void onCompleteTextEditItem() async {
     try {
-      if (itemCode.text == '') return;
-
-      //
+      if (barCode.text == '') return;
+      quantity.text = '';
       MaterialDialog.loading(context);
-      final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
-        throw Exception('${itemCode.text} is not purchase item.');
+      final barcodeRes = await dio.get(
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+      if (barcodeRes.statusCode == 200) {
+        if (barcodeRes.data["value"].length == 0) {
+          if (barcodeRes.data["value"].length == 0) {
+            MaterialDialog.close(
+              context,
+            );
+            clear();
+            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+            return;
+          }
+        }
+        if (barcodeRes.data["value"].length > 1) {
+          for (var element in barcodeRes.data["value"]) {
+            itemCodeFilter.add(element['ItemCode']);
+          }
+          goTo(
+                  context,
+                  ItemByCodePage(
+                      type: ItemType.purchase,
+                      itemCode: itemCodeFilter
+                          .map((item) => "ItemCode eq '$item'")
+                          .join(' or ')))
+              .then((value) {
+            if (value == null) return;
+            if (mounted) {
+              MaterialDialog.close(context);
+            }
+            uom.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+            uomAbEntry.text =
+                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+            onSetItemTemp(value);
+          });
+          return;
+        }
+        final item = await _blocItem
+            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+        if (mounted) {
+          MaterialDialog.close(context);
+        }
+        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+        uomAbEntry.text =
+            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+        onSetItemTemp(item);
       }
-      if (mounted) {
-        MaterialDialog.close(context);
-      }
-
-      onSetItemTemp(item);
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -461,6 +549,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
+            binCode: binCode.text,
             listAllSerial: true,
             isEdit: isEdit),
       ).then((value) {
@@ -480,6 +569,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             quantity: quantity.text,
             serials: batches,
             listAllBatch: true,
+            binCode: binCode.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -581,12 +671,16 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                   child: Scrollbar(
                     child: ListView(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: items
-                          .map((item) => GestureDetector(
-                                onTap: () => onEdit(item),
-                                child: ItemRow(item: item),
-                              ))
-                          .toList(),
+                      children: items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+
+                        return GestureDetector(
+                          onTap: () =>
+                              onEdit(item, index), // Pass both item and index
+                          child: ItemRow(item: item),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),

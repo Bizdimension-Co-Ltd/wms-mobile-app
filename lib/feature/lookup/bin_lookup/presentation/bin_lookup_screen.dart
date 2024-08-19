@@ -75,7 +75,7 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text,fromBinlookUp:true)).then((value) {
       if (value == null) return;
 
       binCode.text = getDataFromDynamic(value.code);
@@ -112,9 +112,12 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
         }
       }
       setState(() {
-        detailItem["NoBatch"] = items.where((e) => e["IsBatch"] == "Y" && e["OnHandQty"] > 0).length;
-        detailItem["NoSerial"] =
-            items.where((e) => e["IsSerial"] == "Y" && e["OnHandQty"] > 0).length;
+        detailItem["NoBatch"] = items
+            .where((e) => e["IsBatch"] == "Y" && e["OnHandQty"] > 0)
+            .length;
+        detailItem["NoSerial"] = items
+            .where((e) => e["IsSerial"] == "Y" && e["OnHandQty"] > 0)
+            .length;
       });
       MaterialDialog.close(context);
     } catch (e) {
