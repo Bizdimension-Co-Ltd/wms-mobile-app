@@ -20,7 +20,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=3.0.0 <3.24.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -57,10 +57,14 @@ dependencies:
       url: https://github.com/Bizdimension-Co-Ltd/iscan_data_plugin.git
       ref: main
   path_provider: ^2.1.3
+  drift: ^2.20.0
+  drift_flutter: ^0.1.0
+  sqlite3_flutter_libs: ^0.5.24
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  drift_dev: ^2.18.0
   build_runner: ^2.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to

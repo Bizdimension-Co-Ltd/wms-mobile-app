@@ -50,6 +50,13 @@ class DatabaseHelper {
     await DatabaseSchema.init(db);
   }
 
+  Future<List<Map<String, dynamic>>> getAllTableName() async {
+    final db = await database;
+    List<Map<String, dynamic>> tables =
+        await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
+    return tables;
+  }
+
   Future<void> dropAllTables() async {
     final db = await database;
     List<Map<String, dynamic>> tables =

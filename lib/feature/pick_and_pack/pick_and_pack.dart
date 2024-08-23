@@ -6,6 +6,7 @@ import '/utilies/dialog/dialog.dart';
 
 import '../../constant/style.dart';
 import '../../helper/helper.dart';
+import 'pick_list/presentation/pick_list_screen.dart';
 import 'put_away/presentation/create_put_away_screen.dart';
 
 const gridList = [
@@ -24,7 +25,7 @@ class PickAndPack extends StatefulWidget {
 
 class _PickAndPackState extends State<PickAndPack> {
   final routes = [
-    CreatePutAwayScreen(),
+    PickListScreen(),
     CreatePutAwayScreen(),
     CreateBinTransferScreen(),
     CreateWarehouseTransferScreen(),
@@ -67,15 +68,6 @@ class _PickAndPackState extends State<PickAndPack> {
                           borderRadius: BorderRadius.circular(0)),
                       child: ListTile(
                         onTap: () {
-                          if (!routes.asMap().containsKey(index) ||
-                              index == 0) {
-                            MaterialDialog.success(context,
-                                title: 'Oop',
-                                body:
-                                    '${gridList[index]['name']} is not implement yet!');
-                            return;
-                          }
-
                           goTo(context, routes[index]);
                         },
                         leading: SvgPicture.asset(

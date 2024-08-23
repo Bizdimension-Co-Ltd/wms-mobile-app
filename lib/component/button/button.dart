@@ -54,7 +54,7 @@ class Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: disabled || loading ? 0.85 : 1.0,
+      opacity: disabled || loading ? 0.65 : 1.0,
       child: SizedBox(
         width: double.infinity,
         height: 47.0,

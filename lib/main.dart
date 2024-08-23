@@ -1,7 +1,11 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/cubit/pick_list_cubit.dart';
 import '/feature/business_partner/presentation/cubit/business_partner_cubit.dart';
 import '/feature/counting/bin_count/presentation/cubit/binlocation_count_cubit.dart';
 import '/feature/counting/cos/presentation/cubit/cos_cubit.dart';
@@ -21,11 +25,11 @@ import '/feature/lookup/product_lookup/presentation/cubit/product_lookup_cubit.d
 import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import '/feature/outbounce/purchase_return/presentation/cubit/purchase_return_cubit.dart';
 import '/feature/pick_and_pack/bin_transfer/presentation/cubit/bin_transfer_cubit.dart';
-import '/feature/pick_and_pack/warehouse_transfer/presentation/cubit/warehouse_transfer_cubit.dart';
 import '/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
 import '/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import '/main_screen.dart';
 import 'core/disble_ssl.dart';
+import 'database.dart';
 import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'feature/inbound/return_receipt/presentation/cubit/return_receipt_cubit.dart';
@@ -35,14 +39,17 @@ import 'feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
 import 'feature/outbounce/good_issue/presentation/cubit/good_issue_cubit.dart';
 import 'feature/outbounce/purchase_return_request/presentation/cubit/purchase_return_request_cubit.dart';
 import 'feature/outbounce/sale_order/presentation/cubit/sale_order_cubit.dart';
+import 'feature/pick_and_pack/warehouse_transfer/presentation/cubit/warehouse_transfer_cubit.dart';
 import 'injector.dart';
 
 void main() async {
   // Ensures Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DisableSSL();
+
+  final dbPath = 
+
   container();
-  //  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyMainApp());
 }
 
@@ -94,6 +101,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<PurchaseReturnRequestCubit>()),
         BlocProvider(create: (_) => getIt<BinTransferCubit>()),
         BlocProvider(create: (_) => getIt<WarehouseTransferCubit>()),
+        BlocProvider(create: (_) => getIt<PickListCubit>()),
       ],
       child: const MainScreen(),
     );

@@ -21,6 +21,7 @@ import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
 import '../constant/style.dart';
+import '../feature/pick_and_pack/pick_and_pack.dart';
 
 const gridList = [
   {"name": "Inbound", "img": "download.svg"},
@@ -57,6 +58,9 @@ class _DashboardState extends State<Dashboard> {
         break;
       case 1:
         goTo(context, const Outbound());
+        break;
+      case 2:
+        goTo(context, const PickAndPack());
         break;
       case 3:
         goTo(context, const Counting());

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:wms_mobile/database.dart';
 import 'package:wms_mobile/injector/di_batch_list.dart';
 import 'package:wms_mobile/injector/di_bin.dart';
 import 'package:wms_mobile/injector/di_bin_lookup.dart';
@@ -15,6 +16,7 @@ import 'package:wms_mobile/injector/di_item.dart';
 import 'package:wms_mobile/injector/di_item_by_code.dart';
 import 'package:wms_mobile/injector/di_items.dart';
 import 'package:wms_mobile/injector/di_physical_count%20.dart';
+import 'package:wms_mobile/injector/di_pick_list.dart';
 import 'package:wms_mobile/injector/di_product_lookup.dart';
 import 'package:wms_mobile/injector/di_purchase_good_receipt.dart';
 import 'package:wms_mobile/injector/di_purchase_order.dart';
@@ -39,6 +41,7 @@ final getIt = GetIt.instance;
 Future<void> container() async {
   getIt.registerLazySingleton(() => DioClient());
   getIt.registerLazySingleton(() => DatabaseHelper());
+  getIt.registerLazySingleton(() => AppDatabase());
 
 //
   DIAuthentication(getIt);
@@ -73,5 +76,6 @@ Future<void> container() async {
   DIPurchaseReturnRequest(getIt);
   DIBinTransfer(getIt);
   DiWarehouseTransfer(getIt);
+  DIPickList(getIt);
   //
 }
