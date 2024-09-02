@@ -6,8 +6,6 @@ import 'package:wms_mobile/feature/counting/cos/domain/usecase/find_usecase.dart
 import 'package:wms_mobile/feature/counting/cos/domain/usecase/get_usecase.dart';
 import 'package:wms_mobile/feature/counting/cos/presentation/cubit/cos_cubit.dart';
 
-
-
 class DICos {
   final GetIt getIt;
 
@@ -33,7 +31,7 @@ class DICos {
 
     // ********* Data Sources **********
     getIt.registerLazySingleton<CosRemoteDataSource>(() {
-      return CosRemoteDataSourceImpl(getIt(), getIt());
+      return CosRemoteDataSourceImpl(getIt());
     });
   }
 }

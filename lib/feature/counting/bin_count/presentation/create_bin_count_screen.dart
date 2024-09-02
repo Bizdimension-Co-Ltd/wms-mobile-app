@@ -21,7 +21,7 @@ import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.da
 import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// // import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/binlocation_count_cubit.dart';
 
@@ -75,18 +75,18 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     init();
     //
     try {
-      IscanDataPlugin.methodChannel
-          .setMethodCallHandler((MethodCall call) async {
-        if (call.method == "onScanResults") {
-          if (loading) return;
+      // IscanDataPlugin.methodChannel
+      //     .setMethodCallHandler((MethodCall call) async {
+      //   if (call.method == "onScanResults") {
+      //     if (loading) return;
 
-          setState(() {
-            if (call.arguments['data'] == "decode error") return;
-            barCode.text = call.arguments['data'];
-            onCompleteTextEditItem();
-          });
-        }
-      });
+      //     setState(() {
+      //       if (call.arguments['data'] == "decode error") return;
+      //       barCode.text = call.arguments['data'];
+      //       onCompleteTextEditItem();
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error setting method call handler: $e");
     }

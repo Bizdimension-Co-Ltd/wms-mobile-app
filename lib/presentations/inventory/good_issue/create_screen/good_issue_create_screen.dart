@@ -29,7 +29,6 @@ class GoodIssueCreateScreen extends StatefulWidget {
       required this.listIssueType,
       required this.employeeList,
       required this.binlocationList});
-  // ignore: prefer_typing_uninitialized_variables
 
   @override
   State<GoodIssueCreateScreen> createState() => _GoodIssueCreateScreenState();

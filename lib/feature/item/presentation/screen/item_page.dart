@@ -19,7 +19,7 @@ class _ItemPageState extends State<ItemPage> {
   final ScrollController _scrollController = ScrollController();
 
   String query =
-      "?\$top=10&\$skip=0&\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry, ManageSerialNumbers, ManageBatchNumbers";
+      "?\$top=10&\$skip=0&\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry,ManageSerialNumbers,ManageBatchNumbers";
 
   int _skip = 0;
 
@@ -182,11 +182,23 @@ class _ItemPageState extends State<ItemPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      getDataFromDynamic(item['ItemCode']),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                      ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          getDataFromDynamic(item['ItemCode']),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          getDataFromDynamic(
+                                              item['ManageSerialNumbers']),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 6),
                                     Text(getDataFromDynamic(item['ItemName'])),

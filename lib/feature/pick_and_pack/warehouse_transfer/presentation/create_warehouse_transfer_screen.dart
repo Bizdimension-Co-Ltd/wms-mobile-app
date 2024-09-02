@@ -18,7 +18,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/warehouse_transfer_cubit.dart';
 
@@ -73,18 +73,18 @@ class _CreateWarehouseTransferScreenState
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          itemCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       itemCode.text = call.arguments['data'];
+    //       onCompleteTextEditItem();
+    //     });
+    //   }
+    // });
     super.initState();
   }
 

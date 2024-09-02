@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/feature/list_serial/presentation/cubit/serialNumber_list_cubit.dart';
 import 'package:wms_mobile/helper/helper.dart';
@@ -42,17 +42,17 @@ class _SerialListPageState extends State<SerialListPage> {
     super.initState();
     // Initialize controllers
     try {
-      IscanDataPlugin.methodChannel
-          .setMethodCallHandler((MethodCall call) async {
-        if (call.method == "onScanResults") {
-          if (loading) return;
+      // IscanDataPlugin.methodChannel
+      //     .setMethodCallHandler((MethodCall call) async {
+      //   if (call.method == "onScanResults") {
+      //     if (loading) return;
 
-          setState(() {
-            if (call.arguments['data'] == "decode error") return;
-            filter.text = call.arguments['data'];
-          });
-        }
-      });
+      //     setState(() {
+      //       if (call.arguments['data'] == "decode error") return;
+      //       filter.text = call.arguments['data'];
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error setting method call handler: $e");
     }

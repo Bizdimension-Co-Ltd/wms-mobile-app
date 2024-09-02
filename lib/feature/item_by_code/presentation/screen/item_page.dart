@@ -186,14 +186,25 @@ class _ItemPageState extends State<ItemByCodePage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      getDataFromDynamic(item['ItemCode']),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                      ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          getDataFromDynamic(item['ItemCode']),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        Text(
+                                          getDataFromDynamic(item['ItemCode']),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(getDataFromDynamic(item['ItemName'])),
+                                    Text(getDataFromDynamic(
+                                        item['ManageSerialNumbers'])),
                                   ],
                                 ),
                               ),

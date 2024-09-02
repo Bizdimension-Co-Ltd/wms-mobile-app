@@ -21,14 +21,6 @@ class PickListModel extends PickListEntity {
   final String? useBaseUnits;
   @override
   final List<PickListsLineModel>? pickListsLines;
-  @override
-  final String? itemCode;
-  @override
-  final String? itemDescription;
-  @override
-  final String? warehouseCode;
-  @override
-  final String? uomCode;
 
   PickListModel({
     this.absoluteentry,
@@ -41,10 +33,6 @@ class PickListModel extends PickListEntity {
     this.objectType,
     this.useBaseUnits,
     this.pickListsLines,
-    this.warehouseCode,
-    this.itemCode,
-    this.itemDescription,
-    this.uomCode,
   });
 
   PickListModel copyWith({
@@ -123,6 +111,8 @@ class PickListsLineModel extends PickListsLineEntity {
   final String? itemDescription;
   final String? warehouseCode;
   final String? uomCode;
+  final String? manageSerialNumber;
+  final String? manageBatchNumber;
 
   PickListsLineModel({
     this.absoluteEntry,
@@ -141,6 +131,8 @@ class PickListsLineModel extends PickListsLineEntity {
     this.itemDescription,
     this.warehouseCode,
     this.uomCode,
+    this.manageBatchNumber,
+    this.manageSerialNumber,
   }) : super(
           absoluteEntry: absoluteEntry,
           lineNumber: lineNumber,
@@ -158,6 +150,8 @@ class PickListsLineModel extends PickListsLineEntity {
           itemDescription: itemDescription,
           warehouseCode: warehouseCode,
           uomCode: uomCode,
+          manageBatchNumber: manageBatchNumber,
+          manageSerialNumber: manageSerialNumber,
         );
 
   PickListsLineModel copyWith({
@@ -177,6 +171,8 @@ class PickListsLineModel extends PickListsLineEntity {
     String? itemDescription,
     String? warehouseCode,
     String? uomCode,
+    String? manageBatchNumber,
+    String? manageSerialNumber,
   }) {
     final line = PickListsLineModel(
       absoluteEntry: absoluteEntry ?? this.absoluteEntry,
@@ -197,6 +193,8 @@ class PickListsLineModel extends PickListsLineEntity {
       itemDescription: itemDescription ?? this.itemDescription,
       warehouseCode: warehouseCode ?? this.warehouseCode,
       uomCode: uomCode ?? this.uomCode,
+      manageBatchNumber: manageBatchNumber ?? this.manageBatchNumber,
+      manageSerialNumber: manageSerialNumber ?? this.manageSerialNumber,
     );
     return line;
   }

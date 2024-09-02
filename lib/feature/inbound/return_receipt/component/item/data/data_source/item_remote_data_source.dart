@@ -13,9 +13,8 @@ abstract class ItemRemoteDataSource {
 
 class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
   final DioClient dio;
-  final DatabaseHelper db;
 
-  ItemRemoteDataSourceImpl(this.dio, this.db);
+  ItemRemoteDataSourceImpl(this.dio);
 
   @override
   Future<List<dynamic>> get(String query) async {

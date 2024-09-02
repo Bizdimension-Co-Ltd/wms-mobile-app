@@ -32,7 +32,7 @@ class DIItem {
 
     // ********* Data Sources **********
     getIt.registerLazySingleton<ItemRemoteDataSource>(() {
-      return ItemRemoteDataSourceImpl(getIt(), getIt());
+      return ItemRemoteDataSourceImpl(getIt());
     });
     
   }

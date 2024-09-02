@@ -26,7 +26,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
 class CreateGoodReceiptPOScreen extends StatefulWidget {
@@ -83,18 +83,18 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     _blocCubit = context.read<PurchaseOrderCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          barCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       barCode.text = call.arguments['data'];
+    //       onCompleteTextEditItem();
+    //     });
+    //   }
+    // });
     super.initState();
   }
 
@@ -407,13 +407,14 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
               item["UoMGroupDefinitionCollection"] ?? [];
 
           final alternativeUoM = uomCollections.firstWhere(
-          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          orElse: () => null, // Provide a default value if not found
-        );
+            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
+          );
 
-        if (alternativeUoM == null) {
-          throw Exception("No matching UoM found for item ${item['ItemCode']}");
-        }
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
           int baseType = -1;
           dynamic baseEntry = null;
           dynamic baseLine = null;

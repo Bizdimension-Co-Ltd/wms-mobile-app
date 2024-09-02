@@ -15,7 +15,7 @@ import '/feature/item/presentation/screen/item_page.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
 class CreateBinLookUpScreen extends StatefulWidget {
@@ -47,17 +47,17 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
     _bloc = context.read<BinLookUpCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          binCode.text = call.arguments['data'];
-        });
-      }
-    });
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       binCode.text = call.arguments['data'];
+    //     });
+    //   }
+    // });
     super.initState();
   }
 
@@ -75,7 +75,8 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text,fromBinlookUp:true)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, fromBinlookUp: true))
+        .then((value) {
       if (value == null) return;
 
       binCode.text = getDataFromDynamic(value.code);

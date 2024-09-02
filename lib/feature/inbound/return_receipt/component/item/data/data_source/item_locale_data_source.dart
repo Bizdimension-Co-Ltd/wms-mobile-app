@@ -13,9 +13,7 @@ abstract class ItemLocaleDataSource {
 }
 
 class ItemLocaleDataSourceImpl implements ItemLocaleDataSource {
-  final DatabaseHelper db;
-
-  ItemLocaleDataSourceImpl(this.db);
+  ItemLocaleDataSourceImpl();
 
   @override
   Future<List<dynamic>> get(String query) async {
@@ -36,7 +34,6 @@ class ItemLocaleDataSourceImpl implements ItemLocaleDataSource {
   @override
   Future find(String query) async {
     try {
-      final database = await db.database;
       // final item = database.query('items', where: [])
 
       // final response = await dio.get('/Items$query');
@@ -60,28 +57,5 @@ class ItemLocaleDataSourceImpl implements ItemLocaleDataSource {
   }
 
   @override
-  Future<dynamic> create(dynamic data, {bool many = false}) async {
-    final items = data is List<dynamic> ? [...data] : [data];
-
-    final database = await db.database;
-    var batch = database.batch();
-
-    for (var item in items) {
-      batch.insert(
-          'items',
-          {
-            "ItemCode": item['ItemCode'],
-            "ItemName": item['ItemName'],
-            "UoMGroupEntry": item['UoMGroupEntry'],
-            "InventoryUOM": item['InventoryUOM'],
-            "InventoryUoMEntry": item['InventoryUoMEntry'],
-            "PurchaseItem": item['PurchaseItem'],
-            "SalesItem": item['SalesItem'],
-            "InventoryItem": item['InventoryItem'],
-            "UoMGroupDefinitionCollection":
-                jsonEncode(item['UoMGroupDefinitionCollection'] ?? []),
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
-    }
-  }
+  Future<dynamic> create(dynamic data, {bool many = false}) async {}
 }

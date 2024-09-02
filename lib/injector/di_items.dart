@@ -7,7 +7,6 @@ import 'package:wms_mobile/feature/inbound/return_receipt/component/item/domain/
 
 import '../feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
 
-
 class DIItems {
   final GetIt getIt;
 
@@ -33,7 +32,7 @@ class DIItems {
 
     // ********* Data Sources **********
     getIt.registerLazySingleton<ItemRemoteDataSource>(() {
-      return ItemRemoteDataSourceImpl(getIt(), getIt());
+      return ItemRemoteDataSourceImpl(getIt());
     });
   }
 }

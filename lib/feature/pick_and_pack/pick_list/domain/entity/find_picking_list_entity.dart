@@ -44,6 +44,8 @@ class PickListsLineEntity {
   final String? itemDescription;
   final String? warehouseCode;
   final String? uomCode;
+  final String? manageBatchNumber;
+  final String? manageSerialNumber;
 
   PickListsLineEntity({
     this.absoluteEntry,
@@ -62,6 +64,8 @@ class PickListsLineEntity {
     this.itemDescription,
     this.warehouseCode,
     this.uomCode,
+    this.manageBatchNumber,
+    this.manageSerialNumber,
   });
 }
 

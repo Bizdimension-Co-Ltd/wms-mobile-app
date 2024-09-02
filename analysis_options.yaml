@@ -13,6 +13,7 @@ analyzer:
     avoid_init_to_null: ignore
     avoid_unnecessary_containers: ignore
     file_names: ignore
+    must_be_immutable: ignore
     overridden_fields: ignore
     prefer_const_constructors: ignore
     prefer_is_empty: ignore

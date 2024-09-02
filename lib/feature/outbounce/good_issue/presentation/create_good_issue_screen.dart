@@ -24,7 +24,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/good_issue_cubit.dart';
 
@@ -78,24 +78,24 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      try {
-        IscanDataPlugin.methodChannel
-            .setMethodCallHandler((MethodCall call) async {
-          if (call.method == "onScanResults") {
-            if (loading) return;
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   try {
+    //     IscanDataPlugin.methodChannel
+    //         .setMethodCallHandler((MethodCall call) async {
+    //       if (call.method == "onScanResults") {
+    //         if (loading) return;
 
-            setState(() {
-              if (call.arguments['data'] == "decode error") return;
-              barCode.text = call.arguments['data'];
-              onCompleteTextEditItem();
-            });
-          }
-        });
-      } catch (e) {
-        print("Error setting method call handler: $e");
-      }
-    });
+    //         setState(() {
+    //           if (call.arguments['data'] == "decode error") return;
+    //           barCode.text = call.arguments['data'];
+    //           onCompleteTextEditItem();
+    //         });
+    //       }
+    //     });
+    //   } catch (e) {
+    //     print("Error setting method call handler: $e");
+    //   }
+    // });
     super.initState();
   }
 
@@ -298,13 +298,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
               item["UoMGroupDefinitionCollection"] ?? [];
 
           final alternativeUoM = uomCollections.firstWhere(
-          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          orElse: () => null, // Provide a default value if not found
-        );
+            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
+          );
 
-        if (alternativeUoM == null) {
-          throw Exception("No matching UoM found for item ${item['ItemCode']}");
-        }
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
 
           List<dynamic> binAllocations = [
             {

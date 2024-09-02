@@ -14,7 +14,7 @@ import '/feature/item/presentation/screen/item_page.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/product_lookup_cubit.dart';
 
@@ -47,18 +47,18 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
 
     //
     try {
-      IscanDataPlugin.methodChannel
-          .setMethodCallHandler((MethodCall call) async {
-        if (call.method == "onScanResults") {
-          if (loading) return;
+      // IscanDataPlugin.methodChannel
+      //     .setMethodCallHandler((MethodCall call) async {
+      //   if (call.method == "onScanResults") {
+      //     if (loading) return;
 
-          setState(() {
-            if (call.arguments['data'] == "decode error") return;
-            barCode.text = call.arguments['data'];
-            onCompleteTextEditItem();
-          });
-        }
-      });
+      //     setState(() {
+      //       if (call.arguments['data'] == "decode error") return;
+      //       barCode.text = call.arguments['data'];
+      //       onCompleteTextEditItem();
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error setting method call handler: $e");
     }

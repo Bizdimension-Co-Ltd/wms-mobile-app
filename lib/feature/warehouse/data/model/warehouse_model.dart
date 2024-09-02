@@ -24,4 +24,14 @@ class Warehouse extends WarehouseEntity {
         code: json["WarehouseCode"],
         name: getDataFromDynamic(json["WarehouseName"]),
       );
+
+  factory Warehouse.fromDatabase(Map<String, dynamic> json) => Warehouse(
+        code: json["code"],
+        name: getDataFromDynamic(json["name"]),
+      );
+
+  factory Warehouse.mapFromEntity(WarehouseEntity entity) => Warehouse(
+        code: entity.code,
+        name: entity.name,
+      );
 }

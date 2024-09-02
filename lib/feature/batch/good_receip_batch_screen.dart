@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// // import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 import 'package:wms_mobile/utilies/formart.dart';
 
@@ -72,17 +72,17 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       });
     }
 
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          textSerial.text = call.arguments['data'];
-          // onEnterSerial();
-          FocusScope.of(context).requestFocus(FocusNode());
-        });
-      }
-    });
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       textSerial.text = call.arguments['data'];
+    //       // onEnterSerial();
+    //       FocusScope.of(context).requestFocus(FocusNode());
+    //     });
+    //   }
+    // });
 
     super.initState();
   }

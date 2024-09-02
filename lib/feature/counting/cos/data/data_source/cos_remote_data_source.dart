@@ -1,6 +1,4 @@
-
 import 'package:wms_mobile/core/error/failure.dart';
-import 'package:wms_mobile/utilies/database/database.dart';
 
 import '/utilies/dio_client.dart';
 
@@ -11,9 +9,8 @@ abstract class CosRemoteDataSource {
 
 class CosRemoteDataSourceImpl implements CosRemoteDataSource {
   final DioClient dio;
-  final DatabaseHelper db;
 
-  CosRemoteDataSourceImpl(this.dio, this.db);
+  CosRemoteDataSourceImpl(this.dio);
 
   @override
   Future<List<dynamic>> get(String query) async {

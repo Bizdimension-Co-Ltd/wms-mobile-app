@@ -29,7 +29,6 @@ import '/feature/unit_of_measurement/presentation/cubit/uom_cubit.dart';
 import '/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import '/main_screen.dart';
 import 'core/disble_ssl.dart';
-import 'database.dart';
 import 'feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'feature/inbound/return_receipt/presentation/cubit/return_receipt_cubit.dart';
@@ -46,8 +45,6 @@ void main() async {
   // Ensures Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DisableSSL();
-
-  final dbPath = 
 
   container();
   runApp(MyMainApp());

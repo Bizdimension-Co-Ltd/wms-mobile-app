@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userName = TextEditingController(text: "T010");
+  final _userName = TextEditingController(text: "T006");
   final _password = TextEditingController(text: "1234");
 
   late bool checkTypeInput = false;
@@ -29,14 +29,16 @@ class _LoginScreenState extends State<LoginScreen> {
   late AuthorizationBloc _bloc;
 
   Future<void> _postData() async {
+    final loginEntity = LoginEntity(
+      username: _userName.text,
+      password: _password.text,
+      db: CONNECT_COMPANY,
+    );
+
     try {
       if (mounted) {
         // MaterialDialog.close(context);
-        final loginEntity = LoginEntity(
-          username: _userName.text,
-          password: _password.text,
-          db: CONNECT_COMPANY,
-        );
+
         BlocProvider.of<AuthorizationBloc>(context).add(
           RequestLoginOnlineEvent(entity: loginEntity),
         );

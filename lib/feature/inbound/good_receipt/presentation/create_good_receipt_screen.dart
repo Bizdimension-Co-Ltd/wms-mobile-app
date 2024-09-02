@@ -24,7 +24,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 import 'cubit/good_receipt_cubit.dart';
 
@@ -82,18 +82,18 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
     //
     try {
-      IscanDataPlugin.methodChannel
-          .setMethodCallHandler((MethodCall call) async {
-        if (call.method == "onScanResults") {
-          if (loading) return;
+      // IscanDataPlugin.methodChannel
+      //     .setMethodCallHandler((MethodCall call) async {
+      //   if (call.method == "onScanResults") {
+      //     if (loading) return;
 
-          setState(() {
-            if (call.arguments['data'] == "decode error") return;
-            barCode.text = call.arguments['data'];
-            onCompleteTextEditItem();
-          });
-        }
-      });
+      //     setState(() {
+      //       if (call.arguments['data'] == "decode error") return;
+      //       barCode.text = call.arguments['data'];
+      //       onCompleteTextEditItem();
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error setting method call handler: $e");
     }
@@ -305,13 +305,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
               item["UoMGroupDefinitionCollection"] ?? [];
 
           final alternativeUoM = uomCollections.firstWhere(
-          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          orElse: () => null, // Provide a default value if not found
-        );
+            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
+          );
 
-        if (alternativeUoM == null) {
-          throw Exception("No matching UoM found for item ${item['ItemCode']}");
-        }
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
+          }
 
           List<dynamic> binAllocations = [
             {
@@ -368,7 +369,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
             "UseBaseUnits": "tNO",
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
-            "DocumentLinesBinAllocations":isBin.length > 0? binAllocations:[]
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
           };
         }).toList(),
       };
@@ -417,13 +419,14 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
-        MaterialDialog.loading(context);
+      MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
       final bin = await dio
           .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
       if (bin.data["value"].length == 0) {
         isBin.clear();
-      };
+      }
+      ;
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -444,8 +447,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           isSerialOrBatch = true;
         });
       }
-      if(mounted){
-          MaterialDialog.close(context);
+      if (mounted) {
+        MaterialDialog.close(context);
       }
     } catch (e) {
       print(e);

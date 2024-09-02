@@ -25,7 +25,7 @@ import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_pag
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '/utilies/storage/locale_storage.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '../../../../constant/style.dart';
 
 class CreateDeliveryScreen extends StatefulWidget {
@@ -78,18 +78,18 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
     _blocItem = context.read<ItemCubit>();
 
     //
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        if (loading) return;
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     if (loading) return;
 
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          barCode.text = call.arguments['data'];
-          onCompleteTextEditItem();
-        });
-      }
-    });
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       barCode.text = call.arguments['data'];
+    //       onCompleteTextEditItem();
+    //     });
+    //   }
+    // });
     super.initState();
   }
 
@@ -280,113 +280,113 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
     });
   }
 
- void onPostToSAP() async {
-  try {
-    MaterialDialog.loading(context);
-    if (poText.text == '') {
-      throw Exception(
-          "You can only perform action with Return Receipt Request Document.");
-    }
+  void onPostToSAP() async {
+    try {
+      MaterialDialog.loading(context);
+      if (poText.text == '') {
+        throw Exception(
+            "You can only perform action with Return Receipt Request Document.");
+      }
 
-    Map<String, dynamic> data = {
-      "CardCode": cardCode.text,
-      "CardName": cardName.text,
-      "WarehouseCode": warehouse.text,
-      "DocumentLines": items.asMap().entries.map((entry) {
-        int parentIndex = entry.key;
-        Map<String, dynamic> item = entry.value;
-        List<dynamic> uomCollections =
-            item["UoMGroupDefinitionCollection"] ?? [];
+      Map<String, dynamic> data = {
+        "CardCode": cardCode.text,
+        "CardName": cardName.text,
+        "WarehouseCode": warehouse.text,
+        "DocumentLines": items.asMap().entries.map((entry) {
+          int parentIndex = entry.key;
+          Map<String, dynamic> item = entry.value;
+          List<dynamic> uomCollections =
+              item["UoMGroupDefinitionCollection"] ?? [];
 
-        final alternativeUoM = uomCollections.firstWhere(
-          (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
-          orElse: () => null, // Provide a default value if not found
-        );
+          final alternativeUoM = uomCollections.firstWhere(
+            (row) => row['AlternateUoM'] == int.parse(item['UoMEntry']),
+            orElse: () => null, // Provide a default value if not found
+          );
 
-        if (alternativeUoM == null) {
-          throw Exception("No matching UoM found for item ${item['ItemCode']}");
-        }
-
-        List<dynamic> binAllocations = [
-          {
-            "Quantity": convertQuantityUoM(
-              alternativeUoM['BaseQuantity'],
-              alternativeUoM['AlternateQuantity'],
-              double.tryParse(item['Quantity']) ?? 0.00,
-            ),
-            "BinAbsEntry": item['BinId'],
-            "BaseLineNumber": parentIndex,
-            "AllowNegativeQuantity": "tNO",
-            "SerialAndBatchNumbersBaseLine": -1
+          if (alternativeUoM == null) {
+            throw Exception(
+                "No matching UoM found for item ${item['ItemCode']}");
           }
-        ];
 
-        bool isBatch = item['ManageBatchNumbers'] == 'tYES';
-        bool isSerial = item['ManageSerialNumbers'] == 'tYES';
-
-        if (isBatch || isSerial) {
-          binAllocations = [];
-
-          List<dynamic> batchOrSerialLines =
-              isSerial ? item['Serials'] : item['Batches'];
-
-          int index = 0;
-          for (var element in batchOrSerialLines) {
-            binAllocations.add({
-              "BinAbsEntry": item['BinId'],
-              "AllowNegativeQuantity": "tNO",
-              "BaseLineNumber": parentIndex,
-              "SerialAndBatchNumbersBaseLine": index,
+          List<dynamic> binAllocations = [
+            {
               "Quantity": convertQuantityUoM(
-                  alternativeUoM['BaseQuantity'],
-                  alternativeUoM['AlternateQuantity'],
-                  double.tryParse(element["Quantity"]) ?? 0.00),
-            });
+                alternativeUoM['BaseQuantity'],
+                alternativeUoM['AlternateQuantity'],
+                double.tryParse(item['Quantity']) ?? 0.00,
+              ),
+              "BinAbsEntry": item['BinId'],
+              "BaseLineNumber": parentIndex,
+              "AllowNegativeQuantity": "tNO",
+              "SerialAndBatchNumbersBaseLine": -1
+            }
+          ];
 
-            index++;
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
+
+          if (isBatch || isSerial) {
+            binAllocations = [];
+
+            List<dynamic> batchOrSerialLines =
+                isSerial ? item['Serials'] : item['Batches'];
+
+            int index = 0;
+            for (var element in batchOrSerialLines) {
+              binAllocations.add({
+                "BinAbsEntry": item['BinId'],
+                "AllowNegativeQuantity": "tNO",
+                "BaseLineNumber": parentIndex,
+                "SerialAndBatchNumbersBaseLine": index,
+                "Quantity": convertQuantityUoM(
+                    alternativeUoM['BaseQuantity'],
+                    alternativeUoM['AlternateQuantity'],
+                    double.tryParse(element["Quantity"]) ?? 0.00),
+              });
+
+              index++;
+            }
           }
-        }
 
-        return {
-          "ItemCode": item['ItemCode'],
-          "ItemDescription": item['ItemDescription'],
-          "UoMCode": item['UoMCode'],
-          "UoMEntry": item['UoMEntry'],
-          "Quantity": item['Quantity'],
-          "WarehouseCode": warehouse.text,
-          "BaseType": 17, // sale order object
-          "BaseEntry": item['DocEntry'],
-          "BaseLine": parentIndex,
-          "SerialNumbers": item['Serials'] ?? [],
-          "BatchNumbers": item['Batches'] ?? [],
-          "DocumentLinesBinAllocations":
-              isBin.length > 0 ? binAllocations : []
-        };
-      }).toList(),
-    };
+          return {
+            "ItemCode": item['ItemCode'],
+            "ItemDescription": item['ItemDescription'],
+            "UoMCode": item['UoMCode'],
+            "UoMEntry": item['UoMEntry'],
+            "Quantity": item['Quantity'],
+            "WarehouseCode": warehouse.text,
+            "BaseType": 17, // sale order object
+            "BaseEntry": item['DocEntry'],
+            "BaseLine": parentIndex,
+            "SerialNumbers": item['Serials'] ?? [],
+            "BatchNumbers": item['Batches'] ?? [],
+            "DocumentLinesBinAllocations":
+                isBin.length > 0 ? binAllocations : []
+          };
+        }).toList(),
+      };
 
-    final response = await _bloc.post(data);
-    if (mounted) {
-      Navigator.of(context).pop();
-      MaterialDialog.success(
-        context,
-        title: 'Successfully',
-        body: "Return Receipt - ${response['DocNum']}.",
-        onOk: () => Navigator.of(context).pop(),
-      );
-    }
-    clear();
-    setState(() {
-      items = [];
-    });
-  } catch (e) {
-    if (mounted) {
-      Navigator.of(context).pop();
-      MaterialDialog.success(context, title: 'Error', body: e.toString());
+      final response = await _bloc.post(data);
+      if (mounted) {
+        Navigator.of(context).pop();
+        MaterialDialog.success(
+          context,
+          title: 'Successfully',
+          body: "Return Receipt - ${response['DocNum']}.",
+          onOk: () => Navigator.of(context).pop(),
+        );
+      }
+      clear();
+      setState(() {
+        items = [];
+      });
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        MaterialDialog.success(context, title: 'Error', body: e.toString());
+      }
     }
   }
-}
-
 
   void clear() {
     itemCode.text = '';
@@ -608,7 +608,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       // });
       // Show loading indicator
       if (mounted) MaterialDialog.loading(context);
- final bin = await dio
+      final bin = await dio
           .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
       if (bin.data["value"].length == 0) {
         isBin.clear();

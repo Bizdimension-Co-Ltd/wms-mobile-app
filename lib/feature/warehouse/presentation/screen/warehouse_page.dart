@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/database.dart';
 import 'package:wms_mobile/helper/helper.dart';
-import 'package:wms_mobile/injector.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
-import 'package:wms_mobile/utilies/database/database.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/constant/style.dart';
@@ -36,8 +33,6 @@ class _WarehousePageState extends State<WarehousePage> {
     _bloc = context.read<WarehouseCubit>();
     final state = context.read<WarehouseCubit>().state;
 
-    onInit();
-
     if (state is WarehouseData) {
       data = state.entities;
     }
@@ -68,19 +63,6 @@ class _WarehousePageState extends State<WarehousePage> {
         }
       }
     });
-  }
-
-  void onInit() async {
-    final db = getIt<AppDatabase>();
-    await db.into(db.todoItems).insert(
-          TodoItemsCompanion.insert(
-            title: 'Test World',
-            content: "This Description Test World",
-          ),
-        );
-
-    List<TodoItem> allItems = await db.select(db.todoItems).get();
-    print('items in database: $allItems');
   }
 
   @override

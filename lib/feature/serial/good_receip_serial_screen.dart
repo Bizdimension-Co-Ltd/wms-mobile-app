@@ -6,7 +6,7 @@ import '/component/form/input.dart';
 import '/helper/helper.dart';
 import '/utilies/dialog/dialog.dart';
 import '../../constant/style.dart';
-import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+// import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 
 class GoodReceiptSerialScreen extends StatefulWidget {
   const GoodReceiptSerialScreen({
@@ -16,7 +16,8 @@ class GoodReceiptSerialScreen extends StatefulWidget {
     this.serials,
     this.isEdit,
     this.listAllSerial,
-    this.binCode, this.isQuickCount,
+    this.binCode,
+    this.isQuickCount,
   });
 
   final String quantity;
@@ -55,16 +56,16 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         items = [];
       });
     }
-    IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "onScanResults") {
-        setState(() {
-          if (call.arguments['data'] == "decode error") return;
-          //
-          textSerial.text = call.arguments['data'];
-          onEnterSerial();
-        });
-      }
-    });
+    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
+    //   if (call.method == "onScanResults") {
+    //     setState(() {
+    //       if (call.arguments['data'] == "decode error") return;
+    //       //
+    //       textSerial.text = call.arguments['data'];
+    //       onEnterSerial();
+    //     });
+    //   }
+    // });
     super.initState();
   }
 
@@ -159,12 +160,11 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
           "Quantity": "1",
         });
         serialNumbers.add(serial);
-        if(widget.isQuickCount && widget.listAllSerial == true){
+        if (widget.isQuickCount && widget.listAllSerial == true) {
           totalSerial.text = "-${items.length}";
-        }else{
-           totalSerial.text = items.length.toString();
+        } else {
+          totalSerial.text = items.length.toString();
         }
-       
 
         setState(() {
           items;
@@ -185,7 +185,8 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
 
   void onComplete() {
     try {
-      if (items.length < double.parse(quantity.text).toInt() && widget.isQuickCount != true) {
+      if (items.length < double.parse(quantity.text).toInt() &&
+          widget.isQuickCount != true) {
         throw Exception(
             'Cannot add document without complete selection of serial numbers.');
       }
