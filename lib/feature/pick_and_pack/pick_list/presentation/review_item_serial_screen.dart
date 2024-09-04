@@ -1,85 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
-import 'package:wms_mobile/feature/item/presentation/cubit/item_cubit.dart';
-import 'package:wms_mobile/feature/pick_and_pack/pick_list/domain/entity/find_picking_list_entity.dart';
-import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/review_item_serial_screen.dart';
+
 import '../../../../component/form/input.dart';
 import '../../../../constant/style.dart';
 import '../../../../helper/helper.dart';
-import 'review_item_batch_screen.dart';
+import '../domain/entity/find_picking_list_entity.dart';
 
-class ReviewPickListScreen extends StatefulWidget {
-  const ReviewPickListScreen({super.key, required this.pickList});
+class ReviewItemSerialScreen extends StatelessWidget {
+  const ReviewItemSerialScreen({super.key, required this.entity});
 
-  final PickListEntity pickList;
-
-  @override
-  State<ReviewPickListScreen> createState() => _ReviewPickListScreenState();
-}
-
-class _ReviewPickListScreenState extends State<ReviewPickListScreen> {
-  final pickNumberText = TextEditingController();
-
-  bool loading = false;
-  late ItemCubit _itemContext;
-
-  @override
-  void initState() {
-    if (mounted) {
-      _itemContext = context.read<ItemCubit>();
-    }
-
-    pickNumberText.text = widget.pickList.absoluteentry.toString();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    pickNumberText.dispose();
-    super.dispose();
-  }
-
-  String getTotalItems() {
-    return widget.pickList.pickListsLines?.length.toStringAsFixed(2) ?? '0.00';
-  }
-
-  String getTotalRelease() {
-    return widget.pickList.pickListsLines
-            ?.fold(
-                0.00,
-                (prev, next) =>
-                    prev + (next.previouslyReleasedQuantity ?? 0.00))
-            .toStringAsFixed(2) ??
-        '0.00';
-  }
-
-  String getTotalPicked() {
-    return widget.pickList.pickListsLines
-            ?.fold(0.00, (prev, next) => prev + (next.pickedQuantity ?? 0.00))
-            .toStringAsFixed(2) ??
-        '0.00';
-  }
-
-  String getTotalOpen() {
-    return widget.pickList.pickListsLines
-            ?.fold(0.00, (prev, next) => prev + (next.releasedQuantity ?? 0.00))
-            .toStringAsFixed(2) ??
-        '0.00';
-  }
-
-  Future<void> onViewItem(PickListsLineEntity item) async {
-    if (item.itemCode == null) return;
-
-    final ItemEntity itemEntity = await _itemContext.find(item.itemCode ?? "");
-    if (mounted) {
-      if (itemEntity.isBatch) {
-        goTo(context, ReviewItemBatchScreen(entity: item));
-      } else if (itemEntity.isSerial) {
-        goTo(context, ReviewItemSerialScreen(entity: item));
-      }
-    }
-  }
+  final PickListsLineEntity entity;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +17,7 @@ class _ReviewPickListScreenState extends State<ReviewPickListScreen> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
-          'Review - Pick List',
+          'Picking / Review',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -112,18 +41,18 @@ class _ReviewPickListScreenState extends State<ReviewPickListScreen> {
                 Input(
                   label: 'Pick List',
                   placeholder: 'Pick List',
-                  controller: pickNumberText,
-                  keyboardType: TextInputType.number,
                   readOnly: true,
+                  initialValue: entity.absoluteEntry?.toString() ?? '-1',
+                  onPressed: () {},
                 ),
                 Input(
-                  label: 'Status',
-                  placeholder: 'Status',
+                  label: 'Item Code',
+                  placeholder: 'Item Code',
+                  initialValue: entity.itemCode ?? "",
                   keyboardType: TextInputType.number,
                   readOnly: true,
-                  initialValue: widget.pickList.status?.replaceAll("ps_", ""),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 Wrap(
                   children: [
                     Container(
@@ -133,7 +62,7 @@ class _ReviewPickListScreenState extends State<ReviewPickListScreen> {
                       decoration: BoxDecoration(
                         color: Colors.black12.withOpacity(0.05),
                       ),
-                      child: Text('Total Items : ${getTotalItems()}'),
+                      child: Text('#Serials. : ${entity.releasedQuantity}'),
                     ),
                     Container(
                       margin: const EdgeInsets.all(6),
@@ -142,39 +71,21 @@ class _ReviewPickListScreenState extends State<ReviewPickListScreen> {
                       decoration: BoxDecoration(
                         color: Colors.black12.withOpacity(0.05),
                       ),
-                      child: Text('Total Qty. : ${getTotalRelease()}'),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(6),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black12.withOpacity(0.05),
-                      ),
-                      child: Text('Picked Qty. : ${getTotalPicked()}'),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(6),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black12.withOpacity(0.05),
-                      ),
-                      child: Text('Open Qty. : ${getTotalOpen()}'),
+                      child: Text(
+                          'Total Qty. : ${entity.previouslyReleasedQuantity}'),
                     )
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
                 ContentHeader(),
                 Expanded(
                   child: Scrollbar(
                     child: ListView(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widget.pickList.pickListsLines
+                      children: entity.serialNumbers
                               ?.map((item) => GestureDetector(
                                     child: ItemRow(
                                       item: item,
-                                      onTap: () => onViewItem(item),
                                     ),
                                   ))
                               .toList() ??
@@ -210,7 +121,7 @@ class ContentHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              'Item No.',
+              'Serial No.',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
               ),
@@ -224,15 +135,16 @@ class ContentHeader extends StatelessWidget {
 }
 
 class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item, required this.onTap});
+  const ItemRow({
+    super.key,
+    required this.item,
+  });
 
-  final PickListsLineEntity item;
-  final Function() onTap;
+  final SerialNumberEntity item;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration:
@@ -245,20 +157,17 @@ class ItemRow extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    getDataFromDynamic(item.itemCode),
+                    getDataFromDynamic(item.internalSerialNumber),
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 Expanded(
-                  child:
-                      Text('${item.pickedQuantity}/${item.releasedQuantity}'),
+                  child: Text('${item.quantity}'),
                 ),
               ],
             ),
-            SizedBox(height: 6),
-            Text(getDataFromDynamic(item.itemDescription))
           ],
         ),
       ),

@@ -10,6 +10,7 @@ import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bl
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import '../../../databases/database.dart';
 import '../../../helper/helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -69,9 +70,22 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  final database = new AppDatabase();
+
+  void init() async {
+    print('--------------> tables <----------------');
+    final tables = await database
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table';")
+        .get();
+    for (var row in tables) {
+      print(row.data['name']);
+    }
+  }
+
   @override
   void initState() {
     _bloc = context.read<AuthorizationBloc>();
+    init();
     super.initState();
   }
 

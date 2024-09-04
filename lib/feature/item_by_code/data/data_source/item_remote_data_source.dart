@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:wms_mobile/utilies/database/database.dart';
 
 import '/utilies/dio_client.dart';
 import '../../../../../core/error/failure.dart';
@@ -13,9 +12,8 @@ abstract class ItemRemoteDataSource {
 
 class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
   final DioClient dio;
-  final DatabaseHelper db;
 
-  ItemRemoteDataSourceImpl(this.dio, this.db);
+  ItemRemoteDataSourceImpl(this.dio);
 
   @override
   Future<List<dynamic>> get(String query) async {

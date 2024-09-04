@@ -14,7 +14,7 @@ class Input extends StatelessWidget {
     this.controller,
     this.readOnly = false,
     this.onEditingComplete,
-    this.initialValue = '',
+    this.initialValue,
     this.keyboardType = TextInputType.text,
   });
 
@@ -26,7 +26,7 @@ class Input extends StatelessWidget {
   final Function()? onPressed;
   final bool readOnly;
   final Function()? onEditingComplete;
-  final String initialValue;
+  final String? initialValue;
   final TextInputType? keyboardType;
 
   @override
@@ -44,13 +44,13 @@ class Input extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: TextFormField(
-              controller: controller,
+              controller: initialValue != null ? null : controller,
               textAlign: TextAlign.right,
               readOnly: readOnly,
               onEditingComplete: onEditingComplete,
               style: TextStyle(fontSize: 14),
               keyboardType: keyboardType,
-              // initialValue: initialValue,
+              initialValue: initialValue,
               decoration: InputDecoration(
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),

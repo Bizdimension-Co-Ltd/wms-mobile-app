@@ -1396,6 +1396,1213 @@ class BinLocationTableCompanion extends UpdateCompanion<BinLocationTableData> {
   }
 }
 
+class $ItemTableTable extends ItemTable
+    with TableInfo<$ItemTableTable, ItemTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ItemTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+      'code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _uoMGroupEntryMeta =
+      const VerificationMeta('uoMGroupEntry');
+  @override
+  late final GeneratedColumn<int> uoMGroupEntry = GeneratedColumn<int>(
+      'uo_m_group_entry', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _inventoryUOMMeta =
+      const VerificationMeta('inventoryUOM');
+  @override
+  late final GeneratedColumn<String> inventoryUOM = GeneratedColumn<String>(
+      'inventory_u_o_m', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _iunventoryUoMEntryMeta =
+      const VerificationMeta('iunventoryUoMEntry');
+  @override
+  late final GeneratedColumn<int> iunventoryUoMEntry = GeneratedColumn<int>(
+      'iunventory_uo_m_entry', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseItemMeta =
+      const VerificationMeta('purchaseItem');
+  @override
+  late final GeneratedColumn<String> purchaseItem = GeneratedColumn<String>(
+      'purchase_item', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _saleItemMeta =
+      const VerificationMeta('saleItem');
+  @override
+  late final GeneratedColumn<String> saleItem = GeneratedColumn<String>(
+      'sale_item', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _inventoryItemMeta =
+      const VerificationMeta('inventoryItem');
+  @override
+  late final GeneratedColumn<String> inventoryItem = GeneratedColumn<String>(
+      'inventory_item', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isManageBatchMeta =
+      const VerificationMeta('isManageBatch');
+  @override
+  late final GeneratedColumn<String> isManageBatch = GeneratedColumn<String>(
+      'is_manage_batch', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isManageSerialMeta =
+      const VerificationMeta('isManageSerial');
+  @override
+  late final GeneratedColumn<String> isManageSerial = GeneratedColumn<String>(
+      'is_manage_serial', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _uoMGroupDefinitionCollectionMeta =
+      const VerificationMeta('uoMGroupDefinitionCollection');
+  @override
+  late final GeneratedColumn<String> uoMGroupDefinitionCollection =
+      GeneratedColumn<String>(
+          'uo_m_group_definition_collection', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        code,
+        name,
+        uoMGroupEntry,
+        inventoryUOM,
+        iunventoryUoMEntry,
+        purchaseItem,
+        saleItem,
+        inventoryItem,
+        isManageBatch,
+        isManageSerial,
+        uoMGroupDefinitionCollection,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'item_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ItemTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('uo_m_group_entry')) {
+      context.handle(
+          _uoMGroupEntryMeta,
+          uoMGroupEntry.isAcceptableOrUnknown(
+              data['uo_m_group_entry']!, _uoMGroupEntryMeta));
+    }
+    if (data.containsKey('inventory_u_o_m')) {
+      context.handle(
+          _inventoryUOMMeta,
+          inventoryUOM.isAcceptableOrUnknown(
+              data['inventory_u_o_m']!, _inventoryUOMMeta));
+    }
+    if (data.containsKey('iunventory_uo_m_entry')) {
+      context.handle(
+          _iunventoryUoMEntryMeta,
+          iunventoryUoMEntry.isAcceptableOrUnknown(
+              data['iunventory_uo_m_entry']!, _iunventoryUoMEntryMeta));
+    }
+    if (data.containsKey('purchase_item')) {
+      context.handle(
+          _purchaseItemMeta,
+          purchaseItem.isAcceptableOrUnknown(
+              data['purchase_item']!, _purchaseItemMeta));
+    }
+    if (data.containsKey('sale_item')) {
+      context.handle(_saleItemMeta,
+          saleItem.isAcceptableOrUnknown(data['sale_item']!, _saleItemMeta));
+    }
+    if (data.containsKey('inventory_item')) {
+      context.handle(
+          _inventoryItemMeta,
+          inventoryItem.isAcceptableOrUnknown(
+              data['inventory_item']!, _inventoryItemMeta));
+    }
+    if (data.containsKey('is_manage_batch')) {
+      context.handle(
+          _isManageBatchMeta,
+          isManageBatch.isAcceptableOrUnknown(
+              data['is_manage_batch']!, _isManageBatchMeta));
+    }
+    if (data.containsKey('is_manage_serial')) {
+      context.handle(
+          _isManageSerialMeta,
+          isManageSerial.isAcceptableOrUnknown(
+              data['is_manage_serial']!, _isManageSerialMeta));
+    }
+    if (data.containsKey('uo_m_group_definition_collection')) {
+      context.handle(
+          _uoMGroupDefinitionCollectionMeta,
+          uoMGroupDefinitionCollection.isAcceptableOrUnknown(
+              data['uo_m_group_definition_collection']!,
+              _uoMGroupDefinitionCollectionMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ItemTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ItemTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      code: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      uoMGroupEntry: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}uo_m_group_entry']),
+      inventoryUOM: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}inventory_u_o_m']),
+      iunventoryUoMEntry: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}iunventory_uo_m_entry']),
+      purchaseItem: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}purchase_item']),
+      saleItem: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sale_item']),
+      inventoryItem: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}inventory_item']),
+      isManageBatch: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}is_manage_batch']),
+      isManageSerial: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}is_manage_serial']),
+      uoMGroupDefinitionCollection: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}uo_m_group_definition_collection']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+    );
+  }
+
+  @override
+  $ItemTableTable createAlias(String alias) {
+    return $ItemTableTable(attachedDatabase, alias);
+  }
+}
+
+class ItemTableData extends DataClass implements Insertable<ItemTableData> {
+  final int id;
+  final String code;
+  final String name;
+  final int? uoMGroupEntry;
+  final String? inventoryUOM;
+  final int? iunventoryUoMEntry;
+  final String? purchaseItem;
+  final String? saleItem;
+  final String? inventoryItem;
+  final String? isManageBatch;
+  final String? isManageSerial;
+  final String? uoMGroupDefinitionCollection;
+  final DateTime? createdAt;
+  const ItemTableData(
+      {required this.id,
+      required this.code,
+      required this.name,
+      this.uoMGroupEntry,
+      this.inventoryUOM,
+      this.iunventoryUoMEntry,
+      this.purchaseItem,
+      this.saleItem,
+      this.inventoryItem,
+      this.isManageBatch,
+      this.isManageSerial,
+      this.uoMGroupDefinitionCollection,
+      this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || uoMGroupEntry != null) {
+      map['uo_m_group_entry'] = Variable<int>(uoMGroupEntry);
+    }
+    if (!nullToAbsent || inventoryUOM != null) {
+      map['inventory_u_o_m'] = Variable<String>(inventoryUOM);
+    }
+    if (!nullToAbsent || iunventoryUoMEntry != null) {
+      map['iunventory_uo_m_entry'] = Variable<int>(iunventoryUoMEntry);
+    }
+    if (!nullToAbsent || purchaseItem != null) {
+      map['purchase_item'] = Variable<String>(purchaseItem);
+    }
+    if (!nullToAbsent || saleItem != null) {
+      map['sale_item'] = Variable<String>(saleItem);
+    }
+    if (!nullToAbsent || inventoryItem != null) {
+      map['inventory_item'] = Variable<String>(inventoryItem);
+    }
+    if (!nullToAbsent || isManageBatch != null) {
+      map['is_manage_batch'] = Variable<String>(isManageBatch);
+    }
+    if (!nullToAbsent || isManageSerial != null) {
+      map['is_manage_serial'] = Variable<String>(isManageSerial);
+    }
+    if (!nullToAbsent || uoMGroupDefinitionCollection != null) {
+      map['uo_m_group_definition_collection'] =
+          Variable<String>(uoMGroupDefinitionCollection);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    return map;
+  }
+
+  ItemTableCompanion toCompanion(bool nullToAbsent) {
+    return ItemTableCompanion(
+      id: Value(id),
+      code: Value(code),
+      name: Value(name),
+      uoMGroupEntry: uoMGroupEntry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uoMGroupEntry),
+      inventoryUOM: inventoryUOM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inventoryUOM),
+      iunventoryUoMEntry: iunventoryUoMEntry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iunventoryUoMEntry),
+      purchaseItem: purchaseItem == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseItem),
+      saleItem: saleItem == null && nullToAbsent
+          ? const Value.absent()
+          : Value(saleItem),
+      inventoryItem: inventoryItem == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inventoryItem),
+      isManageBatch: isManageBatch == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isManageBatch),
+      isManageSerial: isManageSerial == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isManageSerial),
+      uoMGroupDefinitionCollection:
+          uoMGroupDefinitionCollection == null && nullToAbsent
+              ? const Value.absent()
+              : Value(uoMGroupDefinitionCollection),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+    );
+  }
+
+  factory ItemTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ItemTableData(
+      id: serializer.fromJson<int>(json['id']),
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      uoMGroupEntry: serializer.fromJson<int?>(json['uoMGroupEntry']),
+      inventoryUOM: serializer.fromJson<String?>(json['inventoryUOM']),
+      iunventoryUoMEntry: serializer.fromJson<int?>(json['iunventoryUoMEntry']),
+      purchaseItem: serializer.fromJson<String?>(json['purchaseItem']),
+      saleItem: serializer.fromJson<String?>(json['saleItem']),
+      inventoryItem: serializer.fromJson<String?>(json['inventoryItem']),
+      isManageBatch: serializer.fromJson<String?>(json['isManageBatch']),
+      isManageSerial: serializer.fromJson<String?>(json['isManageSerial']),
+      uoMGroupDefinitionCollection:
+          serializer.fromJson<String?>(json['uoMGroupDefinitionCollection']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'uoMGroupEntry': serializer.toJson<int?>(uoMGroupEntry),
+      'inventoryUOM': serializer.toJson<String?>(inventoryUOM),
+      'iunventoryUoMEntry': serializer.toJson<int?>(iunventoryUoMEntry),
+      'purchaseItem': serializer.toJson<String?>(purchaseItem),
+      'saleItem': serializer.toJson<String?>(saleItem),
+      'inventoryItem': serializer.toJson<String?>(inventoryItem),
+      'isManageBatch': serializer.toJson<String?>(isManageBatch),
+      'isManageSerial': serializer.toJson<String?>(isManageSerial),
+      'uoMGroupDefinitionCollection':
+          serializer.toJson<String?>(uoMGroupDefinitionCollection),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+    };
+  }
+
+  ItemTableData copyWith(
+          {int? id,
+          String? code,
+          String? name,
+          Value<int?> uoMGroupEntry = const Value.absent(),
+          Value<String?> inventoryUOM = const Value.absent(),
+          Value<int?> iunventoryUoMEntry = const Value.absent(),
+          Value<String?> purchaseItem = const Value.absent(),
+          Value<String?> saleItem = const Value.absent(),
+          Value<String?> inventoryItem = const Value.absent(),
+          Value<String?> isManageBatch = const Value.absent(),
+          Value<String?> isManageSerial = const Value.absent(),
+          Value<String?> uoMGroupDefinitionCollection = const Value.absent(),
+          Value<DateTime?> createdAt = const Value.absent()}) =>
+      ItemTableData(
+        id: id ?? this.id,
+        code: code ?? this.code,
+        name: name ?? this.name,
+        uoMGroupEntry:
+            uoMGroupEntry.present ? uoMGroupEntry.value : this.uoMGroupEntry,
+        inventoryUOM:
+            inventoryUOM.present ? inventoryUOM.value : this.inventoryUOM,
+        iunventoryUoMEntry: iunventoryUoMEntry.present
+            ? iunventoryUoMEntry.value
+            : this.iunventoryUoMEntry,
+        purchaseItem:
+            purchaseItem.present ? purchaseItem.value : this.purchaseItem,
+        saleItem: saleItem.present ? saleItem.value : this.saleItem,
+        inventoryItem:
+            inventoryItem.present ? inventoryItem.value : this.inventoryItem,
+        isManageBatch:
+            isManageBatch.present ? isManageBatch.value : this.isManageBatch,
+        isManageSerial:
+            isManageSerial.present ? isManageSerial.value : this.isManageSerial,
+        uoMGroupDefinitionCollection: uoMGroupDefinitionCollection.present
+            ? uoMGroupDefinitionCollection.value
+            : this.uoMGroupDefinitionCollection,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+      );
+  ItemTableData copyWithCompanion(ItemTableCompanion data) {
+    return ItemTableData(
+      id: data.id.present ? data.id.value : this.id,
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      uoMGroupEntry: data.uoMGroupEntry.present
+          ? data.uoMGroupEntry.value
+          : this.uoMGroupEntry,
+      inventoryUOM: data.inventoryUOM.present
+          ? data.inventoryUOM.value
+          : this.inventoryUOM,
+      iunventoryUoMEntry: data.iunventoryUoMEntry.present
+          ? data.iunventoryUoMEntry.value
+          : this.iunventoryUoMEntry,
+      purchaseItem: data.purchaseItem.present
+          ? data.purchaseItem.value
+          : this.purchaseItem,
+      saleItem: data.saleItem.present ? data.saleItem.value : this.saleItem,
+      inventoryItem: data.inventoryItem.present
+          ? data.inventoryItem.value
+          : this.inventoryItem,
+      isManageBatch: data.isManageBatch.present
+          ? data.isManageBatch.value
+          : this.isManageBatch,
+      isManageSerial: data.isManageSerial.present
+          ? data.isManageSerial.value
+          : this.isManageSerial,
+      uoMGroupDefinitionCollection: data.uoMGroupDefinitionCollection.present
+          ? data.uoMGroupDefinitionCollection.value
+          : this.uoMGroupDefinitionCollection,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemTableData(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('uoMGroupEntry: $uoMGroupEntry, ')
+          ..write('inventoryUOM: $inventoryUOM, ')
+          ..write('iunventoryUoMEntry: $iunventoryUoMEntry, ')
+          ..write('purchaseItem: $purchaseItem, ')
+          ..write('saleItem: $saleItem, ')
+          ..write('inventoryItem: $inventoryItem, ')
+          ..write('isManageBatch: $isManageBatch, ')
+          ..write('isManageSerial: $isManageSerial, ')
+          ..write(
+              'uoMGroupDefinitionCollection: $uoMGroupDefinitionCollection, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      code,
+      name,
+      uoMGroupEntry,
+      inventoryUOM,
+      iunventoryUoMEntry,
+      purchaseItem,
+      saleItem,
+      inventoryItem,
+      isManageBatch,
+      isManageSerial,
+      uoMGroupDefinitionCollection,
+      createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ItemTableData &&
+          other.id == this.id &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.uoMGroupEntry == this.uoMGroupEntry &&
+          other.inventoryUOM == this.inventoryUOM &&
+          other.iunventoryUoMEntry == this.iunventoryUoMEntry &&
+          other.purchaseItem == this.purchaseItem &&
+          other.saleItem == this.saleItem &&
+          other.inventoryItem == this.inventoryItem &&
+          other.isManageBatch == this.isManageBatch &&
+          other.isManageSerial == this.isManageSerial &&
+          other.uoMGroupDefinitionCollection ==
+              this.uoMGroupDefinitionCollection &&
+          other.createdAt == this.createdAt);
+}
+
+class ItemTableCompanion extends UpdateCompanion<ItemTableData> {
+  final Value<int> id;
+  final Value<String> code;
+  final Value<String> name;
+  final Value<int?> uoMGroupEntry;
+  final Value<String?> inventoryUOM;
+  final Value<int?> iunventoryUoMEntry;
+  final Value<String?> purchaseItem;
+  final Value<String?> saleItem;
+  final Value<String?> inventoryItem;
+  final Value<String?> isManageBatch;
+  final Value<String?> isManageSerial;
+  final Value<String?> uoMGroupDefinitionCollection;
+  final Value<DateTime?> createdAt;
+  const ItemTableCompanion({
+    this.id = const Value.absent(),
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.uoMGroupEntry = const Value.absent(),
+    this.inventoryUOM = const Value.absent(),
+    this.iunventoryUoMEntry = const Value.absent(),
+    this.purchaseItem = const Value.absent(),
+    this.saleItem = const Value.absent(),
+    this.inventoryItem = const Value.absent(),
+    this.isManageBatch = const Value.absent(),
+    this.isManageSerial = const Value.absent(),
+    this.uoMGroupDefinitionCollection = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  ItemTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String code,
+    required String name,
+    this.uoMGroupEntry = const Value.absent(),
+    this.inventoryUOM = const Value.absent(),
+    this.iunventoryUoMEntry = const Value.absent(),
+    this.purchaseItem = const Value.absent(),
+    this.saleItem = const Value.absent(),
+    this.inventoryItem = const Value.absent(),
+    this.isManageBatch = const Value.absent(),
+    this.isManageSerial = const Value.absent(),
+    this.uoMGroupDefinitionCollection = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  })  : code = Value(code),
+        name = Value(name);
+  static Insertable<ItemTableData> custom({
+    Expression<int>? id,
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<int>? uoMGroupEntry,
+    Expression<String>? inventoryUOM,
+    Expression<int>? iunventoryUoMEntry,
+    Expression<String>? purchaseItem,
+    Expression<String>? saleItem,
+    Expression<String>? inventoryItem,
+    Expression<String>? isManageBatch,
+    Expression<String>? isManageSerial,
+    Expression<String>? uoMGroupDefinitionCollection,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (uoMGroupEntry != null) 'uo_m_group_entry': uoMGroupEntry,
+      if (inventoryUOM != null) 'inventory_u_o_m': inventoryUOM,
+      if (iunventoryUoMEntry != null)
+        'iunventory_uo_m_entry': iunventoryUoMEntry,
+      if (purchaseItem != null) 'purchase_item': purchaseItem,
+      if (saleItem != null) 'sale_item': saleItem,
+      if (inventoryItem != null) 'inventory_item': inventoryItem,
+      if (isManageBatch != null) 'is_manage_batch': isManageBatch,
+      if (isManageSerial != null) 'is_manage_serial': isManageSerial,
+      if (uoMGroupDefinitionCollection != null)
+        'uo_m_group_definition_collection': uoMGroupDefinitionCollection,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  ItemTableCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? code,
+      Value<String>? name,
+      Value<int?>? uoMGroupEntry,
+      Value<String?>? inventoryUOM,
+      Value<int?>? iunventoryUoMEntry,
+      Value<String?>? purchaseItem,
+      Value<String?>? saleItem,
+      Value<String?>? inventoryItem,
+      Value<String?>? isManageBatch,
+      Value<String?>? isManageSerial,
+      Value<String?>? uoMGroupDefinitionCollection,
+      Value<DateTime?>? createdAt}) {
+    return ItemTableCompanion(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      uoMGroupEntry: uoMGroupEntry ?? this.uoMGroupEntry,
+      inventoryUOM: inventoryUOM ?? this.inventoryUOM,
+      iunventoryUoMEntry: iunventoryUoMEntry ?? this.iunventoryUoMEntry,
+      purchaseItem: purchaseItem ?? this.purchaseItem,
+      saleItem: saleItem ?? this.saleItem,
+      inventoryItem: inventoryItem ?? this.inventoryItem,
+      isManageBatch: isManageBatch ?? this.isManageBatch,
+      isManageSerial: isManageSerial ?? this.isManageSerial,
+      uoMGroupDefinitionCollection:
+          uoMGroupDefinitionCollection ?? this.uoMGroupDefinitionCollection,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (uoMGroupEntry.present) {
+      map['uo_m_group_entry'] = Variable<int>(uoMGroupEntry.value);
+    }
+    if (inventoryUOM.present) {
+      map['inventory_u_o_m'] = Variable<String>(inventoryUOM.value);
+    }
+    if (iunventoryUoMEntry.present) {
+      map['iunventory_uo_m_entry'] = Variable<int>(iunventoryUoMEntry.value);
+    }
+    if (purchaseItem.present) {
+      map['purchase_item'] = Variable<String>(purchaseItem.value);
+    }
+    if (saleItem.present) {
+      map['sale_item'] = Variable<String>(saleItem.value);
+    }
+    if (inventoryItem.present) {
+      map['inventory_item'] = Variable<String>(inventoryItem.value);
+    }
+    if (isManageBatch.present) {
+      map['is_manage_batch'] = Variable<String>(isManageBatch.value);
+    }
+    if (isManageSerial.present) {
+      map['is_manage_serial'] = Variable<String>(isManageSerial.value);
+    }
+    if (uoMGroupDefinitionCollection.present) {
+      map['uo_m_group_definition_collection'] =
+          Variable<String>(uoMGroupDefinitionCollection.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemTableCompanion(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('uoMGroupEntry: $uoMGroupEntry, ')
+          ..write('inventoryUOM: $inventoryUOM, ')
+          ..write('iunventoryUoMEntry: $iunventoryUoMEntry, ')
+          ..write('purchaseItem: $purchaseItem, ')
+          ..write('saleItem: $saleItem, ')
+          ..write('inventoryItem: $inventoryItem, ')
+          ..write('isManageBatch: $isManageBatch, ')
+          ..write('isManageSerial: $isManageSerial, ')
+          ..write(
+              'uoMGroupDefinitionCollection: $uoMGroupDefinitionCollection, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UnitOfMeasurementTableTable extends UnitOfMeasurementTable
+    with TableInfo<$UnitOfMeasurementTableTable, UnitOfMeasurementTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UnitOfMeasurementTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uoMGroupEntryMeta =
+      const VerificationMeta('uoMGroupEntry');
+  @override
+  late final GeneratedColumn<int> uoMGroupEntry = GeneratedColumn<int>(
+      'uo_m_group_entry', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _absEntryMeta =
+      const VerificationMeta('absEntry');
+  @override
+  late final GeneratedColumn<int> absEntry = GeneratedColumn<int>(
+      'abs_entry', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _alternateUoMMeta =
+      const VerificationMeta('alternateUoM');
+  @override
+  late final GeneratedColumn<int> alternateUoM = GeneratedColumn<int>(
+      'alternate_uo_m', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _alternateQuantityMeta =
+      const VerificationMeta('alternateQuantity');
+  @override
+  late final GeneratedColumn<double> alternateQuantity =
+      GeneratedColumn<double>('alternate_quantity', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _baseQuantityMeta =
+      const VerificationMeta('baseQuantity');
+  @override
+  late final GeneratedColumn<double> baseQuantity = GeneratedColumn<double>(
+      'base_quantity', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+      'code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDefaultMeta =
+      const VerificationMeta('isDefault');
+  @override
+  late final GeneratedColumn<int> isDefault = GeneratedColumn<int>(
+      'is_default', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        uoMGroupEntry,
+        absEntry,
+        alternateUoM,
+        alternateQuantity,
+        baseQuantity,
+        code,
+        name,
+        isDefault,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'unit_of_measurement_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<UnitOfMeasurementTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uo_m_group_entry')) {
+      context.handle(
+          _uoMGroupEntryMeta,
+          uoMGroupEntry.isAcceptableOrUnknown(
+              data['uo_m_group_entry']!, _uoMGroupEntryMeta));
+    }
+    if (data.containsKey('abs_entry')) {
+      context.handle(_absEntryMeta,
+          absEntry.isAcceptableOrUnknown(data['abs_entry']!, _absEntryMeta));
+    } else if (isInserting) {
+      context.missing(_absEntryMeta);
+    }
+    if (data.containsKey('alternate_uo_m')) {
+      context.handle(
+          _alternateUoMMeta,
+          alternateUoM.isAcceptableOrUnknown(
+              data['alternate_uo_m']!, _alternateUoMMeta));
+    } else if (isInserting) {
+      context.missing(_alternateUoMMeta);
+    }
+    if (data.containsKey('alternate_quantity')) {
+      context.handle(
+          _alternateQuantityMeta,
+          alternateQuantity.isAcceptableOrUnknown(
+              data['alternate_quantity']!, _alternateQuantityMeta));
+    }
+    if (data.containsKey('base_quantity')) {
+      context.handle(
+          _baseQuantityMeta,
+          baseQuantity.isAcceptableOrUnknown(
+              data['base_quantity']!, _baseQuantityMeta));
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_default')) {
+      context.handle(_isDefaultMeta,
+          isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UnitOfMeasurementTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UnitOfMeasurementTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uoMGroupEntry: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}uo_m_group_entry']),
+      absEntry: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}abs_entry'])!,
+      alternateUoM: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}alternate_uo_m'])!,
+      alternateQuantity: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}alternate_quantity']),
+      baseQuantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}base_quantity']),
+      code: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      isDefault: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_default'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+    );
+  }
+
+  @override
+  $UnitOfMeasurementTableTable createAlias(String alias) {
+    return $UnitOfMeasurementTableTable(attachedDatabase, alias);
+  }
+}
+
+class UnitOfMeasurementTableData extends DataClass
+    implements Insertable<UnitOfMeasurementTableData> {
+  final int id;
+  final int? uoMGroupEntry;
+  final int absEntry;
+  final int alternateUoM;
+  final double? alternateQuantity;
+  final double? baseQuantity;
+  final String code;
+  final String name;
+  final int isDefault;
+  final DateTime? createdAt;
+  const UnitOfMeasurementTableData(
+      {required this.id,
+      this.uoMGroupEntry,
+      required this.absEntry,
+      required this.alternateUoM,
+      this.alternateQuantity,
+      this.baseQuantity,
+      required this.code,
+      required this.name,
+      required this.isDefault,
+      this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uoMGroupEntry != null) {
+      map['uo_m_group_entry'] = Variable<int>(uoMGroupEntry);
+    }
+    map['abs_entry'] = Variable<int>(absEntry);
+    map['alternate_uo_m'] = Variable<int>(alternateUoM);
+    if (!nullToAbsent || alternateQuantity != null) {
+      map['alternate_quantity'] = Variable<double>(alternateQuantity);
+    }
+    if (!nullToAbsent || baseQuantity != null) {
+      map['base_quantity'] = Variable<double>(baseQuantity);
+    }
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    map['is_default'] = Variable<int>(isDefault);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    return map;
+  }
+
+  UnitOfMeasurementTableCompanion toCompanion(bool nullToAbsent) {
+    return UnitOfMeasurementTableCompanion(
+      id: Value(id),
+      uoMGroupEntry: uoMGroupEntry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uoMGroupEntry),
+      absEntry: Value(absEntry),
+      alternateUoM: Value(alternateUoM),
+      alternateQuantity: alternateQuantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alternateQuantity),
+      baseQuantity: baseQuantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseQuantity),
+      code: Value(code),
+      name: Value(name),
+      isDefault: Value(isDefault),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+    );
+  }
+
+  factory UnitOfMeasurementTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UnitOfMeasurementTableData(
+      id: serializer.fromJson<int>(json['id']),
+      uoMGroupEntry: serializer.fromJson<int?>(json['uoMGroupEntry']),
+      absEntry: serializer.fromJson<int>(json['absEntry']),
+      alternateUoM: serializer.fromJson<int>(json['alternateUoM']),
+      alternateQuantity:
+          serializer.fromJson<double?>(json['alternateQuantity']),
+      baseQuantity: serializer.fromJson<double?>(json['baseQuantity']),
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      isDefault: serializer.fromJson<int>(json['isDefault']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'uoMGroupEntry': serializer.toJson<int?>(uoMGroupEntry),
+      'absEntry': serializer.toJson<int>(absEntry),
+      'alternateUoM': serializer.toJson<int>(alternateUoM),
+      'alternateQuantity': serializer.toJson<double?>(alternateQuantity),
+      'baseQuantity': serializer.toJson<double?>(baseQuantity),
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'isDefault': serializer.toJson<int>(isDefault),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+    };
+  }
+
+  UnitOfMeasurementTableData copyWith(
+          {int? id,
+          Value<int?> uoMGroupEntry = const Value.absent(),
+          int? absEntry,
+          int? alternateUoM,
+          Value<double?> alternateQuantity = const Value.absent(),
+          Value<double?> baseQuantity = const Value.absent(),
+          String? code,
+          String? name,
+          int? isDefault,
+          Value<DateTime?> createdAt = const Value.absent()}) =>
+      UnitOfMeasurementTableData(
+        id: id ?? this.id,
+        uoMGroupEntry:
+            uoMGroupEntry.present ? uoMGroupEntry.value : this.uoMGroupEntry,
+        absEntry: absEntry ?? this.absEntry,
+        alternateUoM: alternateUoM ?? this.alternateUoM,
+        alternateQuantity: alternateQuantity.present
+            ? alternateQuantity.value
+            : this.alternateQuantity,
+        baseQuantity:
+            baseQuantity.present ? baseQuantity.value : this.baseQuantity,
+        code: code ?? this.code,
+        name: name ?? this.name,
+        isDefault: isDefault ?? this.isDefault,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+      );
+  UnitOfMeasurementTableData copyWithCompanion(
+      UnitOfMeasurementTableCompanion data) {
+    return UnitOfMeasurementTableData(
+      id: data.id.present ? data.id.value : this.id,
+      uoMGroupEntry: data.uoMGroupEntry.present
+          ? data.uoMGroupEntry.value
+          : this.uoMGroupEntry,
+      absEntry: data.absEntry.present ? data.absEntry.value : this.absEntry,
+      alternateUoM: data.alternateUoM.present
+          ? data.alternateUoM.value
+          : this.alternateUoM,
+      alternateQuantity: data.alternateQuantity.present
+          ? data.alternateQuantity.value
+          : this.alternateQuantity,
+      baseQuantity: data.baseQuantity.present
+          ? data.baseQuantity.value
+          : this.baseQuantity,
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnitOfMeasurementTableData(')
+          ..write('id: $id, ')
+          ..write('uoMGroupEntry: $uoMGroupEntry, ')
+          ..write('absEntry: $absEntry, ')
+          ..write('alternateUoM: $alternateUoM, ')
+          ..write('alternateQuantity: $alternateQuantity, ')
+          ..write('baseQuantity: $baseQuantity, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, uoMGroupEntry, absEntry, alternateUoM,
+      alternateQuantity, baseQuantity, code, name, isDefault, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UnitOfMeasurementTableData &&
+          other.id == this.id &&
+          other.uoMGroupEntry == this.uoMGroupEntry &&
+          other.absEntry == this.absEntry &&
+          other.alternateUoM == this.alternateUoM &&
+          other.alternateQuantity == this.alternateQuantity &&
+          other.baseQuantity == this.baseQuantity &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.isDefault == this.isDefault &&
+          other.createdAt == this.createdAt);
+}
+
+class UnitOfMeasurementTableCompanion
+    extends UpdateCompanion<UnitOfMeasurementTableData> {
+  final Value<int> id;
+  final Value<int?> uoMGroupEntry;
+  final Value<int> absEntry;
+  final Value<int> alternateUoM;
+  final Value<double?> alternateQuantity;
+  final Value<double?> baseQuantity;
+  final Value<String> code;
+  final Value<String> name;
+  final Value<int> isDefault;
+  final Value<DateTime?> createdAt;
+  const UnitOfMeasurementTableCompanion({
+    this.id = const Value.absent(),
+    this.uoMGroupEntry = const Value.absent(),
+    this.absEntry = const Value.absent(),
+    this.alternateUoM = const Value.absent(),
+    this.alternateQuantity = const Value.absent(),
+    this.baseQuantity = const Value.absent(),
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  UnitOfMeasurementTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.uoMGroupEntry = const Value.absent(),
+    required int absEntry,
+    required int alternateUoM,
+    this.alternateQuantity = const Value.absent(),
+    this.baseQuantity = const Value.absent(),
+    required String code,
+    required String name,
+    this.isDefault = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  })  : absEntry = Value(absEntry),
+        alternateUoM = Value(alternateUoM),
+        code = Value(code),
+        name = Value(name);
+  static Insertable<UnitOfMeasurementTableData> custom({
+    Expression<int>? id,
+    Expression<int>? uoMGroupEntry,
+    Expression<int>? absEntry,
+    Expression<int>? alternateUoM,
+    Expression<double>? alternateQuantity,
+    Expression<double>? baseQuantity,
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<int>? isDefault,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (uoMGroupEntry != null) 'uo_m_group_entry': uoMGroupEntry,
+      if (absEntry != null) 'abs_entry': absEntry,
+      if (alternateUoM != null) 'alternate_uo_m': alternateUoM,
+      if (alternateQuantity != null) 'alternate_quantity': alternateQuantity,
+      if (baseQuantity != null) 'base_quantity': baseQuantity,
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (isDefault != null) 'is_default': isDefault,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  UnitOfMeasurementTableCompanion copyWith(
+      {Value<int>? id,
+      Value<int?>? uoMGroupEntry,
+      Value<int>? absEntry,
+      Value<int>? alternateUoM,
+      Value<double?>? alternateQuantity,
+      Value<double?>? baseQuantity,
+      Value<String>? code,
+      Value<String>? name,
+      Value<int>? isDefault,
+      Value<DateTime?>? createdAt}) {
+    return UnitOfMeasurementTableCompanion(
+      id: id ?? this.id,
+      uoMGroupEntry: uoMGroupEntry ?? this.uoMGroupEntry,
+      absEntry: absEntry ?? this.absEntry,
+      alternateUoM: alternateUoM ?? this.alternateUoM,
+      alternateQuantity: alternateQuantity ?? this.alternateQuantity,
+      baseQuantity: baseQuantity ?? this.baseQuantity,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      isDefault: isDefault ?? this.isDefault,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (uoMGroupEntry.present) {
+      map['uo_m_group_entry'] = Variable<int>(uoMGroupEntry.value);
+    }
+    if (absEntry.present) {
+      map['abs_entry'] = Variable<int>(absEntry.value);
+    }
+    if (alternateUoM.present) {
+      map['alternate_uo_m'] = Variable<int>(alternateUoM.value);
+    }
+    if (alternateQuantity.present) {
+      map['alternate_quantity'] = Variable<double>(alternateQuantity.value);
+    }
+    if (baseQuantity.present) {
+      map['base_quantity'] = Variable<double>(baseQuantity.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isDefault.present) {
+      map['is_default'] = Variable<int>(isDefault.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnitOfMeasurementTableCompanion(')
+          ..write('id: $id, ')
+          ..write('uoMGroupEntry: $uoMGroupEntry, ')
+          ..write('absEntry: $absEntry, ')
+          ..write('alternateUoM: $alternateUoM, ')
+          ..write('alternateQuantity: $alternateQuantity, ')
+          ..write('baseQuantity: $baseQuantity, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1404,12 +2611,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WarehouseTableTable warehouseTable = $WarehouseTableTable(this);
   late final $BinLocationTableTable binLocationTable =
       $BinLocationTableTable(this);
+  late final $ItemTableTable itemTable = $ItemTableTable(this);
+  late final $UnitOfMeasurementTableTable unitOfMeasurementTable =
+      $UnitOfMeasurementTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [usersTable, branchTable, warehouseTable, binLocationTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        usersTable,
+        branchTable,
+        warehouseTable,
+        binLocationTable,
+        itemTable,
+        unitOfMeasurementTable
+      ];
 }
 
 typedef $$UsersTableTableCreateCompanionBuilder = UsersTableCompanion Function({
@@ -2308,6 +3524,510 @@ typedef $$BinLocationTableTableProcessedTableManager = ProcessedTableManager<
     (BinLocationTableData, $$BinLocationTableTableReferences),
     BinLocationTableData,
     PrefetchHooks Function({bool warehouse})>;
+typedef $$ItemTableTableCreateCompanionBuilder = ItemTableCompanion Function({
+  Value<int> id,
+  required String code,
+  required String name,
+  Value<int?> uoMGroupEntry,
+  Value<String?> inventoryUOM,
+  Value<int?> iunventoryUoMEntry,
+  Value<String?> purchaseItem,
+  Value<String?> saleItem,
+  Value<String?> inventoryItem,
+  Value<String?> isManageBatch,
+  Value<String?> isManageSerial,
+  Value<String?> uoMGroupDefinitionCollection,
+  Value<DateTime?> createdAt,
+});
+typedef $$ItemTableTableUpdateCompanionBuilder = ItemTableCompanion Function({
+  Value<int> id,
+  Value<String> code,
+  Value<String> name,
+  Value<int?> uoMGroupEntry,
+  Value<String?> inventoryUOM,
+  Value<int?> iunventoryUoMEntry,
+  Value<String?> purchaseItem,
+  Value<String?> saleItem,
+  Value<String?> inventoryItem,
+  Value<String?> isManageBatch,
+  Value<String?> isManageSerial,
+  Value<String?> uoMGroupDefinitionCollection,
+  Value<DateTime?> createdAt,
+});
+
+class $$ItemTableTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $ItemTableTable> {
+  $$ItemTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get uoMGroupEntry => $state.composableBuilder(
+      column: $state.table.uoMGroupEntry,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get inventoryUOM => $state.composableBuilder(
+      column: $state.table.inventoryUOM,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get iunventoryUoMEntry => $state.composableBuilder(
+      column: $state.table.iunventoryUoMEntry,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get purchaseItem => $state.composableBuilder(
+      column: $state.table.purchaseItem,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get saleItem => $state.composableBuilder(
+      column: $state.table.saleItem,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get inventoryItem => $state.composableBuilder(
+      column: $state.table.inventoryItem,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get isManageBatch => $state.composableBuilder(
+      column: $state.table.isManageBatch,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get isManageSerial => $state.composableBuilder(
+      column: $state.table.isManageSerial,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uoMGroupDefinitionCollection =>
+      $state.composableBuilder(
+          column: $state.table.uoMGroupDefinitionCollection,
+          builder: (column, joinBuilders) =>
+              ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ItemTableTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $ItemTableTable> {
+  $$ItemTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get uoMGroupEntry => $state.composableBuilder(
+      column: $state.table.uoMGroupEntry,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get inventoryUOM => $state.composableBuilder(
+      column: $state.table.inventoryUOM,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get iunventoryUoMEntry => $state.composableBuilder(
+      column: $state.table.iunventoryUoMEntry,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get purchaseItem => $state.composableBuilder(
+      column: $state.table.purchaseItem,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get saleItem => $state.composableBuilder(
+      column: $state.table.saleItem,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get inventoryItem => $state.composableBuilder(
+      column: $state.table.inventoryItem,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get isManageBatch => $state.composableBuilder(
+      column: $state.table.isManageBatch,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get isManageSerial => $state.composableBuilder(
+      column: $state.table.isManageSerial,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uoMGroupDefinitionCollection =>
+      $state.composableBuilder(
+          column: $state.table.uoMGroupDefinitionCollection,
+          builder: (column, joinBuilders) =>
+              ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $$ItemTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ItemTableTable,
+    ItemTableData,
+    $$ItemTableTableFilterComposer,
+    $$ItemTableTableOrderingComposer,
+    $$ItemTableTableCreateCompanionBuilder,
+    $$ItemTableTableUpdateCompanionBuilder,
+    (
+      ItemTableData,
+      BaseReferences<_$AppDatabase, $ItemTableTable, ItemTableData>
+    ),
+    ItemTableData,
+    PrefetchHooks Function()> {
+  $$ItemTableTableTableManager(_$AppDatabase db, $ItemTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ItemTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$ItemTableTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> code = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int?> uoMGroupEntry = const Value.absent(),
+            Value<String?> inventoryUOM = const Value.absent(),
+            Value<int?> iunventoryUoMEntry = const Value.absent(),
+            Value<String?> purchaseItem = const Value.absent(),
+            Value<String?> saleItem = const Value.absent(),
+            Value<String?> inventoryItem = const Value.absent(),
+            Value<String?> isManageBatch = const Value.absent(),
+            Value<String?> isManageSerial = const Value.absent(),
+            Value<String?> uoMGroupDefinitionCollection = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+          }) =>
+              ItemTableCompanion(
+            id: id,
+            code: code,
+            name: name,
+            uoMGroupEntry: uoMGroupEntry,
+            inventoryUOM: inventoryUOM,
+            iunventoryUoMEntry: iunventoryUoMEntry,
+            purchaseItem: purchaseItem,
+            saleItem: saleItem,
+            inventoryItem: inventoryItem,
+            isManageBatch: isManageBatch,
+            isManageSerial: isManageSerial,
+            uoMGroupDefinitionCollection: uoMGroupDefinitionCollection,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String code,
+            required String name,
+            Value<int?> uoMGroupEntry = const Value.absent(),
+            Value<String?> inventoryUOM = const Value.absent(),
+            Value<int?> iunventoryUoMEntry = const Value.absent(),
+            Value<String?> purchaseItem = const Value.absent(),
+            Value<String?> saleItem = const Value.absent(),
+            Value<String?> inventoryItem = const Value.absent(),
+            Value<String?> isManageBatch = const Value.absent(),
+            Value<String?> isManageSerial = const Value.absent(),
+            Value<String?> uoMGroupDefinitionCollection = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+          }) =>
+              ItemTableCompanion.insert(
+            id: id,
+            code: code,
+            name: name,
+            uoMGroupEntry: uoMGroupEntry,
+            inventoryUOM: inventoryUOM,
+            iunventoryUoMEntry: iunventoryUoMEntry,
+            purchaseItem: purchaseItem,
+            saleItem: saleItem,
+            inventoryItem: inventoryItem,
+            isManageBatch: isManageBatch,
+            isManageSerial: isManageSerial,
+            uoMGroupDefinitionCollection: uoMGroupDefinitionCollection,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ItemTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ItemTableTable,
+    ItemTableData,
+    $$ItemTableTableFilterComposer,
+    $$ItemTableTableOrderingComposer,
+    $$ItemTableTableCreateCompanionBuilder,
+    $$ItemTableTableUpdateCompanionBuilder,
+    (
+      ItemTableData,
+      BaseReferences<_$AppDatabase, $ItemTableTable, ItemTableData>
+    ),
+    ItemTableData,
+    PrefetchHooks Function()>;
+typedef $$UnitOfMeasurementTableTableCreateCompanionBuilder
+    = UnitOfMeasurementTableCompanion Function({
+  Value<int> id,
+  Value<int?> uoMGroupEntry,
+  required int absEntry,
+  required int alternateUoM,
+  Value<double?> alternateQuantity,
+  Value<double?> baseQuantity,
+  required String code,
+  required String name,
+  Value<int> isDefault,
+  Value<DateTime?> createdAt,
+});
+typedef $$UnitOfMeasurementTableTableUpdateCompanionBuilder
+    = UnitOfMeasurementTableCompanion Function({
+  Value<int> id,
+  Value<int?> uoMGroupEntry,
+  Value<int> absEntry,
+  Value<int> alternateUoM,
+  Value<double?> alternateQuantity,
+  Value<double?> baseQuantity,
+  Value<String> code,
+  Value<String> name,
+  Value<int> isDefault,
+  Value<DateTime?> createdAt,
+});
+
+class $$UnitOfMeasurementTableTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $UnitOfMeasurementTableTable> {
+  $$UnitOfMeasurementTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get uoMGroupEntry => $state.composableBuilder(
+      column: $state.table.uoMGroupEntry,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get absEntry => $state.composableBuilder(
+      column: $state.table.absEntry,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get alternateUoM => $state.composableBuilder(
+      column: $state.table.alternateUoM,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get alternateQuantity => $state.composableBuilder(
+      column: $state.table.alternateQuantity,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get baseQuantity => $state.composableBuilder(
+      column: $state.table.baseQuantity,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get isDefault => $state.composableBuilder(
+      column: $state.table.isDefault,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$UnitOfMeasurementTableTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $UnitOfMeasurementTableTable> {
+  $$UnitOfMeasurementTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get uoMGroupEntry => $state.composableBuilder(
+      column: $state.table.uoMGroupEntry,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get absEntry => $state.composableBuilder(
+      column: $state.table.absEntry,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get alternateUoM => $state.composableBuilder(
+      column: $state.table.alternateUoM,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get alternateQuantity => $state.composableBuilder(
+      column: $state.table.alternateQuantity,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get baseQuantity => $state.composableBuilder(
+      column: $state.table.baseQuantity,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get code => $state.composableBuilder(
+      column: $state.table.code,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get isDefault => $state.composableBuilder(
+      column: $state.table.isDefault,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $$UnitOfMeasurementTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UnitOfMeasurementTableTable,
+    UnitOfMeasurementTableData,
+    $$UnitOfMeasurementTableTableFilterComposer,
+    $$UnitOfMeasurementTableTableOrderingComposer,
+    $$UnitOfMeasurementTableTableCreateCompanionBuilder,
+    $$UnitOfMeasurementTableTableUpdateCompanionBuilder,
+    (
+      UnitOfMeasurementTableData,
+      BaseReferences<_$AppDatabase, $UnitOfMeasurementTableTable,
+          UnitOfMeasurementTableData>
+    ),
+    UnitOfMeasurementTableData,
+    PrefetchHooks Function()> {
+  $$UnitOfMeasurementTableTableTableManager(
+      _$AppDatabase db, $UnitOfMeasurementTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$UnitOfMeasurementTableTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$UnitOfMeasurementTableTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> uoMGroupEntry = const Value.absent(),
+            Value<int> absEntry = const Value.absent(),
+            Value<int> alternateUoM = const Value.absent(),
+            Value<double?> alternateQuantity = const Value.absent(),
+            Value<double?> baseQuantity = const Value.absent(),
+            Value<String> code = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> isDefault = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+          }) =>
+              UnitOfMeasurementTableCompanion(
+            id: id,
+            uoMGroupEntry: uoMGroupEntry,
+            absEntry: absEntry,
+            alternateUoM: alternateUoM,
+            alternateQuantity: alternateQuantity,
+            baseQuantity: baseQuantity,
+            code: code,
+            name: name,
+            isDefault: isDefault,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> uoMGroupEntry = const Value.absent(),
+            required int absEntry,
+            required int alternateUoM,
+            Value<double?> alternateQuantity = const Value.absent(),
+            Value<double?> baseQuantity = const Value.absent(),
+            required String code,
+            required String name,
+            Value<int> isDefault = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+          }) =>
+              UnitOfMeasurementTableCompanion.insert(
+            id: id,
+            uoMGroupEntry: uoMGroupEntry,
+            absEntry: absEntry,
+            alternateUoM: alternateUoM,
+            alternateQuantity: alternateQuantity,
+            baseQuantity: baseQuantity,
+            code: code,
+            name: name,
+            isDefault: isDefault,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UnitOfMeasurementTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $UnitOfMeasurementTableTable,
+        UnitOfMeasurementTableData,
+        $$UnitOfMeasurementTableTableFilterComposer,
+        $$UnitOfMeasurementTableTableOrderingComposer,
+        $$UnitOfMeasurementTableTableCreateCompanionBuilder,
+        $$UnitOfMeasurementTableTableUpdateCompanionBuilder,
+        (
+          UnitOfMeasurementTableData,
+          BaseReferences<_$AppDatabase, $UnitOfMeasurementTableTable,
+              UnitOfMeasurementTableData>
+        ),
+        UnitOfMeasurementTableData,
+        PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2320,4 +4040,9 @@ class $AppDatabaseManager {
       $$WarehouseTableTableTableManager(_db, _db.warehouseTable);
   $$BinLocationTableTableTableManager get binLocationTable =>
       $$BinLocationTableTableTableManager(_db, _db.binLocationTable);
+  $$ItemTableTableTableManager get itemTable =>
+      $$ItemTableTableTableManager(_db, _db.itemTable);
+  $$UnitOfMeasurementTableTableTableManager get unitOfMeasurementTable =>
+      $$UnitOfMeasurementTableTableTableManager(
+          _db, _db.unitOfMeasurementTable);
 }

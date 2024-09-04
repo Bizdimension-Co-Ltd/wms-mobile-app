@@ -32,7 +32,7 @@ class DIPickList {
 
     // ********* Data Sources **********
     getIt.registerLazySingleton<PickListRemoteDataSource>(() {
-      return PickListRemoteDataSourceImpl(getIt());
+      return PickListRemoteDataSourceImpl(getIt(), getIt());
     });
   }
 }

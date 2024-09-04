@@ -9,6 +9,8 @@ const List<Type> tables = [
   BranchTable,
   WarehouseTable,
   BinLocationTable,
+  ItemTable,
+  UnitOfMeasurementTable
 ];
 
 @DriftDatabase(tables: tables)
@@ -19,11 +21,35 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'wms_database');
   }
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        // onCreate is called when the database is created for the first time
+        onCreate: (Migrator m) async {
+          await m.createAll(); // Creates all defined tables
+        },
+        // onUpgrade is called when the database version is incremented
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from == 1) {
+            // If upgrading from version 1, create the new table
+            await m.createTable(itemTable);
+            await m.createTable(unitOfMeasurementTable);
+          }
+          // Add more conditions here if further versions are added in the future
+        },
+        // Additional setup before the database is opened, if needed
+        beforeOpen: (details) async {
+          // You can perform actions here before the database is opened, like seeding initial data
+          if (details.wasCreated) {
+            // Database was just created, handle any initial setup here
+          }
+        },
+      );
 
   // Method to get all records from a specific table
   Future<List<D>> getAll<T extends Table, D extends DataClass>(

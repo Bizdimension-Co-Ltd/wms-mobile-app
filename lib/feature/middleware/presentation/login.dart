@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/constant/api.dart';
+import 'package:wms_mobile/databases/database.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
@@ -51,6 +52,24 @@ class _LoginState extends State<Login> {
           builder: (context) => const DashboardScreen(),
         ),
       );
+    }
+  }
+
+  final database = new AppDatabase();
+  @override
+  void initState() {
+    // TODO: implement initState
+    init();
+    super.initState();
+  }
+
+  void init() async {
+    print('--------------> tables <----------------');
+    final tables = await database
+        .customSelect('SELECT name FROM sqlite_master WHERE type = "table";')
+        .get();
+    for (var row in tables) {
+      print(row.data['name']);
     }
   }
 

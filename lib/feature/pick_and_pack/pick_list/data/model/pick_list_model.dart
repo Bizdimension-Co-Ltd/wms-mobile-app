@@ -1,4 +1,5 @@
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/domain/entity/find_picking_list_entity.dart';
+import 'package:wms_mobile/helper/helper.dart';
 
 class PickListModel extends PickListEntity {
   @override
@@ -104,8 +105,8 @@ class PickListsLineModel extends PickListsLineEntity {
   final double? releasedQuantity;
   final double? previouslyReleasedQuantity;
   final dynamic baseObjectType;
-  final List<dynamic>? serialNumbers;
-  final List<dynamic>? batchNumbers;
+  final List<SerialNumberModel>? serialNumbers;
+  final List<BatchNumberModel>? batchNumbers;
   final List<DocumentLinesBinAllocationModel>? documentLinesBinAllocations;
   final String? itemCode;
   final String? itemDescription;
@@ -164,8 +165,8 @@ class PickListsLineModel extends PickListsLineEntity {
     double? releasedQuantity,
     double? previouslyReleasedQuantity,
     dynamic baseObjectType,
-    List<dynamic>? serialNumbers,
-    List<dynamic>? batchNumbers,
+    List<SerialNumberModel>? serialNumbers,
+    List<BatchNumberModel>? batchNumbers,
     List<DocumentLinesBinAllocationModel>? documentLinesBinAllocations,
     String? itemCode,
     String? itemDescription,
@@ -212,10 +213,12 @@ class PickListsLineModel extends PickListsLineEntity {
         baseObjectType: json["BaseObjectType"],
         serialNumbers: json["SerialNumbers"] == null
             ? []
-            : List<dynamic>.from(json["SerialNumbers"]!.map((x) => x)),
+            : List<SerialNumberModel>.from(json["SerialNumbers"]!
+                .map((x) => SerialNumberModel.fromJson(x))).toList(),
         batchNumbers: json["BatchNumbers"] == null
             ? []
-            : List<dynamic>.from(json["BatchNumbers"]!.map((x) => x)),
+            : List<BatchNumberModel>.from(json["BatchNumbers"]!
+                .map((x) => BatchNumberModel.fromJson(x))).toList(),
         documentLinesBinAllocations: json["DocumentLinesBinAllocations"] == null
             ? []
             : List<DocumentLinesBinAllocationModel>.from(
@@ -282,5 +285,151 @@ class DocumentLinesBinAllocationModel extends DocumentLinesBinAllocationEntity {
         "AllowNegativeQuantity": allowNegativeQuantity,
         "SerialAndBatchNumbersBaseLine": serialAndBatchNumbersBaseLine ?? -1,
         "BaseLineNumber": baseLineNumber ?? 0,
+      };
+}
+
+class SerialNumberModel extends SerialNumberEntity {
+  final dynamic manufacturerSerialNumber;
+  final String? internalSerialNumber;
+  final dynamic expiryDate;
+  final dynamic manufactureDate;
+  final String? receptionDate;
+  final dynamic warrantyStart;
+  final dynamic warrantyEnd;
+  final dynamic location;
+  final dynamic notes;
+  final dynamic batchId;
+  final int? systemSerialNumber;
+  final int? baseLineNumber;
+  final String? quantity;
+  final dynamic trackingNote;
+  final dynamic trackingNoteLine;
+  final String? itemCode;
+
+  SerialNumberModel({
+    this.manufacturerSerialNumber,
+    this.internalSerialNumber,
+    this.expiryDate,
+    this.manufactureDate,
+    this.receptionDate,
+    this.warrantyStart,
+    this.warrantyEnd,
+    this.location,
+    this.notes,
+    this.batchId,
+    this.systemSerialNumber,
+    this.baseLineNumber,
+    this.quantity,
+    this.trackingNote,
+    this.trackingNoteLine,
+    this.itemCode,
+  });
+
+  factory SerialNumberModel.fromJson(Map<String, dynamic> json) =>
+      SerialNumberModel(
+        manufacturerSerialNumber: json["ManufacturerSerialNumber"],
+        internalSerialNumber: json["InternalSerialNumber"],
+        expiryDate: json["ExpiryDate"],
+        manufactureDate: json["ManufactureDate"],
+        receptionDate: getDataFromDynamic(json["ReceptionDate"]),
+        warrantyStart: json["WarrantyStart"],
+        warrantyEnd: json["WarrantyEnd"],
+        location: json["Location"],
+        notes: json["Notes"],
+        batchId: json["BatchID"],
+        systemSerialNumber: json["SystemSerialNumber"],
+        baseLineNumber: json["BaseLineNumber"],
+        quantity: getDataFromDynamic(json["Quantity"]),
+        trackingNote: json["TrackingNote"],
+        trackingNoteLine: json["TrackingNoteLine"],
+        itemCode: json["ItemCode"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "ManufacturerSerialNumber": manufacturerSerialNumber,
+        "InternalSerialNumber": internalSerialNumber,
+        "ExpiryDate": expiryDate,
+        "ManufactureDate": manufactureDate,
+        "ReceptionDate": receptionDate,
+        "WarrantyStart": warrantyStart,
+        "WarrantyEnd": warrantyEnd,
+        "Location": location,
+        "Notes": notes,
+        "BatchID": batchId,
+        "SystemSerialNumber": systemSerialNumber,
+        "BaseLineNumber": baseLineNumber,
+        "Quantity": quantity,
+        "TrackingNote": trackingNote,
+        "TrackingNoteLine": trackingNoteLine,
+        "ItemCode": itemCode,
+      };
+}
+
+class BatchNumberModel extends BatchNumberEntity {
+  final String? batchNumber;
+  final dynamic manufacturerSerialNumber;
+  final dynamic internalSerialNumber;
+  final String? expiryDate;
+  final String? manufacturingDate;
+  final String? addmisionDate;
+  final String? location;
+  final dynamic notes;
+  final String? quantity;
+  final int? baseLineNumber;
+  final dynamic trackingNote;
+  final dynamic trackingNoteLine;
+  final String? itemCode;
+  final int? systemSerialNumber;
+
+  BatchNumberModel({
+    this.batchNumber,
+    this.manufacturerSerialNumber,
+    this.internalSerialNumber,
+    this.expiryDate,
+    this.manufacturingDate,
+    this.addmisionDate,
+    this.location,
+    this.notes,
+    this.quantity,
+    this.baseLineNumber,
+    this.trackingNote,
+    this.trackingNoteLine,
+    this.itemCode,
+    this.systemSerialNumber,
+  });
+
+  factory BatchNumberModel.fromJson(Map<String, dynamic> json) =>
+      BatchNumberModel(
+        batchNumber: json["BatchNumber"],
+        manufacturerSerialNumber: json["ManufacturerSerialNumber"],
+        internalSerialNumber: json["InternalSerialNumber"],
+        expiryDate: getDataFromDynamic(json["ExpiryDate"]),
+        manufacturingDate: getDataFromDynamic(json["ManufacturingDate"]),
+        addmisionDate: getDataFromDynamic(json["AddmisionDate"]),
+        location: json["Location"],
+        notes: json["Notes"],
+        quantity: getDataFromDynamic(json["Quantity"]),
+        baseLineNumber: json["BaseLineNumber"],
+        trackingNote: json["TrackingNote"],
+        trackingNoteLine: json["TrackingNoteLine"],
+        itemCode: json["ItemCode"],
+        systemSerialNumber: json["SystemSerialNumber"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "BatchNumber": batchNumber,
+        "ManufacturerSerialNumber": manufacturerSerialNumber,
+        "InternalSerialNumber": internalSerialNumber,
+        "ExpiryDate": expiryDate,
+        "ManufacturingDate": manufacturingDate,
+        "AddmisionDate": addmisionDate,
+        "Location": location,
+        "Notes": notes,
+        "Quantity": quantity,
+        "BaseLineNumber": baseLineNumber,
+        "TrackingNote": trackingNote,
+        "TrackingNoteLine": trackingNoteLine,
+        "ItemCode": itemCode,
+        "SystemSerialNumber": systemSerialNumber,
       };
 }

@@ -25,6 +25,7 @@ class _PickListScreenState extends State<PickListScreen> {
   final openQty = TextEditingController();
   final lastPick = TextEditingController();
   final picker = TextEditingController();
+  final status = TextEditingController();
 
   bool loading = false;
   PickListEntity? picking;
@@ -74,6 +75,7 @@ class _PickListScreenState extends State<PickListScreen> {
             DateFormat('dd-MM-yyyy').format(data.pickDate ?? DateTime.now());
       }
       picker.text = data.name ?? "";
+      status.text = data.status?.replaceAll("ps_", "") ?? "";
 
       setState(() {
         loading = false;
@@ -98,6 +100,7 @@ class _PickListScreenState extends State<PickListScreen> {
     openQty.text = '';
     lastPick.text = '';
     picker.text = '';
+    status.text = '';
   }
 
   @override
@@ -109,6 +112,7 @@ class _PickListScreenState extends State<PickListScreen> {
     openQty.dispose();
     lastPick.dispose();
     picker.dispose();
+    status.dispose();
     super.dispose();
   }
 
@@ -244,6 +248,12 @@ class _PickListScreenState extends State<PickListScreen> {
                 placeholder: 'Picker',
                 readOnly: true,
                 controller: picker,
+              ),
+              Input(
+                label: 'Status',
+                placeholder: 'Status',
+                readOnly: true,
+                controller: status,
               ),
             ],
           ),

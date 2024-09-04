@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/pick_and_pack/bin_transfer/presentation/create_bin_transfer_screen.dart';
 import 'package:wms_mobile/feature/pick_and_pack/warehouse_transfer/presentation/create_warehouse_transfer_screen.dart';
-import '/utilies/dialog/dialog.dart';
-
 import '../../constant/style.dart';
 import '../../helper/helper.dart';
 import 'pick_list/presentation/pick_list_screen.dart';

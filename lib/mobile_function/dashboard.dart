@@ -2,21 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/counting/counting.dart';
-import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
-import 'package:wms_mobile/feature/list_serial/presentation/screen/Serial_list_page.dart';
 import 'package:wms_mobile/feature/lookup/lookup.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
-import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
-import 'package:wms_mobile/form/datePicker.dart';
-import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/helper/helper.dart';
-import 'package:wms_mobile/mobile_function/countingScreen.dart';
 import 'package:wms_mobile/feature/inbound/inbound.dart';
-import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
-import 'package:wms_mobile/mobile_function/packingScreen.dart';
-import 'package:wms_mobile/mobile_function/receivingScreen.dart';
-import 'package:wms_mobile/mobile_function/rmaScreen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
@@ -46,8 +36,10 @@ class _DashboardState extends State<Dashboard> {
 
     const timeoutDuration = Duration(seconds: 1);
     Future.delayed(timeoutDuration, () {
-      BlocProvider.of<AuthorizationBloc>(context)
-          .add(const RequestLogoutEvent());
+      if (mounted) {
+        BlocProvider.of<AuthorizationBloc>(context)
+            .add(const RequestLogoutEvent());
+      }
     });
   }
 
@@ -100,27 +92,25 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.2,
-        automaticallyImplyLeading: false,
-        leading: Container(
-          padding: EdgeInsets.all(14), // Add some padding if necessary
-          child: GestureDetector(
-            onTap: () {
-              // goTo(
-              //     context,
-              //     const BatchListPage(
-              //       warehouse: '',
-              //     ));
-            },
-            child: SvgPicture.asset(
-              "images/svg/menu.svg",
-              color: Colors.white,
-              fit: BoxFit.contain, // Ensure the SVG fits within the container
-            ),
-          ),
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.black, //change your color here
-        ),
+        // automaticallyImplyLeading: false,
+        // leading: Container(
+        //   padding: EdgeInsets.all(14), // Add some padding if necessary
+        //   child: GestureDetector(
+        //     onTap: () {
+        //       // goTo(
+        //       //     context,
+        //       //     const BatchListPage(
+        //       //       warehouse: '',
+        //       //     ));
+        //     },
+        //     child: SvgPicture.asset(
+        //       "images/svg/menu.svg",
+        //       color: Colors.white,
+        //       fit: BoxFit.contain, // Ensure the SVG fits within the container
+        //     ),
+        //   ),
+        // ),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: PRIMARY_COLOR,
         title: Text(
           "Main Menu",

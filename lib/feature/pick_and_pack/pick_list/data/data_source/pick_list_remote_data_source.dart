@@ -1,4 +1,5 @@
 import 'package:wms_mobile/constant/data.dart';
+import 'package:wms_mobile/databases/database.dart';
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/data/model/pick_list_model.dart';
 
 import '/utilies/dio_client.dart';
@@ -11,8 +12,9 @@ abstract class PickListRemoteDataSource {
 
 class PickListRemoteDataSourceImpl implements PickListRemoteDataSource {
   final DioClient dio;
+  final AppDatabase db;
 
-  PickListRemoteDataSourceImpl(this.dio);
+  PickListRemoteDataSourceImpl(this.dio, this.db);
 
   @override
   Future<Map<String, dynamic>> post(Map<String, dynamic> payload) async {

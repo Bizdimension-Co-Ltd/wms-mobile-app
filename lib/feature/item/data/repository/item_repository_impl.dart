@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../domain/repository/item_repository.dart';
@@ -10,9 +11,9 @@ class ItemRepositoryImpl implements ItemRepository {
   ItemRepositoryImpl(this.remote);
 
   @override
-  Future<Either<Failure, List<dynamic>>> get(String query) async {
+  Future<Either<Failure, List<ItemEntity>>> get(String query) async {
     try {
-      final List<dynamic> reponse = await remote.get(query);
+      final List<ItemEntity> reponse = await remote.get(query);
       return Right(reponse);
     } on Failure catch (error) {
       return Left(error);
@@ -20,7 +21,7 @@ class ItemRepositoryImpl implements ItemRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> find(String query) async {
+  Future<Either<Failure, ItemEntity>> find(String query) async {
     try {
       final dynamic reponse = await remote.find(query);
 
