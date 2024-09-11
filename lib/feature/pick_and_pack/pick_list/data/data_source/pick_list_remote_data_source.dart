@@ -1,12 +1,16 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:wms_mobile/constant/data.dart';
 import 'package:wms_mobile/databases/database.dart';
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/data/model/pick_list_model.dart';
 
+import '../../domain/entity/find_picking_list_entity.dart';
 import '/utilies/dio_client.dart';
 import '../../../../../core/error/failure.dart';
 
 abstract class PickListRemoteDataSource {
-  Future<Map<String, dynamic>> post(Map<String, dynamic> payload);
+  Future<PickListEntity> post(PickListModel payload);
   Future<PickListModel> find(int payload);
 }
 
@@ -17,10 +21,12 @@ class PickListRemoteDataSourceImpl implements PickListRemoteDataSource {
   PickListRemoteDataSourceImpl(this.dio, this.db);
 
   @override
-  Future<Map<String, dynamic>> post(Map<String, dynamic> payload) async {
+  Future<PickListEntity> post(PickListModel payload) async {
     try {
-      final response = await dio.patch('/PickLists', data: payload);
-      return response.data as dynamic;
+      await dio.patch('/PickLists(${payload.absoluteentry})',
+          data: payload.toJson());
+
+      return payload;
     } on Failure {
       rethrow;
     }
@@ -52,10 +58,10 @@ class PickListRemoteDataSourceImpl implements PickListRemoteDataSource {
         if (line == null) continue;
 
         PickListsLineModel pickLine = pickList.pickListsLines![i];
-        pickLine = pickLine.copyWith(
+        pickLine = pickLine.copyWithFromModel(
           itemCode: line['ItemCode'],
           itemDescription: line['ItemDescription'],
-          warehouseCode: line['WarehouseCode'] ?? line['FromWarehouseCode'],
+          warehouseCode: line['FromWarehouseCode'] ?? line['WarehouseCode'],
           uomCode: line['UoMCode'],
         );
         _list.add(pickLine);

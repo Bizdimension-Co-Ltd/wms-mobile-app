@@ -5,7 +5,7 @@ class DeleteAllWarehouseLocalUseCase {
 
   DeleteAllWarehouseLocalUseCase(this.repository);
 
-  Future<dynamic> call(String query) async {
+  Future<dynamic> call() async {
     return await repository.deleteAll();
   }
 }

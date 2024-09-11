@@ -31,7 +31,7 @@ class LoadingCircle extends StatelessWidget {
                 ]
               : null,
         ),
-        child: LoadingAnimationWidget.staggeredDotsWave(
+        child: LoadingAnimationWidget.threeArchedCircle(
           color: PRIMARY_COLOR,
           size: 50,
         ),

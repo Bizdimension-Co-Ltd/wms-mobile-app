@@ -78,6 +78,23 @@ class PickListModel extends PickListEntity {
                 .map((x) => PickListsLineModel.fromJson(x))),
       );
 
+  factory PickListModel.fromEntity(PickListEntity entity) => PickListModel(
+        absoluteentry: entity.absoluteentry,
+        name: entity.name,
+        ownerCode: entity.ownerCode,
+        ownerName: entity.ownerName,
+        pickDate: entity.pickDate,
+        remarks: entity.remarks,
+        status: entity.status,
+        objectType: entity.objectType,
+        useBaseUnits: entity.useBaseUnits,
+        pickListsLines: entity.pickListsLines == null
+            ? []
+            : entity.pickListsLines
+                ?.map((e) => PickListsLineModel.mapFromEntity(e))
+                .toList(),
+      );
+
   @override
   Map<String, dynamic> toJson() => {
         "Absoluteentry": absoluteentry,
@@ -155,7 +172,7 @@ class PickListsLineModel extends PickListsLineEntity {
           manageSerialNumber: manageSerialNumber,
         );
 
-  PickListsLineModel copyWith({
+  PickListsLineModel copyWithFromModel({
     int? absoluteEntry,
     int? lineNumber,
     int? orderEntry,
@@ -226,6 +243,34 @@ class PickListsLineModel extends PickListsLineEntity {
                     .map((x) => DocumentLinesBinAllocationModel.fromJson(x))),
       );
 
+  factory PickListsLineModel.mapFromEntity(PickListsLineEntity entity) =>
+      PickListsLineModel(
+        absoluteEntry: entity.absoluteEntry,
+        lineNumber: entity.lineNumber,
+        orderEntry: entity.orderEntry,
+        orderRowId: entity.orderRowId,
+        pickedQuantity: entity.pickedQuantity,
+        pickStatus: entity.pickStatus,
+        releasedQuantity: entity.releasedQuantity,
+        previouslyReleasedQuantity: entity.previouslyReleasedQuantity,
+        baseObjectType: entity.baseObjectType,
+        serialNumbers: entity.serialNumbers == null
+            ? []
+            : entity.serialNumbers
+                ?.map((e) => SerialNumberModel.mapFromEntity(e))
+                .toList(),
+        batchNumbers: entity.batchNumbers == null
+            ? []
+            : entity.batchNumbers
+                ?.map((e) => BatchNumberModel.mapFromEntity(e))
+                .toList(),
+        documentLinesBinAllocations: entity.documentLinesBinAllocations == null
+            ? []
+            : entity.documentLinesBinAllocations
+                ?.map((e) => DocumentLinesBinAllocationModel.mapFromEntity(e))
+                .toList(),
+      );
+
   Map<String, dynamic> toJson() => {
         "AbsoluteEntry": absoluteEntry,
         "LineNumber": lineNumber,
@@ -233,8 +278,8 @@ class PickListsLineModel extends PickListsLineEntity {
         "OrderRowID": orderRowId,
         "PickedQuantity": pickedQuantity,
         "PickStatus": pickStatus,
-        "ReleasedQuantity": releasedQuantity,
-        "PreviouslyReleasedQuantity": previouslyReleasedQuantity,
+        // "ReleasedQuantity": releasedQuantity,
+        // "PreviouslyReleasedQuantity": previouslyReleasedQuantity,
         "BaseObjectType": baseObjectType,
         "SerialNumbers": serialNumbers == null
             ? []
@@ -269,6 +314,16 @@ class DocumentLinesBinAllocationModel extends DocumentLinesBinAllocationEntity {
     this.baseLineNumber,
   });
 
+  factory DocumentLinesBinAllocationModel.mapFromEntity(
+          DocumentLinesBinAllocationEntity entity) =>
+      DocumentLinesBinAllocationModel(
+        binAbsEntry: entity.binAbsEntry,
+        quantity: entity.quantity,
+        allowNegativeQuantity: entity.allowNegativeQuantity,
+        serialAndBatchNumbersBaseLine: entity.serialAndBatchNumbersBaseLine,
+        baseLineNumber: entity.baseLineNumber,
+      );
+
   factory DocumentLinesBinAllocationModel.fromJson(Map<String, dynamic> json) =>
       DocumentLinesBinAllocationModel(
         binAbsEntry: json["BinAbsEntry"],
@@ -278,11 +333,10 @@ class DocumentLinesBinAllocationModel extends DocumentLinesBinAllocationEntity {
         baseLineNumber: json["BaseLineNumber"],
       );
 
-  @override
   Map<String, dynamic> toJson() => {
         "BinAbsEntry": binAbsEntry,
         "Quantity": quantity,
-        "AllowNegativeQuantity": allowNegativeQuantity,
+        "AllowNegativeQuantity": "tNO",
         "SerialAndBatchNumbersBaseLine": serialAndBatchNumbersBaseLine ?? -1,
         "BaseLineNumber": baseLineNumber ?? 0,
       };
@@ -343,6 +397,26 @@ class SerialNumberModel extends SerialNumberEntity {
         trackingNote: json["TrackingNote"],
         trackingNoteLine: json["TrackingNoteLine"],
         itemCode: json["ItemCode"],
+      );
+
+  factory SerialNumberModel.mapFromEntity(SerialNumberEntity entity) =>
+      SerialNumberModel(
+        manufacturerSerialNumber: entity.manufactureDate,
+        internalSerialNumber: entity.internalSerialNumber,
+        expiryDate: entity.expiryDate,
+        manufactureDate: entity.manufactureDate,
+        receptionDate: entity.receptionDate,
+        warrantyStart: entity.warrantyStart,
+        warrantyEnd: entity.warrantyEnd,
+        location: entity.location,
+        notes: entity.notes,
+        batchId: entity.batchId,
+        systemSerialNumber: entity.systemSerialNumber,
+        baseLineNumber: entity.baseLineNumber,
+        quantity: entity.quantity,
+        trackingNote: entity.trackingNote,
+        trackingNoteLine: entity.trackingNoteLine,
+        itemCode: entity.itemCode,
       );
 
   Map<String, dynamic> toJson() => {
@@ -414,6 +488,24 @@ class BatchNumberModel extends BatchNumberEntity {
         trackingNoteLine: json["TrackingNoteLine"],
         itemCode: json["ItemCode"],
         systemSerialNumber: json["SystemSerialNumber"],
+      );
+
+  factory BatchNumberModel.mapFromEntity(BatchNumberEntity entity) =>
+      BatchNumberModel(
+        batchNumber: entity.batchNumber,
+        manufacturerSerialNumber: entity.manufacturerSerialNumber,
+        internalSerialNumber: entity.internalSerialNumber,
+        expiryDate: entity.expiryDate,
+        manufacturingDate: entity.manufacturingDate,
+        addmisionDate: entity.addmisionDate,
+        location: entity.location,
+        notes: entity.notes,
+        quantity: entity.quantity,
+        baseLineNumber: entity.baseLineNumber,
+        trackingNote: entity.trackingNote,
+        trackingNoteLine: entity.trackingNoteLine,
+        itemCode: entity.itemCode,
+        systemSerialNumber: entity.systemSerialNumber,
       );
 
   Map<String, dynamic> toJson() => {

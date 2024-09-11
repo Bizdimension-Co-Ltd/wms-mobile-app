@@ -25,7 +25,14 @@ class WarehouseLocalDataSourceImpl implements WarehouseLocalDataSource {
   @override
   Future<Warehouse> create(Warehouse entity) async {
     await database.into(database.warehouseTable).insert(WarehouseTableCompanion(
-        branch: Value(0), code: Value(entity.code), name: Value(entity.name)));
+          branch: Value(0),
+          code: Value(entity.code),
+          name: Value(entity.name),
+          businessPlaceID: Value(entity.businessPlaceID ?? 0),
+          defaultBin: Value(entity.defaultBin ?? ''),
+          enableBinLocation: Value(entity.enableBinLocations),
+          inactive: Value(entity.inactive),
+        ));
 
     return entity;
   }
@@ -41,7 +48,6 @@ class WarehouseLocalDataSourceImpl implements WarehouseLocalDataSource {
     try {
       final json = await database.findOne(
           database.warehouseTable, (whs) => whs.code.equals(code));
-
       if (json == null) return null;
 
       return Warehouse.fromDatabase(json.toJson());

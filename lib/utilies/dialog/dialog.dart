@@ -100,11 +100,11 @@ class MaterialDialog {
                 style: TextStyle(fontSize: size(context).width * 0.035),
               ),
               onPressed: () {
+                Navigator.of(context).pop();
+
                 if (onConfirm != null) {
                   onConfirm();
                 }
-
-                Navigator.of(context).pop();
               },
             ),
             TextButton(
@@ -131,8 +131,10 @@ class MaterialDialog {
     }
   }
 
-  static Future<void> loading(BuildContext context,
-      {bool? barrierDismissible}) async {
+  static Future<void> loading(
+    BuildContext context, {
+    bool? barrierDismissible,
+  }) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: barrierDismissible ?? true, // user must tap button!

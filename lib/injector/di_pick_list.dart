@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../feature/pick_and_pack/pick_list/data/data_source/pick_list_remote_data_source.dart';
-import '../feature/pick_and_pack/pick_list/data/repository/warehouse_transfer_repository_impl.dart';
+import '../feature/pick_and_pack/pick_list/data/repository/picking_list_repository_impl.dart';
 import '../feature/pick_and_pack/pick_list/domain/repository/pick_list_repository.dart';
 import '../feature/pick_and_pack/pick_list/domain/usecase/find_usecase.dart';
 import '../feature/pick_and_pack/pick_list/domain/usecase/post_usecase.dart';

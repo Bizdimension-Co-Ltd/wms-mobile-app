@@ -13,7 +13,7 @@ class PickListCubit extends Cubit<PickListState> {
 
   PickListCubit(this.findUseCase, this.postUseCase) : super(PickListInitial());
 
-  Future<Map<String, dynamic>> post(Map<String, dynamic> query) async {
+  Future<PickListEntity> update(PickListEntity query) async {
     emit(RequestingPickList());
     final response = await postUseCase.call(query);
     return response.fold((error) {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/domain/entity/find_picking_list_entity.dart';
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/cubit/pick_list_cubit.dart';
+import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/pick/picking_screen.dart';
 import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/review_pick_list_screen.dart';
 import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
@@ -148,6 +149,10 @@ class _PickListScreenState extends State<PickListScreen> {
                 placeholder: 'Pick List',
                 controller: pickNumberText,
                 keyboardType: TextInputType.number,
+                onEditingComplete: () async {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                  onFindPickList();
+                },
               ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
@@ -183,7 +188,14 @@ class _PickListScreenState extends State<PickListScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Button(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (loading || picking == null) return;
+
+                          goTo(
+                            context,
+                            PickingScreen(picking: picking!),
+                          );
+                        },
                         disabled: loading || picking == null,
                         child: Text(
                           'Go Pick',
@@ -200,7 +212,7 @@ class _PickListScreenState extends State<PickListScreen> {
                           goTo(
                             context,
                             ReviewPickListScreen(pickList: picking!),
-                          );
+                          ).then((onValue) => clearInput());
                         },
                         disabled: loading || picking == null,
                         child: Text(

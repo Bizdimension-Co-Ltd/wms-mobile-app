@@ -42,6 +42,7 @@ class Button extends StatelessWidget {
     required this.child,
     this.variant = ButtonVariant.primary,
     this.bgColor,
+    this.borderRadius,
   });
 
   final Function()? onPressed;
@@ -50,6 +51,7 @@ class Button extends StatelessWidget {
   final Widget child;
   final ButtonVariant variant;
   final Color? bgColor;
+  final double? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class Button extends StatelessWidget {
           style: buttonStyle(variant).copyWith(
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(borderRadius ?? 4),
                 side: variant == ButtonVariant.outline
                     ? BorderSide(color: Colors.grey.shade300)
                     : BorderSide.none,

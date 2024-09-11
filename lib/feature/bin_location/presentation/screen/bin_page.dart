@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/helper/helper.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
+import '../../data/model/bin_item_model.dart';
 import '../../domain/entity/bin_entity.dart';
 import '../cubit/bin_cubit.dart';
 import '/constant/style.dart';
 
 class BinPage extends StatefulWidget {
-  const BinPage({super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
+  const BinPage(
+      {super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
 
   final String warehouse;
   final dynamic itemCode;
@@ -19,11 +22,12 @@ class BinPage extends StatefulWidget {
 class _BinPageState extends State<BinPage> {
   String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
 
-  int check = -1;
+  bool loading = true;
   List<BinEntity> data = [];
   late BinCubit _bloc;
   final DioClient dio = DioClient();
-  List<dynamic> qty = [];
+  List<BinItemModel> qty = [];
+
   @override
   void initState() {
     super.initState();
@@ -38,9 +42,7 @@ class _BinPageState extends State<BinPage> {
 
       final exists = data.where((e) => e.warehouse == widget.warehouse);
       if (data.isEmpty || exists.isEmpty) {
-        _bloc
-            .get("$query&\$filter=Warehouse eq '${widget.warehouse}'")
-            .then((value) {
+        _bloc.get(widget.warehouse).then((value) {
           setState(() => data = value);
           _bloc.set(value);
         });
@@ -53,20 +55,29 @@ class _BinPageState extends State<BinPage> {
   }
 
   void getGetdataInit() async {
-    if (widget.itemCode == "") {
-      setState(() {
-        check = 1;
-      });
-      return;
-    }
-    ;
-    final response = await dio.get(
-        "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
-    if (response.statusCode == 200) {
-      setState(() {
-        qty.addAll(response.data["value"]);
-        check = 1;
-      });
+    try {
+      if (widget.itemCode == "") {
+        setState(() => loading = true);
+        return;
+      }
+
+      final response = await dio.get(
+          "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
+      if (response.statusCode == 200) {
+        setState(() {});
+
+        qty = List.from(response.data["value"])
+            .map((e) => BinItemModel.fromJson(e))
+            .toList();
+        loading = false;
+        setState(() => qty);
+        await Future.delayed(const Duration(milliseconds: 500));
+        setState(() => loading = false);
+      }
+    } catch (e) {
+      setState(() => qty = []);
+      await Future.delayed(const Duration(milliseconds: 500));
+      setState(() => loading = false);
     }
   }
 
@@ -105,11 +116,11 @@ class _BinPageState extends State<BinPage> {
                 ),
               ),
               child: Row(
-                children:  [
+                children: [
                   Expanded(
                     flex: 5,
                     child: Text(
-                      'BinLocation Code',
+                      'Bin Code',
                       style: TextStyle(),
                     ),
                   ),
@@ -117,8 +128,9 @@ class _BinPageState extends State<BinPage> {
                     flex: 2,
                     child: Padding(
                       padding: EdgeInsets.only(left: 5),
-                      child: widget.fromBinlookUp == true ? Text('')
-                          :Text('Total Qty'),
+                      child: widget.fromBinlookUp == true
+                          ? Text('')
+                          : Text('Total Qty'),
                     ),
                   ),
                 ],
@@ -133,7 +145,7 @@ class _BinPageState extends State<BinPage> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  return check == -1
+                  return loading
                       ? Container(
                           margin: const EdgeInsets.symmetric(vertical: 20),
                           child: Center(
@@ -148,56 +160,74 @@ class _BinPageState extends State<BinPage> {
                         )
                       : ListView(
                           children: [
-                            ...data
-                                .map(
-                                  (bin) => GestureDetector(
-                                    onTap: () => Navigator.of(context).pop(bin),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
+                            ...data.map(
+                              (bin) {
+                                BinItemModel? binItem;
+
+                                final data = qty
+                                    .where((e) => e.binCode == bin.code)
+                                    .toList();
+                                if (data.isNotEmpty) {
+                                  binItem = data.first;
+                                }
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    // if (binItem == null) {
+                                    //   MaterialDialog.warning(context,
+                                    //       title: "Oop!",
+                                    //       body:
+                                    //           'Quantity fall into negative number -1.');
+
+                                    //   return;
+                                    // }
+
+                                    Navigator.of(context).pop(bin);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
                                         color: Colors.white,
-                                      ),
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 6,
-                                                child: Text(
-                                                  bin.code,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w800,
-                                                  ),
+                                        border: Border(
+                                            bottom: BorderSide(width: 0.1))),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 6,
+                                              child: Text(
+                                                bin.code,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: widget.fromBinlookUp == true ? Text(''): Text(
-                                                  getDataFromDynamic(
-                                                      qty.firstWhere(
-                                                    (e) =>
-                                                        e["BinCode"] ==
-                                                        bin.code,
-                                                    orElse: () => {
-                                                      "OnHandQty": 0
-                                                    }, // Default value if not found
-                                                  )["OnHandQty"]),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w800,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                            ),
+                                            Expanded(
+                                              flex: 2,
+                                              child:
+                                                  widget.fromBinlookUp == true
+                                                      ? Text('')
+                                                      : Text(
+                                                          binItem?.onHandQty
+                                                                  ?.toString() ??
+                                                              "0.00",
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                );
+                              },
+                            ).toList(),
                             if (state is RequestingPaginationBin)
                               Container(
                                 margin:

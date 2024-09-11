@@ -12,11 +12,10 @@ class PickListRepositoryImpl implements PickListRepository {
   PickListRepositoryImpl(this.remote);
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> post(
-      Map<String, dynamic> payload) async {
+  Future<Either<Failure, PickListEntity>> post(PickListEntity payload) async {
     try {
-      final Map<String, dynamic> reponse = await remote.post(payload);
-      return Right(reponse);
+      final response = await remote.post(PickListModel.fromEntity(payload));
+      return Right(response);
     } on Failure catch (error) {
       return Left(error);
     }

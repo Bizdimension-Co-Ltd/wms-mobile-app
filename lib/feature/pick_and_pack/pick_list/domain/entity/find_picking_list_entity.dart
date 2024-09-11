@@ -23,6 +23,22 @@ class PickListEntity {
     this.pickListsLines,
   });
 
+  PickListEntity copWith({
+    List<PickListsLineEntity>? pickListsLines,
+  }) =>
+      PickListEntity(
+        absoluteentry: absoluteentry,
+        name: name,
+        ownerCode: ownerCode,
+        ownerName: ownerName,
+        pickDate: pickDate,
+        remarks: remarks,
+        status: status,
+        objectType: objectType,
+        useBaseUnits: useBaseUnits,
+        pickListsLines: pickListsLines ?? this.pickListsLines,
+      );
+
   bool get isClosed => status == 'ps_Closed';
 }
 
@@ -67,6 +83,35 @@ class PickListsLineEntity {
     this.manageBatchNumber,
     this.manageSerialNumber,
   });
+
+  PickListsLineEntity copyWith({
+    double? pickedQuantity,
+    double? releasedQuantity,
+    List<SerialNumberEntity>? serialNumbers,
+    List<BatchNumberEntity>? batchNumbers,
+    List<DocumentLinesBinAllocationEntity>? documentLinesBinAllocations,
+  }) =>
+      PickListsLineEntity(
+        absoluteEntry: absoluteEntry,
+        lineNumber: lineNumber,
+        orderEntry: orderEntry,
+        orderRowId: orderRowId,
+        pickedQuantity: pickedQuantity ?? this.pickedQuantity,
+        pickStatus: pickStatus,
+        releasedQuantity: releasedQuantity ?? this.releasedQuantity,
+        previouslyReleasedQuantity: previouslyReleasedQuantity,
+        baseObjectType: baseObjectType,
+        serialNumbers: serialNumbers ?? this.serialNumbers,
+        batchNumbers: batchNumbers ?? this.batchNumbers,
+        documentLinesBinAllocations:
+            documentLinesBinAllocations ?? this.documentLinesBinAllocations,
+        itemCode: itemCode,
+        itemDescription: itemDescription,
+        warehouseCode: warehouseCode,
+        uomCode: uomCode,
+        manageBatchNumber: manageBatchNumber,
+        manageSerialNumber: manageSerialNumber,
+      );
 }
 
 class DocumentLinesBinAllocationEntity {
@@ -75,6 +120,7 @@ class DocumentLinesBinAllocationEntity {
   final String? allowNegativeQuantity;
   final int? serialAndBatchNumbersBaseLine;
   final int? baseLineNumber;
+  final String? binCode;
 
   DocumentLinesBinAllocationEntity({
     this.binAbsEntry,
@@ -82,7 +128,25 @@ class DocumentLinesBinAllocationEntity {
     this.allowNegativeQuantity,
     this.serialAndBatchNumbersBaseLine,
     this.baseLineNumber,
+    this.binCode,
   });
+
+  DocumentLinesBinAllocationEntity copyWith({
+    double? quantity,
+    int? binAbsEntry,
+    int? serialAndBatchNumbersBaseLine,
+    int? baseLineNumber,
+    String? binCode,
+  }) =>
+      DocumentLinesBinAllocationEntity(
+        binAbsEntry: binAbsEntry ?? this.binAbsEntry,
+        quantity: quantity ?? this.quantity,
+        allowNegativeQuantity: allowNegativeQuantity,
+        serialAndBatchNumbersBaseLine:
+            serialAndBatchNumbersBaseLine ?? this.serialAndBatchNumbersBaseLine,
+        baseLineNumber: baseLineNumber ?? this.baseLineNumber,
+        binCode: binCode ?? this.binCode,
+      );
 }
 
 class SerialNumberEntity {
@@ -121,6 +185,29 @@ class SerialNumberEntity {
     this.trackingNoteLine,
     this.itemCode,
   });
+
+  SerialNumberEntity copyWith({
+    String? quantity,
+    String? internalSerialNumber,
+  }) =>
+      SerialNumberEntity(
+        manufacturerSerialNumber: manufacturerSerialNumber,
+        internalSerialNumber: internalSerialNumber ?? this.internalSerialNumber,
+        expiryDate: expiryDate,
+        manufactureDate: manufactureDate,
+        receptionDate: receptionDate,
+        warrantyStart: warrantyStart,
+        warrantyEnd: warrantyEnd,
+        location: location,
+        notes: notes,
+        batchId: batchId,
+        systemSerialNumber: systemSerialNumber,
+        baseLineNumber: baseLineNumber,
+        quantity: quantity ?? this.quantity,
+        trackingNote: trackingNote,
+        trackingNoteLine: trackingNoteLine,
+        itemCode: itemCode,
+      );
 }
 
 class BatchNumberEntity {
@@ -155,4 +242,25 @@ class BatchNumberEntity {
     this.itemCode,
     this.systemSerialNumber,
   });
+
+  BatchNumberEntity copyWith({
+    String? quantity,
+    String? batchNumber,
+  }) =>
+      BatchNumberEntity(
+        batchNumber: batchNumber ?? this.batchNumber,
+        manufacturerSerialNumber: manufacturerSerialNumber,
+        internalSerialNumber: internalSerialNumber,
+        expiryDate: expiryDate,
+        manufacturingDate: manufacturingDate,
+        addmisionDate: addmisionDate,
+        location: location,
+        notes: notes,
+        quantity: quantity,
+        baseLineNumber: baseLineNumber,
+        trackingNote: trackingNote,
+        trackingNoteLine: trackingNoteLine,
+        itemCode: itemCode,
+        systemSerialNumber: systemSerialNumber,
+      );
 }

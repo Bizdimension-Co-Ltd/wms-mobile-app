@@ -23,6 +23,14 @@ class WarehouseTable extends Table {
   TextColumn get name => text()();
   IntColumn get isDefault => integer().withDefault(const Constant(0))();
   IntColumn get branchId => integer().withDefault(const Constant(0))();
+  IntColumn get businessPlaceID =>
+      integer().nullable().withDefault(const Constant(0))();
+  TextColumn get defaultBin =>
+      text().nullable().withDefault(const Constant(""))();
+  TextColumn get enableBinLocation =>
+      text().nullable().withDefault(const Constant("tNO"))();
+  TextColumn get inactive =>
+      text().nullable().withDefault(const Constant(""))();
   DateTimeColumn get createdAt => dateTime().nullable()();
 
   IntColumn get branch =>
@@ -31,11 +39,15 @@ class WarehouseTable extends Table {
 
 class BinLocationTable extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get code => text()();
-  TextColumn get name => text()();
-  IntColumn get isDefault => integer().withDefault(const Constant(0))();
+  IntColumn get absEntry => integer()();
+  TextColumn get binCode => text().nullable()();
+  IntColumn get isDefault =>
+      integer().nullable().withDefault(const Constant(0))();
+  TextColumn get isSystemBin =>
+      text().nullable().withDefault(const Constant(""))();
   TextColumn get warehouseCode => text().nullable()();
   DateTimeColumn get createdAt => dateTime().nullable()();
+  TextColumn get batchRestrictions => text().nullable()();
 
   TextColumn get warehouse =>
       text().nullable().references(WarehouseTable, #code)();

@@ -11,6 +11,7 @@ import '../feature/warehouse/data/data_source/warehouse_remote_data_source.dart'
 import '../feature/warehouse/data/repository/warehouse_repository_impl.dart';
 import '../feature/warehouse/data/repository/warehouse_repository_local_impl.dart';
 import '../feature/warehouse/domain/repository/warehouse_repository.dart';
+import '../feature/warehouse/domain/usecase/delete_all_local_usecase.dart';
 import '../feature/warehouse/domain/usecase/get_usecase.dart';
 import '../feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 
@@ -37,6 +38,10 @@ class DIWarehouse {
     });
     getIt.registerLazySingleton(() {
       return DeleteWarehouseLocalUseCase(getIt());
+    });
+
+    getIt.registerLazySingleton(() {
+      return DeleteAllWarehouseLocalUseCase(getIt());
     });
 
     // ********* Bloc **********

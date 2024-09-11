@@ -679,6 +679,38 @@ class $WarehouseTableTable extends WarehouseTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _businessPlaceIDMeta =
+      const VerificationMeta('businessPlaceID');
+  @override
+  late final GeneratedColumn<int> businessPlaceID = GeneratedColumn<int>(
+      'business_place_i_d', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _defaultBinMeta =
+      const VerificationMeta('defaultBin');
+  @override
+  late final GeneratedColumn<String> defaultBin = GeneratedColumn<String>(
+      'default_bin', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(""));
+  static const VerificationMeta _enableBinLocationMeta =
+      const VerificationMeta('enableBinLocation');
+  @override
+  late final GeneratedColumn<String> enableBinLocation =
+      GeneratedColumn<String>('enable_bin_location', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant("tNO"));
+  static const VerificationMeta _inactiveMeta =
+      const VerificationMeta('inactive');
+  @override
+  late final GeneratedColumn<String> inactive = GeneratedColumn<String>(
+      'inactive', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(""));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -694,8 +726,19 @@ class $WarehouseTableTable extends WarehouseTable
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES branch_table (branch_id)'));
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, code, name, isDefault, branchId, createdAt, branch];
+  List<GeneratedColumn> get $columns => [
+        id,
+        code,
+        name,
+        isDefault,
+        branchId,
+        businessPlaceID,
+        defaultBin,
+        enableBinLocation,
+        inactive,
+        createdAt,
+        branch
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -729,6 +772,28 @@ class $WarehouseTableTable extends WarehouseTable
       context.handle(_branchIdMeta,
           branchId.isAcceptableOrUnknown(data['branch_id']!, _branchIdMeta));
     }
+    if (data.containsKey('business_place_i_d')) {
+      context.handle(
+          _businessPlaceIDMeta,
+          businessPlaceID.isAcceptableOrUnknown(
+              data['business_place_i_d']!, _businessPlaceIDMeta));
+    }
+    if (data.containsKey('default_bin')) {
+      context.handle(
+          _defaultBinMeta,
+          defaultBin.isAcceptableOrUnknown(
+              data['default_bin']!, _defaultBinMeta));
+    }
+    if (data.containsKey('enable_bin_location')) {
+      context.handle(
+          _enableBinLocationMeta,
+          enableBinLocation.isAcceptableOrUnknown(
+              data['enable_bin_location']!, _enableBinLocationMeta));
+    }
+    if (data.containsKey('inactive')) {
+      context.handle(_inactiveMeta,
+          inactive.isAcceptableOrUnknown(data['inactive']!, _inactiveMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -756,6 +821,14 @@ class $WarehouseTableTable extends WarehouseTable
           .read(DriftSqlType.int, data['${effectivePrefix}is_default'])!,
       branchId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}branch_id'])!,
+      businessPlaceID: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}business_place_i_d']),
+      defaultBin: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}default_bin']),
+      enableBinLocation: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}enable_bin_location']),
+      inactive: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}inactive']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       branch: attachedDatabase.typeMapping
@@ -776,6 +849,10 @@ class WarehouseTableData extends DataClass
   final String name;
   final int isDefault;
   final int branchId;
+  final int? businessPlaceID;
+  final String? defaultBin;
+  final String? enableBinLocation;
+  final String? inactive;
   final DateTime? createdAt;
   final int? branch;
   const WarehouseTableData(
@@ -784,6 +861,10 @@ class WarehouseTableData extends DataClass
       required this.name,
       required this.isDefault,
       required this.branchId,
+      this.businessPlaceID,
+      this.defaultBin,
+      this.enableBinLocation,
+      this.inactive,
       this.createdAt,
       this.branch});
   @override
@@ -794,6 +875,18 @@ class WarehouseTableData extends DataClass
     map['name'] = Variable<String>(name);
     map['is_default'] = Variable<int>(isDefault);
     map['branch_id'] = Variable<int>(branchId);
+    if (!nullToAbsent || businessPlaceID != null) {
+      map['business_place_i_d'] = Variable<int>(businessPlaceID);
+    }
+    if (!nullToAbsent || defaultBin != null) {
+      map['default_bin'] = Variable<String>(defaultBin);
+    }
+    if (!nullToAbsent || enableBinLocation != null) {
+      map['enable_bin_location'] = Variable<String>(enableBinLocation);
+    }
+    if (!nullToAbsent || inactive != null) {
+      map['inactive'] = Variable<String>(inactive);
+    }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
     }
@@ -810,6 +903,18 @@ class WarehouseTableData extends DataClass
       name: Value(name),
       isDefault: Value(isDefault),
       branchId: Value(branchId),
+      businessPlaceID: businessPlaceID == null && nullToAbsent
+          ? const Value.absent()
+          : Value(businessPlaceID),
+      defaultBin: defaultBin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultBin),
+      enableBinLocation: enableBinLocation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(enableBinLocation),
+      inactive: inactive == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inactive),
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
@@ -827,6 +932,11 @@ class WarehouseTableData extends DataClass
       name: serializer.fromJson<String>(json['name']),
       isDefault: serializer.fromJson<int>(json['isDefault']),
       branchId: serializer.fromJson<int>(json['branchId']),
+      businessPlaceID: serializer.fromJson<int?>(json['businessPlaceID']),
+      defaultBin: serializer.fromJson<String?>(json['defaultBin']),
+      enableBinLocation:
+          serializer.fromJson<String?>(json['enableBinLocation']),
+      inactive: serializer.fromJson<String?>(json['inactive']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       branch: serializer.fromJson<int?>(json['branch']),
     );
@@ -840,6 +950,10 @@ class WarehouseTableData extends DataClass
       'name': serializer.toJson<String>(name),
       'isDefault': serializer.toJson<int>(isDefault),
       'branchId': serializer.toJson<int>(branchId),
+      'businessPlaceID': serializer.toJson<int?>(businessPlaceID),
+      'defaultBin': serializer.toJson<String?>(defaultBin),
+      'enableBinLocation': serializer.toJson<String?>(enableBinLocation),
+      'inactive': serializer.toJson<String?>(inactive),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'branch': serializer.toJson<int?>(branch),
     };
@@ -851,6 +965,10 @@ class WarehouseTableData extends DataClass
           String? name,
           int? isDefault,
           int? branchId,
+          Value<int?> businessPlaceID = const Value.absent(),
+          Value<String?> defaultBin = const Value.absent(),
+          Value<String?> enableBinLocation = const Value.absent(),
+          Value<String?> inactive = const Value.absent(),
           Value<DateTime?> createdAt = const Value.absent(),
           Value<int?> branch = const Value.absent()}) =>
       WarehouseTableData(
@@ -859,6 +977,14 @@ class WarehouseTableData extends DataClass
         name: name ?? this.name,
         isDefault: isDefault ?? this.isDefault,
         branchId: branchId ?? this.branchId,
+        businessPlaceID: businessPlaceID.present
+            ? businessPlaceID.value
+            : this.businessPlaceID,
+        defaultBin: defaultBin.present ? defaultBin.value : this.defaultBin,
+        enableBinLocation: enableBinLocation.present
+            ? enableBinLocation.value
+            : this.enableBinLocation,
+        inactive: inactive.present ? inactive.value : this.inactive,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         branch: branch.present ? branch.value : this.branch,
       );
@@ -869,6 +995,15 @@ class WarehouseTableData extends DataClass
       name: data.name.present ? data.name.value : this.name,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       branchId: data.branchId.present ? data.branchId.value : this.branchId,
+      businessPlaceID: data.businessPlaceID.present
+          ? data.businessPlaceID.value
+          : this.businessPlaceID,
+      defaultBin:
+          data.defaultBin.present ? data.defaultBin.value : this.defaultBin,
+      enableBinLocation: data.enableBinLocation.present
+          ? data.enableBinLocation.value
+          : this.enableBinLocation,
+      inactive: data.inactive.present ? data.inactive.value : this.inactive,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       branch: data.branch.present ? data.branch.value : this.branch,
     );
@@ -882,6 +1017,10 @@ class WarehouseTableData extends DataClass
           ..write('name: $name, ')
           ..write('isDefault: $isDefault, ')
           ..write('branchId: $branchId, ')
+          ..write('businessPlaceID: $businessPlaceID, ')
+          ..write('defaultBin: $defaultBin, ')
+          ..write('enableBinLocation: $enableBinLocation, ')
+          ..write('inactive: $inactive, ')
           ..write('createdAt: $createdAt, ')
           ..write('branch: $branch')
           ..write(')'))
@@ -889,8 +1028,18 @@ class WarehouseTableData extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, code, name, isDefault, branchId, createdAt, branch);
+  int get hashCode => Object.hash(
+      id,
+      code,
+      name,
+      isDefault,
+      branchId,
+      businessPlaceID,
+      defaultBin,
+      enableBinLocation,
+      inactive,
+      createdAt,
+      branch);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -900,6 +1049,10 @@ class WarehouseTableData extends DataClass
           other.name == this.name &&
           other.isDefault == this.isDefault &&
           other.branchId == this.branchId &&
+          other.businessPlaceID == this.businessPlaceID &&
+          other.defaultBin == this.defaultBin &&
+          other.enableBinLocation == this.enableBinLocation &&
+          other.inactive == this.inactive &&
           other.createdAt == this.createdAt &&
           other.branch == this.branch);
 }
@@ -910,6 +1063,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
   final Value<String> name;
   final Value<int> isDefault;
   final Value<int> branchId;
+  final Value<int?> businessPlaceID;
+  final Value<String?> defaultBin;
+  final Value<String?> enableBinLocation;
+  final Value<String?> inactive;
   final Value<DateTime?> createdAt;
   final Value<int?> branch;
   const WarehouseTableCompanion({
@@ -918,6 +1075,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
     this.name = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.businessPlaceID = const Value.absent(),
+    this.defaultBin = const Value.absent(),
+    this.enableBinLocation = const Value.absent(),
+    this.inactive = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.branch = const Value.absent(),
   });
@@ -927,6 +1088,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
     required String name,
     this.isDefault = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.businessPlaceID = const Value.absent(),
+    this.defaultBin = const Value.absent(),
+    this.enableBinLocation = const Value.absent(),
+    this.inactive = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.branch = const Value.absent(),
   })  : code = Value(code),
@@ -937,6 +1102,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
     Expression<String>? name,
     Expression<int>? isDefault,
     Expression<int>? branchId,
+    Expression<int>? businessPlaceID,
+    Expression<String>? defaultBin,
+    Expression<String>? enableBinLocation,
+    Expression<String>? inactive,
     Expression<DateTime>? createdAt,
     Expression<int>? branch,
   }) {
@@ -946,6 +1115,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
       if (name != null) 'name': name,
       if (isDefault != null) 'is_default': isDefault,
       if (branchId != null) 'branch_id': branchId,
+      if (businessPlaceID != null) 'business_place_i_d': businessPlaceID,
+      if (defaultBin != null) 'default_bin': defaultBin,
+      if (enableBinLocation != null) 'enable_bin_location': enableBinLocation,
+      if (inactive != null) 'inactive': inactive,
       if (createdAt != null) 'created_at': createdAt,
       if (branch != null) 'branch': branch,
     });
@@ -957,6 +1130,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
       Value<String>? name,
       Value<int>? isDefault,
       Value<int>? branchId,
+      Value<int?>? businessPlaceID,
+      Value<String?>? defaultBin,
+      Value<String?>? enableBinLocation,
+      Value<String?>? inactive,
       Value<DateTime?>? createdAt,
       Value<int?>? branch}) {
     return WarehouseTableCompanion(
@@ -965,6 +1142,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
       name: name ?? this.name,
       isDefault: isDefault ?? this.isDefault,
       branchId: branchId ?? this.branchId,
+      businessPlaceID: businessPlaceID ?? this.businessPlaceID,
+      defaultBin: defaultBin ?? this.defaultBin,
+      enableBinLocation: enableBinLocation ?? this.enableBinLocation,
+      inactive: inactive ?? this.inactive,
       createdAt: createdAt ?? this.createdAt,
       branch: branch ?? this.branch,
     );
@@ -988,6 +1169,18 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
     if (branchId.present) {
       map['branch_id'] = Variable<int>(branchId.value);
     }
+    if (businessPlaceID.present) {
+      map['business_place_i_d'] = Variable<int>(businessPlaceID.value);
+    }
+    if (defaultBin.present) {
+      map['default_bin'] = Variable<String>(defaultBin.value);
+    }
+    if (enableBinLocation.present) {
+      map['enable_bin_location'] = Variable<String>(enableBinLocation.value);
+    }
+    if (inactive.present) {
+      map['inactive'] = Variable<String>(inactive.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1005,6 +1198,10 @@ class WarehouseTableCompanion extends UpdateCompanion<WarehouseTableData> {
           ..write('name: $name, ')
           ..write('isDefault: $isDefault, ')
           ..write('branchId: $branchId, ')
+          ..write('businessPlaceID: $businessPlaceID, ')
+          ..write('defaultBin: $defaultBin, ')
+          ..write('enableBinLocation: $enableBinLocation, ')
+          ..write('inactive: $inactive, ')
           ..write('createdAt: $createdAt, ')
           ..write('branch: $branch')
           ..write(')'))
@@ -1027,24 +1224,34 @@ class $BinLocationTableTable extends BinLocationTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  static const VerificationMeta _absEntryMeta =
+      const VerificationMeta('absEntry');
   @override
-  late final GeneratedColumn<String> code = GeneratedColumn<String>(
-      'code', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<int> absEntry = GeneratedColumn<int>(
+      'abs_entry', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _binCodeMeta =
+      const VerificationMeta('binCode');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> binCode = GeneratedColumn<String>(
+      'bin_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isDefaultMeta =
       const VerificationMeta('isDefault');
   @override
   late final GeneratedColumn<int> isDefault = GeneratedColumn<int>(
-      'is_default', aliasedName, false,
+      'is_default', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _isSystemBinMeta =
+      const VerificationMeta('isSystemBin');
+  @override
+  late final GeneratedColumn<String> isSystemBin = GeneratedColumn<String>(
+      'is_system_bin', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(""));
   static const VerificationMeta _warehouseCodeMeta =
       const VerificationMeta('warehouseCode');
   @override
@@ -1057,6 +1264,12 @@ class $BinLocationTableTable extends BinLocationTable
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _batchRestrictionsMeta =
+      const VerificationMeta('batchRestrictions');
+  @override
+  late final GeneratedColumn<String> batchRestrictions =
+      GeneratedColumn<String>('batch_restrictions', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _warehouseMeta =
       const VerificationMeta('warehouse');
   @override
@@ -1067,8 +1280,17 @@ class $BinLocationTableTable extends BinLocationTable
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES warehouse_table (code)'));
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, code, name, isDefault, warehouseCode, createdAt, warehouse];
+  List<GeneratedColumn> get $columns => [
+        id,
+        absEntry,
+        binCode,
+        isDefault,
+        isSystemBin,
+        warehouseCode,
+        createdAt,
+        batchRestrictions,
+        warehouse
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1083,21 +1305,25 @@ class $BinLocationTableTable extends BinLocationTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('code')) {
-      context.handle(
-          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    if (data.containsKey('abs_entry')) {
+      context.handle(_absEntryMeta,
+          absEntry.isAcceptableOrUnknown(data['abs_entry']!, _absEntryMeta));
     } else if (isInserting) {
-      context.missing(_codeMeta);
+      context.missing(_absEntryMeta);
     }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
+    if (data.containsKey('bin_code')) {
+      context.handle(_binCodeMeta,
+          binCode.isAcceptableOrUnknown(data['bin_code']!, _binCodeMeta));
     }
     if (data.containsKey('is_default')) {
       context.handle(_isDefaultMeta,
           isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta));
+    }
+    if (data.containsKey('is_system_bin')) {
+      context.handle(
+          _isSystemBinMeta,
+          isSystemBin.isAcceptableOrUnknown(
+              data['is_system_bin']!, _isSystemBinMeta));
     }
     if (data.containsKey('warehouse_code')) {
       context.handle(
@@ -1108,6 +1334,12 @@ class $BinLocationTableTable extends BinLocationTable
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('batch_restrictions')) {
+      context.handle(
+          _batchRestrictionsMeta,
+          batchRestrictions.isAcceptableOrUnknown(
+              data['batch_restrictions']!, _batchRestrictionsMeta));
     }
     if (data.containsKey('warehouse')) {
       context.handle(_warehouseMeta,
@@ -1124,16 +1356,20 @@ class $BinLocationTableTable extends BinLocationTable
     return BinLocationTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      code: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      absEntry: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}abs_entry'])!,
+      binCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bin_code']),
       isDefault: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}is_default'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}is_default']),
+      isSystemBin: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}is_system_bin']),
       warehouseCode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}warehouse_code']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      batchRestrictions: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}batch_restrictions']),
       warehouse: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}warehouse']),
     );
@@ -1148,32 +1384,46 @@ class $BinLocationTableTable extends BinLocationTable
 class BinLocationTableData extends DataClass
     implements Insertable<BinLocationTableData> {
   final int id;
-  final String code;
-  final String name;
-  final int isDefault;
+  final int absEntry;
+  final String? binCode;
+  final int? isDefault;
+  final String? isSystemBin;
   final String? warehouseCode;
   final DateTime? createdAt;
+  final String? batchRestrictions;
   final String? warehouse;
   const BinLocationTableData(
       {required this.id,
-      required this.code,
-      required this.name,
-      required this.isDefault,
+      required this.absEntry,
+      this.binCode,
+      this.isDefault,
+      this.isSystemBin,
       this.warehouseCode,
       this.createdAt,
+      this.batchRestrictions,
       this.warehouse});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['code'] = Variable<String>(code);
-    map['name'] = Variable<String>(name);
-    map['is_default'] = Variable<int>(isDefault);
+    map['abs_entry'] = Variable<int>(absEntry);
+    if (!nullToAbsent || binCode != null) {
+      map['bin_code'] = Variable<String>(binCode);
+    }
+    if (!nullToAbsent || isDefault != null) {
+      map['is_default'] = Variable<int>(isDefault);
+    }
+    if (!nullToAbsent || isSystemBin != null) {
+      map['is_system_bin'] = Variable<String>(isSystemBin);
+    }
     if (!nullToAbsent || warehouseCode != null) {
       map['warehouse_code'] = Variable<String>(warehouseCode);
     }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || batchRestrictions != null) {
+      map['batch_restrictions'] = Variable<String>(batchRestrictions);
     }
     if (!nullToAbsent || warehouse != null) {
       map['warehouse'] = Variable<String>(warehouse);
@@ -1184,15 +1434,25 @@ class BinLocationTableData extends DataClass
   BinLocationTableCompanion toCompanion(bool nullToAbsent) {
     return BinLocationTableCompanion(
       id: Value(id),
-      code: Value(code),
-      name: Value(name),
-      isDefault: Value(isDefault),
+      absEntry: Value(absEntry),
+      binCode: binCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(binCode),
+      isDefault: isDefault == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isDefault),
+      isSystemBin: isSystemBin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isSystemBin),
       warehouseCode: warehouseCode == null && nullToAbsent
           ? const Value.absent()
           : Value(warehouseCode),
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      batchRestrictions: batchRestrictions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(batchRestrictions),
       warehouse: warehouse == null && nullToAbsent
           ? const Value.absent()
           : Value(warehouse),
@@ -1204,11 +1464,14 @@ class BinLocationTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BinLocationTableData(
       id: serializer.fromJson<int>(json['id']),
-      code: serializer.fromJson<String>(json['code']),
-      name: serializer.fromJson<String>(json['name']),
-      isDefault: serializer.fromJson<int>(json['isDefault']),
+      absEntry: serializer.fromJson<int>(json['absEntry']),
+      binCode: serializer.fromJson<String?>(json['binCode']),
+      isDefault: serializer.fromJson<int?>(json['isDefault']),
+      isSystemBin: serializer.fromJson<String?>(json['isSystemBin']),
       warehouseCode: serializer.fromJson<String?>(json['warehouseCode']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      batchRestrictions:
+          serializer.fromJson<String?>(json['batchRestrictions']),
       warehouse: serializer.fromJson<String?>(json['warehouse']),
     );
   }
@@ -1217,43 +1480,56 @@ class BinLocationTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'code': serializer.toJson<String>(code),
-      'name': serializer.toJson<String>(name),
-      'isDefault': serializer.toJson<int>(isDefault),
+      'absEntry': serializer.toJson<int>(absEntry),
+      'binCode': serializer.toJson<String?>(binCode),
+      'isDefault': serializer.toJson<int?>(isDefault),
+      'isSystemBin': serializer.toJson<String?>(isSystemBin),
       'warehouseCode': serializer.toJson<String?>(warehouseCode),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'batchRestrictions': serializer.toJson<String?>(batchRestrictions),
       'warehouse': serializer.toJson<String?>(warehouse),
     };
   }
 
   BinLocationTableData copyWith(
           {int? id,
-          String? code,
-          String? name,
-          int? isDefault,
+          int? absEntry,
+          Value<String?> binCode = const Value.absent(),
+          Value<int?> isDefault = const Value.absent(),
+          Value<String?> isSystemBin = const Value.absent(),
           Value<String?> warehouseCode = const Value.absent(),
           Value<DateTime?> createdAt = const Value.absent(),
+          Value<String?> batchRestrictions = const Value.absent(),
           Value<String?> warehouse = const Value.absent()}) =>
       BinLocationTableData(
         id: id ?? this.id,
-        code: code ?? this.code,
-        name: name ?? this.name,
-        isDefault: isDefault ?? this.isDefault,
+        absEntry: absEntry ?? this.absEntry,
+        binCode: binCode.present ? binCode.value : this.binCode,
+        isDefault: isDefault.present ? isDefault.value : this.isDefault,
+        isSystemBin: isSystemBin.present ? isSystemBin.value : this.isSystemBin,
         warehouseCode:
             warehouseCode.present ? warehouseCode.value : this.warehouseCode,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        batchRestrictions: batchRestrictions.present
+            ? batchRestrictions.value
+            : this.batchRestrictions,
         warehouse: warehouse.present ? warehouse.value : this.warehouse,
       );
   BinLocationTableData copyWithCompanion(BinLocationTableCompanion data) {
     return BinLocationTableData(
       id: data.id.present ? data.id.value : this.id,
-      code: data.code.present ? data.code.value : this.code,
-      name: data.name.present ? data.name.value : this.name,
+      absEntry: data.absEntry.present ? data.absEntry.value : this.absEntry,
+      binCode: data.binCode.present ? data.binCode.value : this.binCode,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      isSystemBin:
+          data.isSystemBin.present ? data.isSystemBin.value : this.isSystemBin,
       warehouseCode: data.warehouseCode.present
           ? data.warehouseCode.value
           : this.warehouseCode,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      batchRestrictions: data.batchRestrictions.present
+          ? data.batchRestrictions.value
+          : this.batchRestrictions,
       warehouse: data.warehouse.present ? data.warehouse.value : this.warehouse,
     );
   }
@@ -1262,94 +1538,111 @@ class BinLocationTableData extends DataClass
   String toString() {
     return (StringBuffer('BinLocationTableData(')
           ..write('id: $id, ')
-          ..write('code: $code, ')
-          ..write('name: $name, ')
+          ..write('absEntry: $absEntry, ')
+          ..write('binCode: $binCode, ')
           ..write('isDefault: $isDefault, ')
+          ..write('isSystemBin: $isSystemBin, ')
           ..write('warehouseCode: $warehouseCode, ')
           ..write('createdAt: $createdAt, ')
+          ..write('batchRestrictions: $batchRestrictions, ')
           ..write('warehouse: $warehouse')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, code, name, isDefault, warehouseCode, createdAt, warehouse);
+  int get hashCode => Object.hash(id, absEntry, binCode, isDefault, isSystemBin,
+      warehouseCode, createdAt, batchRestrictions, warehouse);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BinLocationTableData &&
           other.id == this.id &&
-          other.code == this.code &&
-          other.name == this.name &&
+          other.absEntry == this.absEntry &&
+          other.binCode == this.binCode &&
           other.isDefault == this.isDefault &&
+          other.isSystemBin == this.isSystemBin &&
           other.warehouseCode == this.warehouseCode &&
           other.createdAt == this.createdAt &&
+          other.batchRestrictions == this.batchRestrictions &&
           other.warehouse == this.warehouse);
 }
 
 class BinLocationTableCompanion extends UpdateCompanion<BinLocationTableData> {
   final Value<int> id;
-  final Value<String> code;
-  final Value<String> name;
-  final Value<int> isDefault;
+  final Value<int> absEntry;
+  final Value<String?> binCode;
+  final Value<int?> isDefault;
+  final Value<String?> isSystemBin;
   final Value<String?> warehouseCode;
   final Value<DateTime?> createdAt;
+  final Value<String?> batchRestrictions;
   final Value<String?> warehouse;
   const BinLocationTableCompanion({
     this.id = const Value.absent(),
-    this.code = const Value.absent(),
-    this.name = const Value.absent(),
+    this.absEntry = const Value.absent(),
+    this.binCode = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.isSystemBin = const Value.absent(),
     this.warehouseCode = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.batchRestrictions = const Value.absent(),
     this.warehouse = const Value.absent(),
   });
   BinLocationTableCompanion.insert({
     this.id = const Value.absent(),
-    required String code,
-    required String name,
+    required int absEntry,
+    this.binCode = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.isSystemBin = const Value.absent(),
     this.warehouseCode = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.batchRestrictions = const Value.absent(),
     this.warehouse = const Value.absent(),
-  })  : code = Value(code),
-        name = Value(name);
+  }) : absEntry = Value(absEntry);
   static Insertable<BinLocationTableData> custom({
     Expression<int>? id,
-    Expression<String>? code,
-    Expression<String>? name,
+    Expression<int>? absEntry,
+    Expression<String>? binCode,
     Expression<int>? isDefault,
+    Expression<String>? isSystemBin,
     Expression<String>? warehouseCode,
     Expression<DateTime>? createdAt,
+    Expression<String>? batchRestrictions,
     Expression<String>? warehouse,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (code != null) 'code': code,
-      if (name != null) 'name': name,
+      if (absEntry != null) 'abs_entry': absEntry,
+      if (binCode != null) 'bin_code': binCode,
       if (isDefault != null) 'is_default': isDefault,
+      if (isSystemBin != null) 'is_system_bin': isSystemBin,
       if (warehouseCode != null) 'warehouse_code': warehouseCode,
       if (createdAt != null) 'created_at': createdAt,
+      if (batchRestrictions != null) 'batch_restrictions': batchRestrictions,
       if (warehouse != null) 'warehouse': warehouse,
     });
   }
 
   BinLocationTableCompanion copyWith(
       {Value<int>? id,
-      Value<String>? code,
-      Value<String>? name,
-      Value<int>? isDefault,
+      Value<int>? absEntry,
+      Value<String?>? binCode,
+      Value<int?>? isDefault,
+      Value<String?>? isSystemBin,
       Value<String?>? warehouseCode,
       Value<DateTime?>? createdAt,
+      Value<String?>? batchRestrictions,
       Value<String?>? warehouse}) {
     return BinLocationTableCompanion(
       id: id ?? this.id,
-      code: code ?? this.code,
-      name: name ?? this.name,
+      absEntry: absEntry ?? this.absEntry,
+      binCode: binCode ?? this.binCode,
       isDefault: isDefault ?? this.isDefault,
+      isSystemBin: isSystemBin ?? this.isSystemBin,
       warehouseCode: warehouseCode ?? this.warehouseCode,
       createdAt: createdAt ?? this.createdAt,
+      batchRestrictions: batchRestrictions ?? this.batchRestrictions,
       warehouse: warehouse ?? this.warehouse,
     );
   }
@@ -1360,20 +1653,26 @@ class BinLocationTableCompanion extends UpdateCompanion<BinLocationTableData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (code.present) {
-      map['code'] = Variable<String>(code.value);
+    if (absEntry.present) {
+      map['abs_entry'] = Variable<int>(absEntry.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (binCode.present) {
+      map['bin_code'] = Variable<String>(binCode.value);
     }
     if (isDefault.present) {
       map['is_default'] = Variable<int>(isDefault.value);
+    }
+    if (isSystemBin.present) {
+      map['is_system_bin'] = Variable<String>(isSystemBin.value);
     }
     if (warehouseCode.present) {
       map['warehouse_code'] = Variable<String>(warehouseCode.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (batchRestrictions.present) {
+      map['batch_restrictions'] = Variable<String>(batchRestrictions.value);
     }
     if (warehouse.present) {
       map['warehouse'] = Variable<String>(warehouse.value);
@@ -1385,11 +1684,13 @@ class BinLocationTableCompanion extends UpdateCompanion<BinLocationTableData> {
   String toString() {
     return (StringBuffer('BinLocationTableCompanion(')
           ..write('id: $id, ')
-          ..write('code: $code, ')
-          ..write('name: $name, ')
+          ..write('absEntry: $absEntry, ')
+          ..write('binCode: $binCode, ')
           ..write('isDefault: $isDefault, ')
+          ..write('isSystemBin: $isSystemBin, ')
           ..write('warehouseCode: $warehouseCode, ')
           ..write('createdAt: $createdAt, ')
+          ..write('batchRestrictions: $batchRestrictions, ')
           ..write('warehouse: $warehouse')
           ..write(')'))
         .toString();
@@ -2995,6 +3296,10 @@ typedef $$WarehouseTableTableCreateCompanionBuilder = WarehouseTableCompanion
   required String name,
   Value<int> isDefault,
   Value<int> branchId,
+  Value<int?> businessPlaceID,
+  Value<String?> defaultBin,
+  Value<String?> enableBinLocation,
+  Value<String?> inactive,
   Value<DateTime?> createdAt,
   Value<int?> branch,
 });
@@ -3005,6 +3310,10 @@ typedef $$WarehouseTableTableUpdateCompanionBuilder = WarehouseTableCompanion
   Value<String> name,
   Value<int> isDefault,
   Value<int> branchId,
+  Value<int?> businessPlaceID,
+  Value<String?> defaultBin,
+  Value<String?> enableBinLocation,
+  Value<String?> inactive,
   Value<DateTime?> createdAt,
   Value<int?> branch,
 });
@@ -3074,6 +3383,26 @@ class $$WarehouseTableTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
+  ColumnFilters<int> get businessPlaceID => $state.composableBuilder(
+      column: $state.table.businessPlaceID,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get defaultBin => $state.composableBuilder(
+      column: $state.table.defaultBin,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get enableBinLocation => $state.composableBuilder(
+      column: $state.table.enableBinLocation,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get inactive => $state.composableBuilder(
+      column: $state.table.inactive,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
   ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
@@ -3134,6 +3463,26 @@ class $$WarehouseTableTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
+  ColumnOrderings<int> get businessPlaceID => $state.composableBuilder(
+      column: $state.table.businessPlaceID,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get defaultBin => $state.composableBuilder(
+      column: $state.table.defaultBin,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get enableBinLocation => $state.composableBuilder(
+      column: $state.table.enableBinLocation,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get inactive => $state.composableBuilder(
+      column: $state.table.inactive,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
@@ -3178,6 +3527,10 @@ class $$WarehouseTableTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<int> isDefault = const Value.absent(),
             Value<int> branchId = const Value.absent(),
+            Value<int?> businessPlaceID = const Value.absent(),
+            Value<String?> defaultBin = const Value.absent(),
+            Value<String?> enableBinLocation = const Value.absent(),
+            Value<String?> inactive = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<int?> branch = const Value.absent(),
           }) =>
@@ -3187,6 +3540,10 @@ class $$WarehouseTableTableTableManager extends RootTableManager<
             name: name,
             isDefault: isDefault,
             branchId: branchId,
+            businessPlaceID: businessPlaceID,
+            defaultBin: defaultBin,
+            enableBinLocation: enableBinLocation,
+            inactive: inactive,
             createdAt: createdAt,
             branch: branch,
           ),
@@ -3196,6 +3553,10 @@ class $$WarehouseTableTableTableManager extends RootTableManager<
             required String name,
             Value<int> isDefault = const Value.absent(),
             Value<int> branchId = const Value.absent(),
+            Value<int?> businessPlaceID = const Value.absent(),
+            Value<String?> defaultBin = const Value.absent(),
+            Value<String?> enableBinLocation = const Value.absent(),
+            Value<String?> inactive = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<int?> branch = const Value.absent(),
           }) =>
@@ -3205,6 +3566,10 @@ class $$WarehouseTableTableTableManager extends RootTableManager<
             name: name,
             isDefault: isDefault,
             branchId: branchId,
+            businessPlaceID: businessPlaceID,
+            defaultBin: defaultBin,
+            enableBinLocation: enableBinLocation,
+            inactive: inactive,
             createdAt: createdAt,
             branch: branch,
           ),
@@ -3282,21 +3647,25 @@ typedef $$WarehouseTableTableProcessedTableManager = ProcessedTableManager<
 typedef $$BinLocationTableTableCreateCompanionBuilder
     = BinLocationTableCompanion Function({
   Value<int> id,
-  required String code,
-  required String name,
-  Value<int> isDefault,
+  required int absEntry,
+  Value<String?> binCode,
+  Value<int?> isDefault,
+  Value<String?> isSystemBin,
   Value<String?> warehouseCode,
   Value<DateTime?> createdAt,
+  Value<String?> batchRestrictions,
   Value<String?> warehouse,
 });
 typedef $$BinLocationTableTableUpdateCompanionBuilder
     = BinLocationTableCompanion Function({
   Value<int> id,
-  Value<String> code,
-  Value<String> name,
-  Value<int> isDefault,
+  Value<int> absEntry,
+  Value<String?> binCode,
+  Value<int?> isDefault,
+  Value<String?> isSystemBin,
   Value<String?> warehouseCode,
   Value<DateTime?> createdAt,
+  Value<String?> batchRestrictions,
   Value<String?> warehouse,
 });
 
@@ -3328,18 +3697,23 @@ class $$BinLocationTableTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get code => $state.composableBuilder(
-      column: $state.table.code,
+  ColumnFilters<int> get absEntry => $state.composableBuilder(
+      column: $state.table.absEntry,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get name => $state.composableBuilder(
-      column: $state.table.name,
+  ColumnFilters<String> get binCode => $state.composableBuilder(
+      column: $state.table.binCode,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
   ColumnFilters<int> get isDefault => $state.composableBuilder(
       column: $state.table.isDefault,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get isSystemBin => $state.composableBuilder(
+      column: $state.table.isSystemBin,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -3350,6 +3724,11 @@ class $$BinLocationTableTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get batchRestrictions => $state.composableBuilder(
+      column: $state.table.batchRestrictions,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -3374,18 +3753,23 @@ class $$BinLocationTableTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get code => $state.composableBuilder(
-      column: $state.table.code,
+  ColumnOrderings<int> get absEntry => $state.composableBuilder(
+      column: $state.table.absEntry,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get name => $state.composableBuilder(
-      column: $state.table.name,
+  ColumnOrderings<String> get binCode => $state.composableBuilder(
+      column: $state.table.binCode,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
   ColumnOrderings<int> get isDefault => $state.composableBuilder(
       column: $state.table.isDefault,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get isSystemBin => $state.composableBuilder(
+      column: $state.table.isSystemBin,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
@@ -3396,6 +3780,11 @@ class $$BinLocationTableTableOrderingComposer
 
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get batchRestrictions => $state.composableBuilder(
+      column: $state.table.batchRestrictions,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
@@ -3435,38 +3824,46 @@ class $$BinLocationTableTableTableManager extends RootTableManager<
               $$BinLocationTableTableOrderingComposer(ComposerState(db, table)),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String> code = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<int> isDefault = const Value.absent(),
+            Value<int> absEntry = const Value.absent(),
+            Value<String?> binCode = const Value.absent(),
+            Value<int?> isDefault = const Value.absent(),
+            Value<String?> isSystemBin = const Value.absent(),
             Value<String?> warehouseCode = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<String?> batchRestrictions = const Value.absent(),
             Value<String?> warehouse = const Value.absent(),
           }) =>
               BinLocationTableCompanion(
             id: id,
-            code: code,
-            name: name,
+            absEntry: absEntry,
+            binCode: binCode,
             isDefault: isDefault,
+            isSystemBin: isSystemBin,
             warehouseCode: warehouseCode,
             createdAt: createdAt,
+            batchRestrictions: batchRestrictions,
             warehouse: warehouse,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String code,
-            required String name,
-            Value<int> isDefault = const Value.absent(),
+            required int absEntry,
+            Value<String?> binCode = const Value.absent(),
+            Value<int?> isDefault = const Value.absent(),
+            Value<String?> isSystemBin = const Value.absent(),
             Value<String?> warehouseCode = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<String?> batchRestrictions = const Value.absent(),
             Value<String?> warehouse = const Value.absent(),
           }) =>
               BinLocationTableCompanion.insert(
             id: id,
-            code: code,
-            name: name,
+            absEntry: absEntry,
+            binCode: binCode,
             isDefault: isDefault,
+            isSystemBin: isSystemBin,
             warehouseCode: warehouseCode,
             createdAt: createdAt,
+            batchRestrictions: batchRestrictions,
             warehouse: warehouse,
           ),
           withReferenceMapper: (p0) => p0

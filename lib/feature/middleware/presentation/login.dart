@@ -64,13 +64,19 @@ class _LoginState extends State<Login> {
   }
 
   void init() async {
-    print('--------------> tables <----------------');
-    final tables = await database
-        .customSelect('SELECT name FROM sqlite_master WHERE type = "table";')
-        .get();
-    for (var row in tables) {
-      print(row.data['name']);
-    }
+    // print('--------------> tables 1 <----------------');
+    // // final tables = await database
+    // //     .customSelect('SELECT name FROM sqlite_master WHERE type = "table";')
+    // //     .get();
+
+    // final tables = await database
+    //     .customSelect('SELECT * FROM sqlite_master.warehouse_table;')
+    //     .get();
+
+    // print(tables);
+    // for (var row in tables) {
+    //   print(row.data['name']);
+    // }
   }
 
   @override

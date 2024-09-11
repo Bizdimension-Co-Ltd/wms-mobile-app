@@ -7,6 +7,13 @@ import 'package:dio/dio.dart';
 import '../core/error/failure.dart';
 import '/utilies/storage/locale_storage.dart';
 
+class APIResponse<T> {
+  final T data;
+  final String? next;
+
+  APIResponse({required this.data, this.next});
+}
+
 class DioClient {
   Dio _dio = Dio();
 
@@ -124,8 +131,6 @@ class DioClient {
     try {
       final token = await LocalStorageManger.getString('SessionId');
       _dio.options.headers['Content-Type'] = "application/json";
-      // _dio.options.headers['Authorization'] = "Bearer $token";
-
       return await _dio
           .patch(
             API_URL + uri,
@@ -133,7 +138,8 @@ class DioClient {
             options: Options(
               headers: {
                 'Content-Type': "application/json",
-                'Cookie': 'B1SESSION=$token; ROUTEID=.node9'
+                'Cookie': 'B1SESSION=$token; ROUTEID=.node9',
+                'B1S-ReplaceCollectionsOnPatch': true
                 // ...options,
               },
             ),

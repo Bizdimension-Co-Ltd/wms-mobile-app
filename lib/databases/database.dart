@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'wms_database');
@@ -39,6 +39,18 @@ class AppDatabase extends _$AppDatabase {
             // If upgrading from version 1, create the new table
             await m.createTable(itemTable);
             await m.createTable(unitOfMeasurementTable);
+          }
+
+          if (from == 2) {
+            // If upgrading from version 1, create the new table
+            await m.addColumn(binLocationTable,
+                binLocationTable.absEntry); // Add the new column
+            await m.addColumn(binLocationTable,
+                binLocationTable.batchRestrictions); // Add the new column
+            await m.addColumn(binLocationTable,
+                binLocationTable.binCode); // Add the new column
+            await m.addColumn(binLocationTable,
+                binLocationTable.isSystemBin); // Add the new column
           }
           // Add more conditions here if further versions are added in the future
         },

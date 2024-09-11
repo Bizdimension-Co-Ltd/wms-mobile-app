@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/usecase/create_local_usecase.dart';
+import '../../domain/usecase/delete_all_local_usecase.dart';
 import '../../domain/usecase/delete_local_usecase.dart';
 import '../../domain/usecase/find_local_usecase.dart';
 import '../../domain/usecase/get_local_usecase.dart';
@@ -18,7 +19,7 @@ class WarehouseCubit extends Cubit<WarehouseState> {
   CreateWarehouseLocalUseCase createLocalUseCase;
   UpdateWarehouseLocalUseCase updateLocalUseCase;
   DeleteWarehouseLocalUseCase deleteLocalUseCase;
-  DeleteWarehouseLocalUseCase deleteAllLocalUseCase;
+  DeleteAllWarehouseLocalUseCase deleteAllLocalUseCase;
 
   WarehouseCubit(
     this.useCase,
@@ -32,8 +33,8 @@ class WarehouseCubit extends Cubit<WarehouseState> {
 
   Future<List<WarehouseEntity>> get(String query) async {
     emit(RequestingWarehouse());
+    // (await deleteAllLocalUseCase.call());
     final data = (await getLocalUseCase.call());
-
     if (data.isNotEmpty) {
       emit(WarehouseData(data));
       return data;
@@ -44,14 +45,13 @@ class WarehouseCubit extends Cubit<WarehouseState> {
       emit(WarehouseError(error.message));
       return [];
     }, (success) async {
-      emit(WarehouseData(success));
       for (final whs in success) {
         final exist = (await findLocalUseCase.call(whs.code));
         if (exist == null) {
           await createLocalUseCase.call(whs);
         }
       }
-
+      emit(WarehouseData(success));
       return success;
     });
   }
@@ -74,4 +74,8 @@ class WarehouseCubit extends Cubit<WarehouseState> {
   }
 
   Future<void> deleteAll() async {}
+
+  Future<WarehouseEntity?> find(String code) async {
+    return findLocalUseCase.call(code);
+  }
 }

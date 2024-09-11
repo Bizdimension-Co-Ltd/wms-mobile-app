@@ -46,6 +46,7 @@ class Input extends StatelessWidget {
             child: TextFormField(
               controller: initialValue != null ? null : controller,
               textAlign: TextAlign.right,
+              // textInputAction: TextInputAction.go,
               readOnly: readOnly,
               onEditingComplete: onEditingComplete,
               style: TextStyle(fontSize: 14),
@@ -62,7 +63,7 @@ class Input extends StatelessWidget {
                     ? const EdgeInsets.only(top: 14)
                     : const EdgeInsets.only(top: 0),
                 hintText: placeholder,
-                hintStyle: TextStyle(fontSize: 14),
+                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
                 suffixIconConstraints: BoxConstraints(
                   maxWidth: 30,
                   minWidth: 30,
