@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:wms_mobile/feature/inbound/put_away/data/data_source/put_away_remote_data_source.dart';
-import 'package:wms_mobile/feature/inbound/put_away/domain/repository/put_away_repository.dart';
+import 'package:wms_mobile/feature/inbound/put_away_0/data/data_source/put_away_remote_data_source.dart';
+import 'package:wms_mobile/feature/inbound/put_away_0/domain/repository/put_away_repository.dart';
 
 import '../../../../../core/error/failure.dart';
 

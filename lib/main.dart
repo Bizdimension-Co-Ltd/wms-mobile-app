@@ -13,7 +13,6 @@ import '/feature/good_isuse_select/presentation/cubit/grt_cubit.dart';
 import '/feature/good_receipt_type/presentation/cubit/grt_cubit.dart';
 import '/feature/inbound/good_receipt/presentation/cubit/good_receipt_cubit.dart';
 import '/feature/inbound/good_receipt_po/presentation/cubit/purchase_good_receipt_cubit.dart';
-import '/feature/inbound/put_away/presentation/cubit/put_away_cubit.dart';
 import '/feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
 import '/feature/item_by_code/presentation/cubit/item_cubit.dart';
 import '/feature/list_batch/presentation/cubit/batch_list_cubit.dart';
@@ -36,6 +35,7 @@ import 'feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
 import 'feature/outbounce/good_issue/presentation/cubit/good_issue_cubit.dart';
 import 'feature/outbounce/purchase_return_request/presentation/cubit/purchase_return_request_cubit.dart';
 import 'feature/outbounce/sale_order/presentation/cubit/sale_order_cubit.dart';
+import 'feature/pick_and_pack/put_away/presentation/cubit/put_away_cubit.dart';
 import 'feature/pick_and_pack/warehouse_transfer/presentation/cubit/warehouse_transfer_cubit.dart';
 import 'injector.dart';
 
@@ -82,7 +82,6 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<PurchaseGoodReceiptCubit>()),
         BlocProvider(create: (_) => getIt<ReturnReceiptCubit>()),
         BlocProvider(create: (_) => getIt<ReturnReceiptRequestCubit>()),
-        BlocProvider(create: (_) => getIt<PutAwayCubit>()),
         BlocProvider(create: (_) => getIt<GoodReceiptCubit>()),
         BlocProvider(create: (_) => getIt<QuickCountCubit>()),
         BlocProvider(create: (_) => getIt<PhysicalCountCubit>()),
@@ -97,6 +96,7 @@ class _MyMainAppState extends State<MyMainApp> {
         BlocProvider(create: (_) => getIt<BinTransferCubit>()),
         BlocProvider(create: (_) => getIt<WarehouseTransferCubit>()),
         BlocProvider(create: (_) => getIt<PickListCubit>()),
+        BlocProvider(create: (_) => getIt<PutAwayCubit>()),
       ],
       child: const MainScreen(),
     );
