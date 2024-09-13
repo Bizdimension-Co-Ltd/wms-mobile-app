@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/feature/bin_location/domain/entity/bin_entity.dart';
-import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
-import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
-import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
-import 'package:wms_mobile/feature/item/presentation/cubit/item_cubit.dart';
-import 'package:wms_mobile/feature/warehouse/domain/entity/warehouse_entity.dart';
-import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
-import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import '/feature/bin_location/domain/entity/bin_entity.dart';
+import '/feature/bin_location/presentation/cubit/bin_cubit.dart';
+import '/feature/bin_location/presentation/screen/bin_page.dart';
+import '/feature/item/domain/entity/item_entity.dart';
+import '/feature/item/presentation/cubit/item_cubit.dart';
+import '/feature/warehouse/domain/entity/warehouse_entity.dart';
+import '/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
+import '/utilies/dialog/dialog.dart';
 
 import '../../../../../component/button/button.dart';
 import '../../../../../component/form/input.dart';
@@ -16,10 +16,16 @@ import '../../../../../helper/helper.dart';
 import '../../domain/entity/find_picking_list_entity.dart';
 
 class PickingBinItemScreen extends StatefulWidget {
-  const PickingBinItemScreen({super.key, required this.lines, this.rowIndex});
+  const PickingBinItemScreen({
+    super.key,
+    required this.lines,
+    this.rowIndex,
+    required this.item,
+  });
 
   final PickListsLineEntity lines;
   final int? rowIndex;
+  final ItemEntity item;
 
   @override
   State<PickingBinItemScreen> createState() => _PickingBinItemScreenState();
@@ -38,7 +44,6 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
   late BinCubit binContext;
   late ItemCubit itemContext;
 
-  PickListsLineEntity? pickingLine;
   WarehouseEntity? warehouseEntity;
   bool isSerialOrBatch = true;
 
@@ -58,8 +63,11 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
     itemCode.text = widget.lines.itemCode ?? "";
     itemName.text = widget.lines.itemDescription ?? "";
 
-    if (widget.lines.documentLinesBinAllocations!.length > 0) {
-      batchSerialCode.text = widget.lines.batchNumbers?.first.batchNumber ?? "";
+    if (widget.lines.documentLinesBinAllocations!.isNotEmpty) {
+      batchSerialCode.text = widget.item.isSerial
+          ? widget.lines.serialNumbers?.first.internalSerialNumber ?? ""
+          : widget.lines.batchNumbers?.first.batchNumber ?? "";
+
       pickQty.text = widget.lines.documentLinesBinAllocations?.first.quantity
               ?.toString() ??
           "";
@@ -84,10 +92,19 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
   }
 
   void onPressedItem(PickListsLineEntity entity) async {
-    ItemEntity item = await itemContext.find(entity.itemCode ?? "");
-
     final warehouse = await whsContext.find(entity.warehouseCode ?? "");
 
+    setState(() {
+      isSerialOrBatch =
+          (widget.item.isBatch || widget.item.isSerial) ? false : true;
+      warehouseEntity = warehouse;
+    });
+
+    print("----> ${warehouse?.code}");
+
+    // check if warehouse is enabled bin
+    if (!warehouse!.isEnableBin) return;
+    // find exist bin records
     if (widget.lines.documentLinesBinAllocations!.length > 0) {
       final bins = await binContext.get(entity.warehouseCode ?? "");
       final bin = bins
@@ -103,12 +120,6 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
       binId.text = bin.first.binId.toString();
       binLocation.text = bin.first.code.toString();
     }
-
-    setState(() {
-      isSerialOrBatch = (item.isBatch || item.isSerial) ? false : true;
-      pickingLine = entity;
-      warehouseEntity = warehouse;
-    });
   }
 
   void onComplete() {
@@ -121,26 +132,21 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
         throw Exception("Quantity must be positive number.");
       }
 
-      final bins = widget.lines.documentLinesBinAllocations
-          ?.where((e) => e.binAbsEntry != int.parse(binId.text))
-          .toList();
+      // final bins = widget.lines.documentLinesBinAllocations
+      //     ?.where((e) => e.binAbsEntry != int.parse(binId.text))
+      //     .toList();
 
-      double total =
-          bins?.fold(0, (pre, next) => pre! + (next.quantity ?? 0)) ?? 0;
+      // double total =
+      //     bins?.fold(0, (pre, next) => pre! + (next.quantity ?? 0)) ?? 0;
 
-      total += double.parse(pickQty.text);
+      // total += double.parse(pickQty.text);
 
-      if (total > (widget.lines.previouslyReleasedQuantity ?? 0)) {
-        throw Exception(
-            "Quantity can not be greater than ${widget.lines.previouslyReleasedQuantity}");
-      }
+      // if (total > (widget.lines.previouslyReleasedQuantity ?? 0)) {
+      //   throw Exception(
+      //       "Quantity can not be greater than ${widget.lines.previouslyReleasedQuantity}");
+      // }
 
-      final pickLine = PickListsLineEntity(
-        batchNumbers: [
-          BatchNumberEntity(
-            batchNumber: batchSerialCode.text,
-          ),
-        ],
+      PickListsLineEntity pickLine = PickListsLineEntity(
         documentLinesBinAllocations: [
           DocumentLinesBinAllocationEntity(
             quantity: double.parse(pickQty.text),
@@ -149,6 +155,22 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
           ),
         ],
       );
+
+      if (widget.item.isSerial) {
+        pickLine = pickLine.copyWith(serialNumbers: [
+          SerialNumberEntity(
+            internalSerialNumber: batchSerialCode.text,
+            quantity: pickQty.text,
+          ),
+        ]);
+      } else {
+        pickLine = pickLine.copyWith(batchNumbers: [
+          BatchNumberEntity(
+            batchNumber: batchSerialCode.text,
+            quantity: pickQty.text,
+          ),
+        ]);
+      }
 
       Navigator.of(context).pop(pickLine);
     } on Exception catch (e) {
@@ -197,8 +219,8 @@ class _PickingBinItemScreenState extends State<PickingBinItemScreen> {
             //   controller: itemName,
             // ),
             Input(
-              label: 'Batch',
-              placeholder: 'Batch',
+              label: widget.item.isSerial ? 'Serial No.' : 'Batch No.',
+              placeholder: widget.item.isSerial ? 'Serial No.' : 'Batch No.',
               controller: batchSerialCode,
             ),
             Input(

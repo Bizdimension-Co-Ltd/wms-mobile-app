@@ -14,18 +14,22 @@ import '../../../../../constant/style.dart';
 import '../../../../../helper/helper.dart';
 import '../../domain/entity/find_picking_list_entity.dart';
 
-class PickingItemScreen extends StatefulWidget {
-  const PickingItemScreen(
-      {super.key, required this.picking, required this.lineEntity});
+class PickingItemSerialScreen extends StatefulWidget {
+  const PickingItemSerialScreen({
+    super.key,
+    required this.picking,
+    required this.lineEntity,
+  });
 
   final PickListEntity picking;
   final PickListsLineEntity lineEntity;
 
   @override
-  State<PickingItemScreen> createState() => _PickingItemScreenState();
+  State<PickingItemSerialScreen> createState() =>
+      _PickingItemSerialScreenState();
 }
 
-class _PickingItemScreenState extends State<PickingItemScreen> {
+class _PickingItemSerialScreenState extends State<PickingItemSerialScreen> {
   final whs = TextEditingController();
   final itemCode = TextEditingController();
   final itemName = TextEditingController();
@@ -42,6 +46,8 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
   WarehouseEntity? warehouseEntity;
   bool isSerialOrBatch = true;
   bool loading = true;
+  bool isItemBatchOrSerial = false;
+  late ItemEntity _item;
 
   @override
   void initState() {
@@ -84,18 +90,19 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
 
   void onPressedItem(PickListsLineEntity entity) async {
     setState(() => loading = true);
-
     await Future.delayed(const Duration(milliseconds: 50));
-
     if (mounted) MaterialDialog.loading(context, barrierDismissible: true);
 
     ItemEntity item = await itemContext.find(entity.itemCode ?? "");
     final warehouse = await whsContext.find(entity.warehouseCode ?? "");
+
     setState(() {
       isSerialOrBatch = (item.isBatch || item.isSerial) ? false : true;
       pickingLine = entity;
       warehouseEntity = warehouse;
       loading = false;
+      isItemBatchOrSerial = item.isBatch || item.isSerial;
+      _item = item;
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -125,23 +132,46 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
     final total =
         entities.fold(0.00, (prev, next) => prev + (next.quantity ?? 0.00));
 
-    final batchTotal = entities
-        .where((e) =>
+    List<SerialNumberEntity> serials = [...pickingLine.serialNumbers ?? []];
+
+    final serialMultipleBins = pickingLine.documentLinesBinAllocations?.where(
+        (e) =>
             e.serialAndBatchNumbersBaseLine ==
-            removed.serialAndBatchNumbersBaseLine)
+            removed.serialAndBatchNumbersBaseLine);
+
+    // calculate total qty of serial each bins
+    final serialTotal = entities
+        .where(
+          (e) =>
+              e.serialAndBatchNumbersBaseLine ==
+              removed.serialAndBatchNumbersBaseLine,
+        )
         .toList()
         .fold(0.00, (prev, next) => prev + (next.quantity ?? 0.00));
 
-    var batches = [...pickingLine.batchNumbers ?? []];
-    batches[removed.serialAndBatchNumbersBaseLine ?? 0] =
-        batches[removed.serialAndBatchNumbersBaseLine ?? 0]
-            .copyWith(quantity: batchTotal.toString());
+    // remove if serial if it have only bin otherwise it will not remove
+    if (serialMultipleBins?.length == 1) {
+      serials.removeAt(removed.serialAndBatchNumbersBaseLine ?? -1);
+    } else {
+      // otherwise it will update quantity to serials
+      serials[removed.serialAndBatchNumbersBaseLine ?? 0] =
+          serials[removed.serialAndBatchNumbersBaseLine ?? 0]
+              .copyWith(quantity: serialTotal.toString());
+    }
 
+    for (var row = 0; row < serials.length; row++) {
+      entities[row] =
+          entities[row].copyWith(serialAndBatchNumbersBaseLine: row);
+    }
+
+    //  create copy instance
     pickingLine = pickingLine.copyWith(
       pickedQuantity: total,
+      serialNumbers: serials,
       documentLinesBinAllocations: entities,
     );
 
+    // Update UI value
     pickQty.text = total.toString();
     openQty.text = ((widget.lineEntity.previouslyReleasedQuantity ?? 0) - total)
         .toString();
@@ -151,21 +181,18 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
   }
 
   void onUpdateItem(
-    BatchNumberEntity entity,
+    SerialNumberEntity entity,
     DocumentLinesBinAllocationEntity allocation,
     int index,
   ) {
     PickListsLineEntity line = pickingLine.copyWith(
-      batchNumbers: [entity],
+      serialNumbers: [entity],
       documentLinesBinAllocations: [allocation],
     );
 
-    goTo(
-        context,
-        PickingBinItemScreen(
-          lines: line,
-          rowIndex: index,
-        )).then(
+    goTo(context,
+            PickingBinItemScreen(lines: line, rowIndex: index, item: _item))
+        .then(
       (onValue) {
         if (onValue is int) {
           removeItemByIndex(index);
@@ -173,19 +200,18 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
         }
 
         if (onValue == null) return;
-
-        onCompleteUpdateInput(onValue as PickListsLineEntity, isUpdate: true);
+        onCompleteUpdateInput(onValue as PickListsLineEntity);
       },
     );
   }
 
   void onAddItem() {
     PickListsLineEntity line = pickingLine.copyWith(
-      batchNumbers: [],
+      serialNumbers: [],
       documentLinesBinAllocations: [],
     );
 
-    goTo(context, PickingBinItemScreen(lines: line)).then(
+    goTo(context, PickingBinItemScreen(lines: line, item: _item)).then(
       (onValue) {
         if (onValue == null) return;
         onCompleteAddInput(onValue as PickListsLineEntity);
@@ -194,21 +220,23 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
   }
 
   void onCompleteAddInput(PickListsLineEntity value) {
-    final index = pickingLine.batchNumbers?.indexWhere(
-        (e) => e.batchNumber == value.batchNumbers?.first.batchNumber);
+    final index = pickingLine.serialNumbers?.indexWhere((e) =>
+        e.internalSerialNumber ==
+        value.serialNumbers?.first.internalSerialNumber);
 
-    final itemIndex =
-        index != null && index != -1 ? index : pickingLine.batchNumbers!.length;
+    final itemIndex = index != null && index != -1
+        ? index
+        : pickingLine.serialNumbers!.length;
 
-    List<BatchNumberEntity> batches = [...pickingLine.batchNumbers ?? []];
+    List<SerialNumberEntity> serials = [...pickingLine.serialNumbers ?? []];
     List<DocumentLinesBinAllocationEntity> allocations = [
       ...pickingLine.documentLinesBinAllocations ?? []
     ];
 
-    batches.add(
-      BatchNumberEntity(
+    serials.add(
+      SerialNumberEntity(
         quantity: value.documentLinesBinAllocations?.first.quantity?.toString(),
-        batchNumber: value.batchNumbers?.first.batchNumber,
+        internalSerialNumber: value.serialNumbers?.first.internalSerialNumber,
       ),
     );
 
@@ -220,22 +248,28 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
     ));
 
     pickingLine = pickingLine.copyWith(
-      batchNumbers: batches,
+      serialNumbers: serials,
       documentLinesBinAllocations: allocations,
     );
 
     updateCurrenState(pickingLine);
   }
 
-  void onCompleteUpdateInput(PickListsLineEntity value,
-      {bool isUpdate = false}) {
-    final index = pickingLine.documentLinesBinAllocations?.indexWhere((e) =>
-        e.binAbsEntry == value.documentLinesBinAllocations?.first.binAbsEntry);
+  void onCompleteUpdateInput(PickListsLineEntity value) {
+    final serialIndex = pickingLine.serialNumbers?.indexWhere((e) =>
+        e.internalSerialNumber ==
+        value.serialNumbers?.first.internalSerialNumber);
+
+    final index = pickingLine.documentLinesBinAllocations?.indexWhere(
+      (e) =>
+          e.binAbsEntry ==
+              value.documentLinesBinAllocations?.first.binAbsEntry &&
+          e.serialAndBatchNumbersBaseLine == serialIndex,
+    );
 
     if (index == null || index == -1) return;
-
     // if index is null or -1 then skip process below
-    List<BatchNumberEntity> batches = [...pickingLine.batchNumbers ?? []];
+    List<SerialNumberEntity> serials = [...pickingLine.serialNumbers ?? []];
     List<DocumentLinesBinAllocationEntity> allocations = [
       ...pickingLine.documentLinesBinAllocations ?? []
     ];
@@ -246,21 +280,18 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
       binAbsEntry: value.documentLinesBinAllocations?.first.binAbsEntry,
     );
 
-    final batchIndex = batches.indexWhere(
-        (e) => e.batchNumber == value.batchNumbers?.first.batchNumber);
-
-    if (batchIndex == -1) return;
+    if (serialIndex == -1) return;
 
     final totalQty = allocations
-        .where((e) => e.serialAndBatchNumbersBaseLine == batchIndex)
+        .where((e) => e.serialAndBatchNumbersBaseLine == serialIndex)
         .toList()
         .fold(0.00, (prev, next) => prev + (next.quantity ?? 0.00));
 
-    batches[batchIndex] =
-        batches[batchIndex].copyWith(quantity: totalQty.toString());
+    serials[serialIndex!] =
+        serials[serialIndex].copyWith(quantity: totalQty.toString());
 
     pickingLine = pickingLine.copyWith(
-      batchNumbers: batches,
+      serialNumbers: serials,
       documentLinesBinAllocations: allocations,
       pickedQuantity: totalQty,
     );
@@ -302,9 +333,18 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
       if (index == null || index == 1) return;
 
       List<PickListsLineEntity> line = [...entity.pickListsLines ?? []];
-      line[index] = pickingLine;
-      entity = entity.copWith(pickListsLines: line);
 
+      if (!isItemBatchOrSerial) {
+        line[index] = pickingLine.copyWith(
+          pickedQuantity: double.tryParse(pickQty.text) ?? 0.00,
+          releasedQuantity: (pickingLine.previouslyReleasedQuantity ?? 0) -
+              (double.tryParse(pickQty.text) ?? 0.00),
+        );
+      } else {
+        line[index] = pickingLine;
+      }
+
+      entity = entity.copWith(pickListsLines: line);
       await pickingListContext.update(entity);
       if (mounted) {
         MaterialDialog.close(context);
@@ -370,85 +410,99 @@ class _PickingItemScreenState extends State<PickingItemScreen> {
               controller: openQty,
             ),
             Input(
-              label: 'Pick Qty.',
+              label: 'Pick Qty. ',
               placeholder: 'Pick Qty.',
               keyboardType: TextInputType.number,
-              readOnly: true,
+              readOnly: isItemBatchOrSerial,
               controller: pickQty,
             ),
-            const SizedBox(height: 30),
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: Button(
-                    onPressed: onAddItem,
-                    disabled:
-                        isSerialOrBatch || pickingLine.releasedQuantity == 0,
-                    child: Text(
-                      'Add Item',
-                      style: TextStyle(
-                        color: Colors.white,
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    if (isItemBatchOrSerial)
+                      Expanded(
+                        child: Button(
+                          onPressed: onAddItem,
+                          disabled: isSerialOrBatch ||
+                              pickingLine.releasedQuantity == 0,
+                          child: Text(
+                            'Add Item',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    if (isItemBatchOrSerial) const SizedBox(width: 10),
+                    // Expanded(
+                    //   child: Button(
+                    //     onPressed: () {},
+                    //     disabled: isSerialOrBatch,
+                    //     child: Text(
+                    //       'Edit',
+                    //       style: TextStyle(
+                    //         color: Colors.white,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Button(
+                        onPressed: onFinish,
+                        child: Text(
+                          'Finish',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
-                const SizedBox(width: 10),
-                // Expanded(
-                //   child: Button(
-                //     onPressed: () {},
-                //     disabled: isSerialOrBatch,
-                //     child: Text(
-                //       'Edit',
-                //       style: TextStyle(
-                //         color: Colors.white,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Button(
-                    onPressed: onFinish,
-                    child: Text(
-                      'Finish',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
               ],
             ),
-            const SizedBox(height: 30),
-            ContentHeader(),
-            const SizedBox(height: 6),
-            Expanded(
-              child: Scrollbar(
-                child: ListView(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ...List.generate(
-                        pickingLine.documentLinesBinAllocations?.length ?? 0,
-                        (index) {
-                          final allocation =
-                              pickingLine.documentLinesBinAllocations![index];
-                          final batch = pickingLine.batchNumbers![
-                              allocation.serialAndBatchNumbersBaseLine ?? 0];
+            if (isItemBatchOrSerial)
+              Expanded(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    ContentHeader(),
+                    const SizedBox(height: 6),
+                    Expanded(
+                      child: Scrollbar(
+                        child: ListView(children: [
+                          ...List.generate(
+                            pickingLine.documentLinesBinAllocations?.length ??
+                                0,
+                            (index) {
+                              final allocation = pickingLine
+                                  .documentLinesBinAllocations![index];
 
-                          return GestureDetector(
-                            child: ItemRow(
-                              code: batch.batchNumber ?? "",
-                              allocation: allocation,
-                              onTap: () =>
-                                  onUpdateItem(batch, allocation, index),
-                              onLongTap: () => onRemoveItem(index),
-                            ),
-                          );
-                        },
+                              //
+                              final serial = pickingLine.serialNumbers![
+                                  allocation.serialAndBatchNumbersBaseLine ??
+                                      0];
+
+                              return GestureDetector(
+                                child: ItemRow(
+                                  code: serial.internalSerialNumber ?? "",
+                                  allocation: allocation,
+                                  onTap: () =>
+                                      onUpdateItem(serial, allocation, index),
+                                  onLongTap: () => onRemoveItem(index),
+                                ),
+                              );
+                            },
+                          ),
+                        ]),
                       ),
-                    ]),
-              ),
-            ),
+                    ),
+                  ],
+                ),
+              )
           ],
         ),
       ),
@@ -475,7 +529,7 @@ class ContentHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              'Batch Number.',
+              'Serial Number.',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
               ),

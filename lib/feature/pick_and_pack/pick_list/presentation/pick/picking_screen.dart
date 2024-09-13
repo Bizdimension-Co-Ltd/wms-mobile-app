@@ -3,9 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
-import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/pick/picking_item_screen.dart';
+import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
+import 'package:wms_mobile/feature/item/presentation/cubit/item_cubit.dart';
+import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/pick/picking_item_batch_screen.dart';
+import 'package:wms_mobile/feature/pick_and_pack/pick_list/presentation/pick/picking_item_serial_screen.dart';
 import 'package:wms_mobile/feature/warehouse/domain/entity/warehouse_entity.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
+import 'package:wms_mobile/utilies/dialog/dialog.dart';
 
 import '../../../../../component/form/input.dart';
 import '../../../../../constant/style.dart';
@@ -29,7 +33,7 @@ class _PickingScreenState extends State<PickingScreen> {
   final pickQty = TextEditingController();
 
   late WarehouseCubit whsContext;
-  late BinCubit binContext;
+  late ItemCubit itemContext;
 
   PickListsLineEntity? pickingLine;
   late PickListEntity picking;
@@ -39,7 +43,7 @@ class _PickingScreenState extends State<PickingScreen> {
   void initState() {
     if (mounted) {
       whsContext = context.read<WarehouseCubit>();
-      binContext = context.read<BinCubit>();
+      itemContext = context.read<ItemCubit>();
     }
 
     setState(() {
@@ -68,25 +72,30 @@ class _PickingScreenState extends State<PickingScreen> {
   }
 
   void onPressedItem(PickListsLineEntity entity) async {
-    whs.text = entity.warehouseCode ?? "";
-    itemCode.text = entity.itemCode ?? "";
-    itemUoM.text = entity.uomCode ?? "";
-    openQty.text = entity.releasedQuantity?.toString() ?? "";
-    pickQty.text = entity.pickedQuantity?.toString() ?? "";
+    ItemEntity item = await itemContext.find(entity.itemCode ?? "");
 
-    goTo(
-      context,
-      PickingItemScreen(
-        picking: widget.picking,
-        lineEntity: entity,
-      ),
-    ).then((value) {
-      if (value == null) return;
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) {
+      MaterialDialog.loading(context);
+    }
 
-      setState(() {
-        picking = value;
+    final route = item.isSerial
+        ? PickingItemSerialScreen(picking: picking, lineEntity: entity)
+        : PickingItemBatchScreen(picking: widget.picking, lineEntity: entity);
+
+    if (mounted) {
+      MaterialDialog.close(context);
+    }
+
+    if (mounted) {
+      goTo(context, route).then((value) {
+        if (value == null) return;
+
+        setState(() {
+          picking = value;
+        });
       });
-    });
+    }
   }
 
   bool isEnableBin() {

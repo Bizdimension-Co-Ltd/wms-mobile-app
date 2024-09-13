@@ -16,6 +16,7 @@ class Input extends StatelessWidget {
     this.onEditingComplete,
     this.initialValue,
     this.keyboardType = TextInputType.text,
+    this.onChange,
   });
 
   final String label;
@@ -28,6 +29,7 @@ class Input extends StatelessWidget {
   final Function()? onEditingComplete;
   final String? initialValue;
   final TextInputType? keyboardType;
+  final Function(String value)? onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,7 @@ class Input extends StatelessWidget {
               // textInputAction: TextInputAction.go,
               readOnly: readOnly,
               onEditingComplete: onEditingComplete,
+              onChanged: onChange,
               style: TextStyle(fontSize: 14),
               keyboardType: keyboardType,
               initialValue: initialValue,
