@@ -100,7 +100,7 @@ class _SaleOrderPageState extends State<SaleOrderPage> {
       // final warehouse = await LocalStorageManger.getString('warehouse');
     _bloc
         .get(
-            "$query&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode, '${filter.text}')")
+            "$query&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode, '${filter.text}') & \$orderby = DocEntry desc")
         .then((value) {
       if (!mounted) return;
 

@@ -282,7 +282,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         MaterialDialog.success(
           context,
           title: 'Successfully',
-          body: "BinLocation Count - ${response["DocumentNumber"]}.",
+          body: "Physical Count - ${response["DocumentNumber"]}.",
           onOk: () => Navigator.of(context).pop(),
         );
       }
