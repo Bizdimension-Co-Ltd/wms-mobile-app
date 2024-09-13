@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/core/enum/global.dart';
 import 'package:wms_mobile/helper/helper.dart';
-import 'package:wms_mobile/mobile_function/dashboard.dart';
-import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '../cubit/business_partner_cubit.dart';
 import '/constant/style.dart';
 

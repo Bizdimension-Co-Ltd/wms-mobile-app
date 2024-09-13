@@ -10,8 +10,8 @@ import 'package:wms_mobile/feature/inbound/inbound.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
-import '../constant/style.dart';
-import '../feature/pick_and_pack/pick_and_pack.dart';
+import '../../../../constant/style.dart';
+import '../../../pick_and_pack/pick_and_pack.dart';
 
 const gridList = [
   {"name": "Inbound", "img": "download.svg"},
@@ -22,14 +22,14 @@ const gridList = [
   {"name": "Log Out", "img": "logout1.svg"}
 ];
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardScreenState extends State<DashboardScreen> {
   String warehouseCode = '';
   void _logout(BuildContext context) {
     MaterialDialog.loading(context);

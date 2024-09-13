@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
-import 'package:wms_mobile/presentations/rma/good_return_request/good_return_request_list.dart';
+import 'package:wms_mobile/presentations/inventory/good_issue/good_issue_List.dart';
+import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_List.dart';
 
-import '../constant/style.dart';
-// import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
+import '../../../../constant/style.dart';
 
 const gridList = [
-  {"name": "Return Request", "img": "request-changes.svg"},
-  {"name": "Good Return Request", "img": "document-subtract.svg"},
-  {"name": "Quick Return", "img": "document-add.svg"},
+  {"name": "Store Request", "img": "request-changes.svg"},
+  {"name": "Good Issue", "img": "document-subtract.svg"},
+  {"name": "Good Receipt", "img": "document-add.svg"},
+  {"name": "Transfer Receipt", "img": "document-preliminary.svg"},
+  {"name": "Warehouse Tranfer", "img": "building-warehouse.svg"},
+  {"name": "Bin Tranfer", "img": "shopping-cart-arrow-up.svg"},
+  {"name": "Bin Replenishment", "img": "replace.svg"}
 ];
 
-class MRAScreen extends StatefulWidget {
-  const MRAScreen({super.key});
+class InventoryScreen extends StatefulWidget {
+  const InventoryScreen({super.key});
 
   @override
-  State<MRAScreen> createState() => _MRAScreenState();
+  State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class _MRAScreenState extends State<MRAScreen> {
+class _InventoryScreenState extends State<InventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +47,7 @@ class _MRAScreenState extends State<MRAScreen> {
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
-          "RMA",
+          "Inventory",
           style: TextStyle(
             color: Colors.black,
           ),
@@ -57,6 +61,13 @@ class _MRAScreenState extends State<MRAScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // const Text(
+              //   "Function",
+              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              // ),
+              // const SizedBox(
+              //   height: 20,
+              // ),
               SizedBox(
                 child: GridView.builder(
                     shrinkWrap: true, // use
@@ -80,11 +91,22 @@ class _MRAScreenState extends State<MRAScreen> {
                             // );
                           } else if (index == 1) {
                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const GoodReturnRequestListScreen()),
-                            );
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GoodIssueListScreen()));
+                          } else if (index == 2) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GoodReceiptListScreen()));
+                          } else if (index == 3) {
+                            //  Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (context) =>
+                            //               const GoodReceiptListScreen()));
                           }
                         },
                         child: Container(
@@ -106,7 +128,6 @@ class _MRAScreenState extends State<MRAScreen> {
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
-                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: size(context).width * 0.035),
                               ),

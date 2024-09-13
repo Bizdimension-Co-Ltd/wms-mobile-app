@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_mobile/constant/api.dart';
-import 'package:wms_mobile/databases/database.dart';
-import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
-import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
-import 'package:wms_mobile/mobile_function/dashboard_screen.dart';
-
+import '/constant/api.dart';
+import '/feature/middleware/domain/entity/login_entity.dart';
+import '/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import '../../../utilies/dialog/dialog.dart';
+import '../../dashboard/presentations/page/dashboard_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -53,30 +51,6 @@ class _LoginState extends State<Login> {
         ),
       );
     }
-  }
-
-  final database = new AppDatabase();
-  @override
-  void initState() {
-    // TODO: implement initState
-    init();
-    super.initState();
-  }
-
-  void init() async {
-    // print('--------------> tables 1 <----------------');
-    // // final tables = await database
-    // //     .customSelect('SELECT name FROM sqlite_master WHERE type = "table";')
-    // //     .get();
-
-    // final tables = await database
-    //     .customSelect('SELECT * FROM sqlite_master.warehouse_table;')
-    //     .get();
-
-    // print(tables);
-    // for (var row in tables) {
-    //   print(row.data['name']);
-    // }
   }
 
   @override

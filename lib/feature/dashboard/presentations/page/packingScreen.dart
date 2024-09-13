@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
-import 'package:wms_mobile/presentations/inventory/good_issue/good_issue_List.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_List.dart';
 
-import '../constant/style.dart';
-// import '../feature/receving/good_receipt/presentation/good_receipt_list_screen.dart';
+import '../../../../constant/style.dart';
 
 const gridList = [
-  {"name": "Store Request", "img": "request-changes.svg"},
-  {"name": "Good Issue", "img": "document-subtract.svg"},
-  {"name": "Good Receipt", "img": "document-add.svg"},
-  {"name": "Transfer Receipt", "img": "document-preliminary.svg"},
-  {"name": "Warehouse Tranfer", "img": "building-warehouse.svg"},
-  {"name": "Bin Tranfer", "img": "shopping-cart-arrow-up.svg"},
-  {"name": "Bin Replenishment", "img": "replace.svg"}
+  {"name": "Packing Pallet", "img": "request-changes.svg"},
+  {"name": "Pallet Print", "img": "printer.svg"},
+  {"name": "Pallet Break", "img": "file-earmark-break.svg"},
+  {"name": "Pallet Inquiry", "img": "document-preliminary.svg"},
 ];
 
-class InventoryScreen extends StatefulWidget {
-  const InventoryScreen({super.key});
+class PackingScreen extends StatefulWidget {
+  const PackingScreen({super.key});
 
   @override
-  State<InventoryScreen> createState() => _InventoryScreenState();
+  State<PackingScreen> createState() => _PackingScreenState();
 }
 
-class _InventoryScreenState extends State<InventoryScreen> {
+class _PackingScreenState extends State<PackingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +42,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
-          "Inventory",
+          "Packing",
           style: TextStyle(
             color: Colors.black,
           ),
@@ -79,41 +73,20 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             mainAxisSpacing: 10.0),
                     itemCount: gridList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (index == 0) {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //       builder: (context) =>
-                            //           const PurchaseOrderListScreen(
-                            //             title: 'Purchase Order',
-                            //           )),
-                            // );
-                          } else if (index == 1) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const GoodIssueListScreen()));
-                          } else if (index == 2) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const GoodReceiptListScreen()));
-                          } else if (index == 3) {
-                            //  Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //           builder: (context) =>
-                            //               const GoodReceiptListScreen()));
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5)),
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: GestureDetector(
+                          // onTap: () {
+                          //   Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => GoodReceiptListScreen(
+                          //               title: gridList[index]["name"] ?? '',
+                          //             )),
+                          //   );
+                          // },
                           child: Center(
                               child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -129,6 +102,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: size(context).width * 0.035),
                               ),

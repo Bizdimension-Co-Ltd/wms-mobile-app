@@ -1,41 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
-import 'package:wms_mobile/mobile_function/countingScreen.dart';
-import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
-import 'package:wms_mobile/mobile_function/packingScreen.dart';
-import 'package:wms_mobile/mobile_function/receivingScreen.dart';
-import 'package:wms_mobile/mobile_function/rmaScreen.dart';
+import 'package:wms_mobile/presentations/rma/good_return_request/good_return_request_list.dart';
 
-import '../constant/style.dart';
+import '../../../../constant/style.dart';
 
 const gridList = [
-  {"name": "Receiving", "img": "call-received.svg"},
-  {"name": "Inventory", "img": "building-warehouse.svg"},
-  {"name": "RMA", "img": "return.svg"},
-  {"name": "Counting", "img": "c.svg"},
-  {"name": "Packing", "img": "package-24.svg"}
+  {"name": "Return Request", "img": "request-changes.svg"},
+  {"name": "Good Return Request", "img": "document-subtract.svg"},
+  {"name": "Quick Return", "img": "document-add.svg"},
 ];
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class MRAScreen extends StatefulWidget {
+  const MRAScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<MRAScreen> createState() => _MRAScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _MRAScreenState extends State<MRAScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        
-        automaticallyImplyLeading: false,
-        // leading: const Icon(Icons.dashboard),
-        iconTheme: const IconThemeData(
-          color: Colors.black, //change your color here
-        ),
+        elevation: 0.2,
         actions: [
           IconButton(
               onPressed: () {
@@ -49,9 +37,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 15,
           )
         ],
-        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
+        ),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
-          "WMS Mobile",
+          "RMA",
           style: TextStyle(
             color: Colors.black,
           ),
@@ -65,9 +56,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 10,
-              ),
               SizedBox(
                 child: GridView.builder(
                     shrinkWrap: true, // use
@@ -81,36 +69,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return GestureDetector(
                         onTap: () {
                           if (index == 0) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ReceivingScreen()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) =>
+                            //           const PurchaseOrderListScreen(
+                            //             title: 'Purchase Order',
+                            //           )),
+                            // );
                           } else if (index == 1) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const InventoryScreen()),
-                            );
-                          } else if (index == 2) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MRAScreen()),
-                            );
-                          } else if (index == 3) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const CountingScreen()),
-                            );
-                          } else if (index == 4) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const PackingScreen()),
+                                      const GoodReturnRequestListScreen()),
                             );
                           }
                         },
@@ -133,6 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: size(context).width * 0.035),
                               ),

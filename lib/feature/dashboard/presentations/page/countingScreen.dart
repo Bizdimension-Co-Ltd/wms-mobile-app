@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
-import 'package:wms_mobile/presentations/inventory/good_receipt/good_receipt_List.dart';
-import 'package:wms_mobile/presentations/purchase/purchase_order/purchaseOrderListScreen.dart';
 
-import '../constant/style.dart';
+import '../../../../constant/style.dart';
 
 const gridList = [
-  {"name": "Purchase Order", "img": "shopping-cart.svg"},
-  {"name": "Goods Receipt", "img": "receipt.svg"},
-  {"name": "Good Receipt PO", "img": "gpo.svg"},
-  {"name": "Direct Put Away", "img": "document.svg"},
+  {"name": "Bin count", "img": "request-changes.svg"},
+  {"name": "Circle Count", "img": "history-solid.svg"},
+  {"name": "Physical Count", "img": "document-add.svg"},
 ];
 
-class ReceivingScreen extends StatefulWidget {
-  const ReceivingScreen({super.key});
+class CountingScreen extends StatefulWidget {
+  const CountingScreen({super.key});
 
   @override
-  State<ReceivingScreen> createState() => _ReceivingScreenState();
+  State<CountingScreen> createState() => _CountingScreenState();
 }
 
-class _ReceivingScreenState extends State<ReceivingScreen> {
+class _CountingScreenState extends State<CountingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +41,7 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
         ),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text(
-          "Receiving",
+          "Counting",
           style: TextStyle(
             color: Colors.black,
           ),
@@ -75,23 +72,20 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
                             mainAxisSpacing: 10.0),
                     itemCount: gridList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (index == 0) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PurchaseOrderListScreen(
-                                        title: 'Purchase Order',
-                                      )),
-                            );
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5)),
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: GestureDetector(
+                          // onTap: () {
+                          //   Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => GoodReceiptListScreen(
+                          //               title: gridList[index]["name"] ?? '',
+                          //             )),
+                          //   );
+                          // },
                           child: Center(
                               child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -107,6 +101,7 @@ class _ReceivingScreenState extends State<ReceivingScreen> {
                               ),
                               Text(
                                 "${gridList[index]["name"]}",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: size(context).width * 0.035),
                               ),

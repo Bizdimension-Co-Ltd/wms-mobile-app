@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/dashboard/presentations/page/dashboard_screen.dart';
 import 'package:wms_mobile/helper/helper.dart';
-import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '/constant/style.dart';
@@ -89,7 +89,7 @@ class _WarehousePageState extends State<WarehousePage> {
   void onPressed(String code) {
     if (widget.isPicker) {
       LocalStorageManger.setString('warehouse', code);
-      goTo(context, Dashboard(), removeAllPreviousRoutes: true);
+      goTo(context, DashboardScreen(), removeAllPreviousRoutes: true);
     } else {
       LocalStorageManger.setString('warehouse', code);
       Navigator.pop(context, code);

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
-import 'package:wms_mobile/component/form/input.dart';
 import 'package:wms_mobile/constant/api.dart';
 import 'package:wms_mobile/constant/style.dart';
+import 'package:wms_mobile/feature/dashboard/presentations/page/dashboard_screen.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
-import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import '../../../databases/database.dart';
 import '../../../helper/helper.dart';
@@ -55,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const Dashboard(),
+          builder: (context) => const DashboardScreen(),
         ),
       );
     }
