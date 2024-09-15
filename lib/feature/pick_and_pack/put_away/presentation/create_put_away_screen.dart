@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -67,20 +68,6 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     init();
     _bloc = context.read<PutAwayCubit>();
     _blocItem = context.read<ItemCubit>();
-
-    //
-    // IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
-    //   if (call.method == "onScanResults") {
-    //     if (loading) return;
-
-    //     setState(() {
-    //       if (call.arguments['data'] == "decode error") return;
-    //       //
-    //       itemCode.text = call.arguments['data'];
-    //       onCompleteTextEditItem();
-    //     });
-    //   }
-    // });
     super.initState();
   }
 
@@ -402,27 +389,25 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     isEdit = -1;
   }
 
-  void onSetItemTemp(dynamic value) {
+  void onSetItemTemp(ItemEntity? value) {
     try {
       if (value == null) return;
       FocusScope.of(context).requestFocus(FocusNode());
 
-      itemCode.text = getDataFromDynamic(value['ItemCode']);
-      itemName.text = getDataFromDynamic(value['ItemName']);
+      itemCode.text = value.code;
+      itemName.text = value.name;
       quantity.text = '0';
-      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
-      baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
+      uom.text = value.inventoryUOM;
+      uomAbEntry.text = value.inventoryUoMEntry.toString();
+      baseUoM.text = value.inventoryUOM;
       // log(value.toString());
-      uoMGroupDefinitionCollection.text = jsonEncode(
-        value['UoMGroupDefinitionCollection'] ?? [],
-      );
+      uoMGroupDefinitionCollection.text =
+          value.uoMGroupDefinitionCollection ?? "{}";
 
-      isSerial.text = getDataFromDynamic(value['ManageSerialNumbers']);
-      isBatch.text = getDataFromDynamic(value['ManageBatchNumbers']);
+      isSerial.text = value.isManageSerial;
+      isBatch.text = value.isManageBatch;
 
-      if (value['ManageSerialNumbers'] == 'tYES' ||
-          value['ManageBatchNumbers'] == 'tYES') {
+      if (value.isSerial || value.isBatch) {
         setState(() {
           isSerialOrBatch = true;
         });
@@ -439,10 +424,10 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       //
       MaterialDialog.loading(context);
       final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+      if (!item.isPurchaseItem) {
         throw Exception('${itemCode.text} is not purchase item.');
       }
+
       if (mounted) {
         MaterialDialog.close(context);
       }

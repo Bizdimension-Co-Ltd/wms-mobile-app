@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
@@ -8,7 +7,6 @@ import 'package:wms_mobile/feature/outbounce/delivery/presentation/cubit/deliver
 import 'package:wms_mobile/feature/outbounce/sale_order/presentation/sale_order_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
-import '/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
 import '/feature/serial/good_receip_serial_screen.dart';
 import '/feature/bin_location/domain/entity/bin_entity.dart';
@@ -19,7 +17,6 @@ import '../../../item/presentation/cubit/item_cubit.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
 import '/core/enum/global.dart';
-import '/feature/item/presentation/screen/item_page.dart';
 import '/feature/unit_of_measurement/domain/entity/unit_of_measurement_entity.dart';
 import '/feature/unit_of_measurement/presentation/screen/unit_of_measurement_page.dart';
 import '/helper/helper.dart';
@@ -630,11 +627,11 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
           "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
+              itemResponse.uoMGroupDefinitionCollection,
+          "BaseUoM": itemResponse.inventoryUOM,
           "BinId": binId.text,
-          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
-          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+          "ManageSerialNumbers": itemResponse.isManageSerial,
+          "ManageBatchNumbers": itemResponse.isManageBatch,
           "BarCode": element['BarCode'],
         });
         baseEntry.add({

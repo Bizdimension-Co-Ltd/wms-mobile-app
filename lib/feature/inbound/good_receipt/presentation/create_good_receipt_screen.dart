@@ -592,8 +592,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
           "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
+              itemResponse.uoMGroupDefinitionCollection,
+          "BaseUoM": itemResponse.inventoryUOM,
           "BinId": binId.text,
         });
       }

@@ -592,11 +592,11 @@ class _CreatePurchaseReturnScreenState
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
           "UoMGroupDefinitionCollection":
-              itemResponse['UoMGroupDefinitionCollection'],
-          "BaseUoM": itemResponse['BaseUoM'],
+              itemResponse.uoMGroupDefinitionCollection,
+          "BaseUoM": itemResponse.inventoryUOM,
           "BinId": binId.text,
-          "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
-          "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+          "ManageSerialNumbers": itemResponse.isManageSerial,
+          "ManageBatchNumbers": itemResponse.isManageBatch,
           "BarCode": element['BarCode'],
         });
         baseEntry.add({

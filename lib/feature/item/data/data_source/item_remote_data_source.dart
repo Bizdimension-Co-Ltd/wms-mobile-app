@@ -9,7 +9,7 @@ import '../../../../../core/error/failure.dart';
 
 abstract class ItemRemoteDataSource {
   Future<List<ItemEntity>> get(String query);
-  Future<ItemEntity> find(String query);
+  Future<ItemModel> find(String query);
 }
 
 class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
@@ -27,16 +27,18 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
         throw ServerFailure(message: 'error');
       }
 
-      return List.from(response.data['value'])
+      final items = List.from(response.data['value'])
           .map((e) => ItemModel.fromJson(e))
           .toList();
+
+      return items;
     } on Failure {
       rethrow;
     }
   }
 
   @override
-  Future<ItemEntity> find(String query) async {
+  Future<ItemModel> find(String query) async {
     try {
       final item = await db.findOne(db.itemTable, (i) => i.code.equals(query));
       if (item != null) {

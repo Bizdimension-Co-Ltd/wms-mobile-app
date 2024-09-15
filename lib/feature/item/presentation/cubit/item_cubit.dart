@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:wms_mobile/core/error/failure.dart';
+import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
 
 import '../../domain/usecase/find_usecase.dart';
 import '../../domain/usecase/get_usecase.dart';
@@ -13,8 +14,8 @@ class ItemCubit extends Cubit<ItemState> {
 
   ItemCubit(this.useCase, this.findUseCase) : super(ItemInitial());
 
-  Future<List<dynamic>> get(String query, {bool cache = true}) async {
-    List<dynamic> data = [];
+  Future<List<ItemEntity>> get(String query, {bool cache = true}) async {
+    List<ItemEntity> data = [];
     if (state is ItemData) data = (state as ItemData).entities;
 
     emit(RequestingItem());
@@ -23,6 +24,8 @@ class ItemCubit extends Cubit<ItemState> {
       emit(ItemError(error.message));
       return [];
     }, (success) async {
+      success as List<ItemEntity>;
+
       emit(ItemData(cache ? success : data));
       return success;
     });
@@ -40,12 +43,12 @@ class ItemCubit extends Cubit<ItemState> {
     });
   }
 
-  Future<void> set(List<dynamic> data) async {
-    emit(ItemInitial());
-    emit(ItemData(data));
+  Future<void> set(List<ItemEntity> data) async {
+    // emit(ItemInitial());
+    // emit(ItemData(data));
   }
 
-  Future<dynamic> find(String query, {bool cache = true}) async {
+  Future<ItemEntity> find(String query, {bool cache = true}) async {
     final response = await findUseCase.call(query);
 
     return response.fold((error) {

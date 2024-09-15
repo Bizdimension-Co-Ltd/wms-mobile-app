@@ -443,8 +443,7 @@ class _CreateWarehouseTransferScreenState
       //
       MaterialDialog.loading(context);
       final item = await _blocItem.find("('${itemCode.text}')");
-      if (getDataFromDynamic(item['PurchaseItem']) == '' ||
-          getDataFromDynamic(item['PurchaseItem']) == 'tNO') {
+      if (!item.isPurchaseItem) {
         throw Exception('${itemCode.text} is not purchase item.');
       }
       if (mounted) {

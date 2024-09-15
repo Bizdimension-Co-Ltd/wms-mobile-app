@@ -14,7 +14,7 @@ class RequestingItem extends ItemState {}
 class RequestingPaginationItem extends ItemState {}
 
 class ItemData extends ItemState {
-  final List<dynamic> entities;
+  final List<ItemEntity> entities;
 
   const ItemData(this.entities);
 }

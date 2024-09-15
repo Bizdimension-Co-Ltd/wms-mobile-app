@@ -23,9 +23,9 @@ class ItemRepositoryImpl implements ItemRepository {
   @override
   Future<Either<Failure, ItemEntity>> find(String query) async {
     try {
-      final dynamic reponse = await remote.find(query);
+      final reponse = await remote.find(query);
 
-      return Right(reponse);
+      return Right(ItemEntity.mapFromEntity(reponse));
     } on Failure catch (error) {
       return Left(error);
     }

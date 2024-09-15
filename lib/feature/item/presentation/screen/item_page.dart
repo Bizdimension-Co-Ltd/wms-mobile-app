@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
 import '../../../../core/enum/global.dart';
 import '../../../../utilies/dialog/dialog.dart';
 import '/helper/helper.dart';
@@ -25,7 +26,7 @@ class _ItemPageState extends State<ItemPage> {
 
   int check = 1;
   TextEditingController filter = TextEditingController();
-  List<dynamic> data = [];
+  List<ItemEntity> data = [];
   late ItemCubit _bloc;
 
   @override
@@ -33,23 +34,13 @@ class _ItemPageState extends State<ItemPage> {
     super.initState();
     if (mounted) {
       _bloc = context.read<ItemCubit>();
-      final state = context.read<ItemCubit>().state;
-
-      if (state is ItemData) {
-        data = state.entities;
-      }
 
       if (data.length == 0) {
         query = "$query&\$filter=${getItemTypeQueryString(widget.type)}";
         _bloc.get(query).then((value) {
           setState(() => data = value);
-          _bloc.set(value);
         });
       }
-
-      setState(() {
-        data;
-      });
 
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
@@ -98,10 +89,10 @@ class _ItemPageState extends State<ItemPage> {
       if (!mounted) return;
 
       MaterialDialog.loading(context);
-      final response = await _bloc.find("('$code')");
+      final response = await _bloc.find(code);
+
       if (mounted) {
         MaterialDialog.close(context);
-
         Navigator.pop(context, response);
       }
     } catch (e) {
@@ -171,8 +162,7 @@ class _ItemPageState extends State<ItemPage> {
                       ...data
                           .map(
                             (item) => GestureDetector(
-                              onTap: () =>
-                                  onFind(getDataFromDynamic(item['ItemCode'])),
+                              onTap: () => onFind(item.code),
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -185,23 +175,22 @@ class _ItemPageState extends State<ItemPage> {
                                     Row(
                                       children: [
                                         Text(
-                                          getDataFromDynamic(item['ItemCode']),
+                                          item.code,
                                           style: TextStyle(
                                             fontWeight: FontWeight.w800,
                                           ),
                                         ),
-                                        const Spacer(),
-                                        Text(
-                                          getDataFromDynamic(
-                                              item['ManageSerialNumbers']),
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
+                                        // const Spacer(),
+                                        // Text(
+                                        //   item.isSerial || item.isBatch
+                                        //       ? "Yes"
+                                        //       : "No",
+                                        //   style: TextStyle(fontSize: 12),
+                                        // ),
                                       ],
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(getDataFromDynamic(item['ItemName'])),
+                                    Text(item.name),
                                   ],
                                 ),
                               ),
