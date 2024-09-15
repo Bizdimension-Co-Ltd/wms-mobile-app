@@ -21,7 +21,11 @@ class ItemCubit extends Cubit<ItemState> {
     emit(RequestingItem());
     final response = await useCase.call(query);
     return response.fold((error) {
-      emit(ItemError(error.message));
+      if (error is UnauthorizeFailure) {
+        emit(ItemUnauthorized());
+      } else {
+        emit(ItemError(error.message));
+      }
       return [];
     }, (success) async {
       success as List<ItemEntity>;
@@ -35,7 +39,11 @@ class ItemCubit extends Cubit<ItemState> {
     emit(RequestingPaginationItem());
     final response = await useCase.call(query);
     return response.fold((error) {
-      emit(ItemError(error.message));
+      if (error is UnauthorizeFailure) {
+        emit(ItemUnauthorized());
+      } else {
+        emit(ItemError(error.message));
+      }
       return [];
     }, (success) async {
       emit(ItemData([]));

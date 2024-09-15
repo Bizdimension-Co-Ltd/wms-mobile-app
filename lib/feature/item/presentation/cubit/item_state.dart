@@ -24,3 +24,7 @@ class ItemError extends ItemState {
 
   const ItemError(this.message);
 }
+
+class ItemUnauthorized extends ItemState {
+  const ItemUnauthorized();
+}

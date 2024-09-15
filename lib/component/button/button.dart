@@ -87,7 +87,13 @@ class Button extends StatelessWidget {
                     strokeWidth: 2.5,
                   ),
                 )
-              : child,
+              : DefaultTextStyle(
+                  style: TextStyle(
+                    color:
+                        variant == ButtonVariant.primary ? Colors.white : null,
+                  ),
+                  child: child,
+                ),
         ),
       ),
     );

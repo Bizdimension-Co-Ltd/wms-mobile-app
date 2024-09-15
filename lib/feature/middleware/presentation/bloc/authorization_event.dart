@@ -1,23 +1,26 @@
-part of 'authorization_bloc.dart';
+// part of 'authorization_bloc.dart';
 
-abstract class AuthorizationEvent extends Equatable {
-  const AuthorizationEvent();
+// abstract class AuthorizationEvent extends Equatable {
+//   const AuthorizationEvent();
 
-  @override
-  List<Object> get props => [];
-}
+//   @override
+//   List<Object> get props => [];
+// }
 
-class RequestLoginOnlineEvent extends AuthorizationEvent {
-  final LoginEntity entity;
+// class RequestLoginOnlineEvent extends AuthorizationEvent {
+//   final LoginEntity entity;
+//   final bool tokenExpired;
 
-  const RequestLoginOnlineEvent({required this.entity});
-}
-class RequestLoginOfflineEvent extends AuthorizationEvent {
-  final LoginEntity entity;
+//   const RequestLoginOnlineEvent(
+//       {required this.entity, this.tokenExpired = false});
+// }
 
-  const RequestLoginOfflineEvent({required this.entity});
-}
+// class RequestLoginOfflineEvent extends AuthorizationEvent {
+//   final LoginEntity entity;
 
-class RequestLogoutEvent extends AuthorizationEvent {
-  const RequestLogoutEvent();
-}
+//   const RequestLoginOfflineEvent({required this.entity});
+// }
+
+// class RequestLogoutEvent extends AuthorizationEvent {
+//   const RequestLogoutEvent();
+// }

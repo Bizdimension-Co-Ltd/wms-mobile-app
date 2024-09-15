@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/component/items/item_line_widget.dart';
 import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
@@ -215,7 +216,6 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         onSetItemTemp(value);
       });
     } else {
-      return;
       goTo(
               context,
               ItemByCodePage(
@@ -730,6 +730,10 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     }
   }
 
+  void onAddItems() {
+    goTo(context, ItemLineWidgetScreen(warehouseCode: warehouse.text));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -789,39 +793,19 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                   onPressed: () {},
                 ),
               const SizedBox(height: 20),
-              Text(''),
-              Input(
-                controller: itemCode,
-                onEditingComplete: onCompleteTextEditItem,
-                label: 'Item.',
-                placeholder: 'Item',
-                onPressed: onSelectItem,
+              Row(
+                children: [
+                  Expanded(
+                    child: Button(
+                      onPressed: onAddItems,
+                      child: Text('Add Item'),
+                    ),
+                  ),
+                  const Expanded(child: SizedBox()),
+                  const Expanded(child: SizedBox()),
+                ],
               ),
-              Input(
-                controller: uom,
-                label: 'UoM.',
-                placeholder: 'Unit Of Measurement',
-                onPressed: onChangeUoM,
-              ),
-              Input(
-                controller: binCode,
-                label: 'Bin.',
-                placeholder: 'Bin Location',
-                onPressed: onChangeBin,
-              ),
-              Input(
-                controller: quantity,
-                label: 'Quantity.',
-                placeholder: 'Quantity',
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onEditingComplete: onCompleteQuantiyInput,
-                onPressed: isSerialOrBatch
-                    ? () {
-                        onNavigateSerialOrBatch(force: true);
-                      }
-                    : null,
-              ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
               ContentHeader(),
               Column(
                 children: items.asMap().entries.map((entry) {

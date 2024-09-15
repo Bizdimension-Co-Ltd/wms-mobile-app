@@ -31,6 +31,7 @@ import 'feature/inbound/purchase_order/presentation/cubit/purchase_order_cubit.d
 import 'feature/inbound/return_receipt/presentation/cubit/return_receipt_cubit.dart';
 import 'feature/inbound/return_receipt_request/presentation/cubit/return_receipt_request_cubit.dart';
 import 'feature/item/presentation/cubit/item_cubit.dart';
+import 'feature/middleware/presentation/cubit/authorization_cubit.dart';
 import 'feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
 import 'feature/outbounce/good_issue/presentation/cubit/good_issue_cubit.dart';
 import 'feature/outbounce/purchase_return_request/presentation/cubit/purchase_return_request_cubit.dart';
@@ -65,7 +66,7 @@ class _MyMainAppState extends State<MyMainApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => getIt<AuthorizationBloc>()),
+        BlocProvider(create: (_) => getIt<AuthorizationCubit>()),
         BlocProvider(create: (_) => getIt<PurchaseOrderCubit>()),
         BlocProvider(create: (_) => getIt<WarehouseCubit>()),
         BlocProvider(create: (_) => getIt<BinCubit>()),

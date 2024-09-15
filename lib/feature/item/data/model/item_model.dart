@@ -12,9 +12,9 @@ class ItemModel extends ItemEntity {
   final String saleItem;
   final String isManageBatch;
   final String isManageSerial;
-  final String? uoMGroupDefinitionCollection;
+  final UoMGroupDefinitionCollectionModel? uoMGroupDefinitionCollection;
 
-  ItemModel({
+  const ItemModel({
     required this.code,
     required this.name,
     required this.uoMGroupEntry,
@@ -65,20 +65,26 @@ class ItemModel extends ItemEntity {
         uoMGroupDefinitionCollection: uoMGroupDefinitionCollection,
       );
 
-  factory ItemModel.fromJson(Map<String, dynamic> json) => ItemModel(
+  factory ItemModel.fromJson(Map<String, dynamic> json) {
+    return ItemModel(
       code: json["ItemCode"],
       name: getDataFromDynamic(json["ItemName"]),
       uoMGroupEntry: json["UoMGroupEntry"] ?? -1,
-      inventoryUOM: getDataFromDynamic(json["inventoryUOM"]) == ''
+      inventoryUOM: getDataFromDynamic(json["InventoryUOM"]) == ''
           ? 'Manual'
-          : getDataFromDynamic(json["inventoryUOM"]),
+          : getDataFromDynamic(json["InventoryUOM"]),
       inventoryUoMEntry: json["InventoryUoMEntry"] ?? -1,
       inventoryItem: getDataFromDynamic(json["InventoryItem"]),
       purchaseItem: getDataFromDynamic(json["PurchaseItem"]),
       saleItem: getDataFromDynamic(json["SalesItem"]),
       isManageBatch: getDataFromDynamic(json["ManageBatchNumbers"]),
       isManageSerial: getDataFromDynamic(json["ManageSerialNumbers"]),
-      uoMGroupDefinitionCollection: json['uoMGroupDefinitionCollection']);
+      uoMGroupDefinitionCollection: json['uoMGroupDefinitionCollection'] == null
+          ? null
+          : UoMGroupDefinitionCollectionModel.fromJson(
+              json['uoMGroupDefinitionCollection']),
+    );
+  }
 
   factory ItemModel.fromDatabase(Map<String, dynamic> json) => ItemModel(
         code: json["code"],
@@ -107,5 +113,105 @@ class ItemModel extends ItemEntity {
         saleItem: entity.saleItem,
         isManageBatch: entity.isManageBatch,
         isManageSerial: entity.isManageSerial,
+      );
+}
+
+class UoMGroupDefinitionCollectionModel extends UoMGroupDefinitionCollection {
+  final String? odataMetadata;
+  final int? absEntry;
+  final String? code;
+  final String? name;
+  final int? baseUoM;
+  final List<UoMGroupDefinitionCollectionListModel>?
+      uoMGroupDefinitionCollection;
+
+  UoMGroupDefinitionCollectionModel({
+    this.odataMetadata,
+    this.absEntry,
+    this.code,
+    this.name,
+    this.baseUoM,
+    this.uoMGroupDefinitionCollection,
+  });
+
+  UoMGroupDefinitionCollectionModel copyWith({
+    String? odataMetadata,
+    int? absEntry,
+    String? code,
+    String? name,
+    int? baseUoM,
+    List<UoMGroupDefinitionCollectionListModel>? uoMGroupDefinitionCollection,
+  }) =>
+      UoMGroupDefinitionCollectionModel(
+        odataMetadata: odataMetadata ?? this.odataMetadata,
+        absEntry: absEntry ?? this.absEntry,
+        code: code ?? this.code,
+        name: name ?? this.name,
+        baseUoM: baseUoM ?? this.baseUoM,
+        uoMGroupDefinitionCollection:
+            uoMGroupDefinitionCollection ?? this.uoMGroupDefinitionCollection,
+      );
+
+  factory UoMGroupDefinitionCollectionModel.fromJson(
+          Map<String, dynamic> json) =>
+      UoMGroupDefinitionCollectionModel(
+        odataMetadata: json["odata.metadata"],
+        absEntry: json["AbsEntry"],
+        code: json["Code"],
+        name: json["Name"],
+        baseUoM: json["BaseUoM"],
+        uoMGroupDefinitionCollection: json["UoMGroupDefinitionCollection"] ==
+                null
+            ? []
+            : List<UoMGroupDefinitionCollectionListModel>.from(
+                json["UoMGroupDefinitionCollection"]!.map(
+                    (x) => UoMGroupDefinitionCollectionListModel.fromJson(x))),
+      );
+}
+
+class UoMGroupDefinitionCollectionListModel
+    extends UoMGroupDefinitionCollectionList {
+  final String? alternateUoM;
+  final String? alternateQuantity;
+  final String? baseQuantity;
+  final String? weightFactor;
+  final String? udfFactor;
+  final String? active;
+
+  UoMGroupDefinitionCollectionListModel({
+    this.alternateUoM,
+    this.alternateQuantity,
+    this.baseQuantity,
+    this.weightFactor,
+    this.udfFactor,
+    this.active,
+  });
+
+  UoMGroupDefinitionCollectionListModel copyWith({
+    String? alternateUoM,
+    String? alternateQuantity,
+    String? baseQuantity,
+    String? weightFactor,
+    String? udfFactor,
+    String? active,
+  }) =>
+      UoMGroupDefinitionCollectionListModel(
+        alternateUoM: alternateUoM ?? this.alternateUoM,
+        alternateQuantity: alternateQuantity ?? this.alternateQuantity,
+        baseQuantity: baseQuantity ?? this.baseQuantity,
+        weightFactor: weightFactor ?? this.weightFactor,
+        udfFactor: udfFactor ?? this.udfFactor,
+        active: active ?? this.active,
+      );
+
+  factory UoMGroupDefinitionCollectionListModel.fromJson(
+          Map<String, dynamic> json) =>
+      UoMGroupDefinitionCollectionListModel(
+        alternateUoM: getDataFromDynamic(json["AlternateUoM"]),
+        alternateQuantity: getDataFromDynamic(json["AlternateQuantity"]),
+        baseQuantity: getDataFromDynamic(json["BaseQuantity"]),
+        weightFactor: getDataFromDynamic(json["WeightFactor"]),
+        udfFactor: getDataFromDynamic(json["UdfFactor"]),
+        active: getDataFromDynamic(json["Active"]),
       );
 }

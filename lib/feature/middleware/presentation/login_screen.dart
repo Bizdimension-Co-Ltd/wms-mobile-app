@@ -4,17 +4,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/button/button.dart';
 import 'package:wms_mobile/constant/api.dart';
 import 'package:wms_mobile/constant/style.dart';
+import 'package:wms_mobile/core/error/failure.dart';
 import 'package:wms_mobile/feature/dashboard/presentations/page/dashboard_screen.dart';
 import 'package:wms_mobile/feature/middleware/domain/entity/login_entity.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
+import 'package:wms_mobile/feature/middleware/presentation/cubit/authorization_cubit.dart';
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
-import '../../../databases/database.dart';
 import '../../../helper/helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.fromLogout});
-  final dynamic fromLogout;
+  const LoginScreen({
+    super.key,
+    this.fromLogout,
+    this.isTokenExipred = false,
+  });
+  final bool? fromLogout;
+  final bool isTokenExipred;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -25,11 +31,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _password = TextEditingController(text: "1234");
 
   late bool checkTypeInput = false;
+  bool loading = false;
 
-  late AuthorizationBloc _bloc;
+  late AuthorizationCubit _bloc;
+
+  @override
+  void initState() {
+    _bloc = context.read<AuthorizationCubit>();
+    super.initState();
+  }
 
   Future<void> _postData() async {
-    final loginEntity = LoginEntity(
+    final entity = LoginEntity(
       username: _userName.text,
       password: _password.text,
       db: CONNECT_COMPANY,
@@ -37,14 +50,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (mounted) {
-        // MaterialDialog.close(context);
-
-        BlocProvider.of<AuthorizationBloc>(context).add(
-          RequestLoginOnlineEvent(entity: loginEntity),
-        );
+        setState(() => loading = true);
       }
+
+      await _bloc.onRequestLogin(entity);
+      setState(() => loading = false);
+
+      if (mounted) {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pop(true);
+          return;
+        }
+      }
+
+      _bloc.emitEvent(AuthorizationSuccess());
     } catch (e) {
-      print(e);
+      String message = e is UnauthorizeFailure ? e.message : e.toString();
+
+      if (mounted) {
+        setState(() => loading = false);
+        MaterialDialog.warning(context, title: 'Failed', body: message);
+      }
     }
   }
 
@@ -61,31 +87,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    if (widget.fromLogout) {
+    if (widget.fromLogout != null) {
       SystemNavigator.pop();
       return false; // Prevent the back navigation
     } else {
       return true; // Allow the back navigation
     }
-  }
-
-  final database = new AppDatabase();
-
-  void init() async {
-    print('--------------> tables <----------------');
-    final tables = await database
-        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table';")
-        .get();
-    for (var row in tables) {
-      print(row.data['name']);
-    }
-  }
-
-  @override
-  void initState() {
-    _bloc = context.read<AuthorizationBloc>();
-    init();
-    super.initState();
   }
 
   @override
@@ -105,104 +112,87 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Expanded(
                 flex: 5,
-                child: BlocConsumer<AuthorizationBloc, AuthorizationState>(
-                  listener: (context, state) {
-                    // // TODO: implement listener
-                    // if (state is AuthorizationSuccess) {
-                    //   _isSuccess();
-                    // }
-
-                    if (state is RequestLoginFailedState) {
-                      MaterialDialog.success(context,
-                          title: 'Failed', body: state.message);
-                    }
-                  },
-                  builder: (context, state) {
-                    return SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                          padding: EdgeInsets.all(size(context).width * 0.06),
-                          width: double.infinity,
-                          // color: Colors.red,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                height: 100,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    padding: EdgeInsets.all(size(context).width * 0.06),
+                    width: double.infinity,
+                    // color: Colors.red,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 100,
+                        ),
+                        SizedBox(height: spaceY(context)),
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "SIGN IN",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 19),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextField(
+                          controller: _userName,
+                          decoration: const InputDecoration(
+                              labelText: ' Name',
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter Name',
+                              isDense: true),
+                        ),
+                        const SizedBox(height: 25),
+                        TextField(
+                          obscureText: _obscureText,
+                          controller: _password,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: const OutlineInputBorder(),
+                            hintText: 'Enter Password',
+                            isDense: true,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureText
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                               ),
-                              SizedBox(height: spaceY(context)),
-                              const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "SIGN IN",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 19),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              TextField(
-                                controller: _userName,
-                                decoration: const InputDecoration(
-                                    labelText: ' Name',
-                                    border: OutlineInputBorder(),
-                                    hintText: 'Enter Name',
-                                    isDense: true),
-                              ),
-                              const SizedBox(height: 25),
-                              TextField(
-                                obscureText: _obscureText,
-                                controller: _password,
-                                decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  border: const OutlineInputBorder(),
-                                  hintText: 'Enter Password',
-                                  isDense: true,
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _obscureText
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _obscureText = !_obscureText;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 40,
-                              ),
-                              Button(
-                                loading: state is RequestingAuthorization,
-                                onPressed: _postData,
-                                child: Text(
-                                  'SIGN IN',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Button(
-                                variant: ButtonVariant.ghost,
-                                loading: state is RequestingAuthorization,
-                                child: Text(
-                                  'Setting',
-                                  style: TextStyle(color: PRIMARY_COLOR),
-                                ),
-                                onPressed: () =>
-                                    goTo(context, const SettingScreen()),
-                              ),
-                            ],
+                              onPressed: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                            ),
                           ),
-                        ));
-                  },
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        Button(
+                          loading: loading,
+                          onPressed: _postData,
+                          child: Text(
+                            'SIGN IN',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Button(
+                          variant: ButtonVariant.ghost,
+                          loading: loading,
+                          child: Text(
+                            'Setting',
+                            style: TextStyle(color: PRIMARY_COLOR),
+                          ),
+                          onPressed: () => goTo(context, const SettingScreen()),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const Expanded(

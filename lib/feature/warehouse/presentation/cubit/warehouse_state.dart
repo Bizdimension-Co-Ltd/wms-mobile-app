@@ -24,3 +24,7 @@ class WarehouseError extends WarehouseState {
 
   const WarehouseError(this.message);
 }
+
+class WarehouseUnautorized extends WarehouseState {
+  const WarehouseUnautorized();
+}

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:wms_mobile/feature/middleware/domain/usecase/get_user_usecase.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
+import 'package:wms_mobile/feature/middleware/presentation/cubit/authorization_cubit.dart';
 import '../feature/middleware/data/data_source/login_local_data_souce.dart';
 import '../feature/middleware/domain/usecase/create_user_usecase.dart';
 import '/feature/middleware/data/repository/login_repository_impl.dart';
@@ -15,7 +16,7 @@ class DIAuthentication {
   DIAuthentication(this.getIt) {
     // ********* Bloc **********
     getIt.registerFactory(() {
-      return AuthorizationBloc(getIt(), getIt(), getIt());
+      return AuthorizationCubit(getIt(), getIt(), getIt());
     });
 
     //********* Use Cases **********

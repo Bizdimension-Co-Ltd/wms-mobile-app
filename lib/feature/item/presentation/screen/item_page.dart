@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/feature/item/domain/entity/item_entity.dart';
+import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import '../../../../core/enum/global.dart';
 import '../../../../utilies/dialog/dialog.dart';
 import '/helper/helper.dart';
@@ -150,7 +151,13 @@ class _ItemPageState extends State<ItemPage> {
             const Divider(thickness: 0.1, height: 15),
             Expanded(
               child: BlocConsumer<ItemCubit, ItemState>(
-                listener: (context, state) {},
+                listener: (context, state) {
+                  if (state is ItemUnauthorized) {
+                    goTo(context, LoginScreen(isTokenExipred: true));
+                  }
+                  // if (state is ItemError && mounted) {
+                  // }
+                },
                 builder: (context, state) {
                   if (state is RequestingItem) {
                     return Center(child: CircularProgressIndicator());

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:wms_mobile/core/error/failure.dart';
 import '../../domain/usecase/create_local_usecase.dart';
 import '../../domain/usecase/delete_all_local_usecase.dart';
 import '../../domain/usecase/delete_local_usecase.dart';
@@ -35,14 +36,18 @@ class WarehouseCubit extends Cubit<WarehouseState> {
     emit(RequestingWarehouse());
     // (await deleteAllLocalUseCase.call());
     final data = (await getLocalUseCase.call());
-    if (data.isNotEmpty) {
-      emit(WarehouseData(data));
-      return data;
-    }
+    // if (data.isNotEmpty) {
+    //   emit(WarehouseData(data));
+    //   return data;
+    // }
 
     final response = await useCase.call(query);
     return response.fold((error) {
-      emit(WarehouseError(error.message));
+      if (error is UnauthorizeFailure) {
+        emit(WarehouseUnautorized());
+      } else {
+        emit(WarehouseError(error.message));
+      }
       return [];
     }, (success) async {
       for (final whs in success) {

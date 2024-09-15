@@ -401,8 +401,8 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       uomAbEntry.text = value.inventoryUoMEntry.toString();
       baseUoM.text = value.inventoryUOM;
       // log(value.toString());
-      uoMGroupDefinitionCollection.text =
-          value.uoMGroupDefinitionCollection ?? "{}";
+      // uoMGroupDefinitionCollection.text =
+      //     value.uoMGroupDefinitionCollection ?? "{}";
 
       isSerial.text = value.isManageSerial;
       isBatch.text = value.isManageBatch;

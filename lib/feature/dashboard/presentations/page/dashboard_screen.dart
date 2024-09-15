@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wms_mobile/feature/counting/counting.dart';
 import 'package:wms_mobile/feature/lookup/lookup.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
+import 'package:wms_mobile/feature/middleware/presentation/cubit/authorization_cubit.dart';
 import 'package:wms_mobile/feature/outbounce/outbound.dart';
 import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/feature/inbound/inbound.dart';
@@ -31,15 +32,21 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String warehouseCode = '';
-  void _logout(BuildContext context) {
-    MaterialDialog.loading(context);
 
-    const timeoutDuration = Duration(seconds: 1);
-    Future.delayed(timeoutDuration, () {
-      if (mounted) {
-        BlocProvider.of<AuthorizationBloc>(context)
-            .add(const RequestLogoutEvent());
-      }
+  late AuthorizationCubit _authContext;
+
+  @override
+  void initState() {
+    _authContext = context.read<AuthorizationCubit>();
+
+    init();
+    super.initState();
+  }
+
+  void init() async {
+    final value = await LocalStorageManger.getString('warehouse');
+    setState(() {
+      warehouseCode = value;
     });
   }
 
@@ -61,30 +68,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         goTo(context, const ProductLookUp());
         break;
       case 5:
-        _logout(context);
-
-        // goTo(context, const LoginScreen());
-        // goTo(
-        //     context,
-        //     const SerialListPage(
-        //       warehouse: '',
-        //     ));
+        _authContext.onRequestLogout();
         break;
       default:
     }
-  }
-
-  @override
-  void initState() {
-    init();
-    super.initState();
-  }
-
-  void init() async {
-    final value = await LocalStorageManger.getString('warehouse');
-    setState(() {
-      warehouseCode = value;
-    });
   }
 
   @override

@@ -9,8 +9,12 @@ import '../cubit/bin_cubit.dart';
 import '/constant/style.dart';
 
 class BinPage extends StatefulWidget {
-  const BinPage(
-      {super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
+  const BinPage({
+    super.key,
+    required this.warehouse,
+    this.itemCode,
+    this.fromBinlookUp,
+  });
 
   final String warehouse;
   final dynamic itemCode;

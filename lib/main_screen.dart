@@ -5,6 +5,7 @@ import 'package:wms_mobile/feature/middleware/presentation/login_screen.dart';
 import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bloc.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import 'constant/style.dart';
+import 'feature/middleware/presentation/cubit/authorization_cubit.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,7 +22,6 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     init();
     super.initState();
-
   }
 
   void init() async {
@@ -31,21 +31,21 @@ class _MainScreenState extends State<MainScreen> {
         isPickedWarehouse = true;
       });
     }
-
-    
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthorizationBloc, AuthorizationState>(
+    return BlocListener<AuthorizationCubit, AuthorizationState>(
       listener: (context, state) {
         if (state is UnAuthorization) {
           _navigatorKey.currentState?.pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen(fromLogout:true)),
+            MaterialPageRoute(
+                builder: (context) => const LoginScreen(fromLogout: true)),
           );
         } else if (state is AuthorizationSuccess) {
           _navigatorKey.currentState?.pushReplacement(
-            MaterialPageRoute(builder: (context) => WarehousePage(isPicker: true)),
+            MaterialPageRoute(
+                builder: (context) => WarehousePage(isPicker: true)),
           );
         }
       },
@@ -58,8 +58,8 @@ class _MainScreenState extends State<MainScreen> {
             onPrimary: Colors.white,
           ),
         ),
-        title: 'Flutter layout demo',
-        home: BlocBuilder<AuthorizationBloc, AuthorizationState>(
+        title: 'WMS',
+        home: BlocBuilder<AuthorizationCubit, AuthorizationState>(
           builder: (context, state) {
             if (state is AuthorizationSuccess) {
               return WarehousePage(isPicker: true);

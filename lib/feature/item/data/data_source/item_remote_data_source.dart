@@ -40,10 +40,10 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
   @override
   Future<ItemModel> find(String query) async {
     try {
-      final item = await db.findOne(db.itemTable, (i) => i.code.equals(query));
-      if (item != null) {
-        return ItemModel.fromDatabase(item.toJson());
-      }
+      // final item = await db.findOne(db.itemTable, (i) => i.code.equals(query));
+      // if (item != null) {
+      //   return ItemModel.fromDatabase(item.toJson());
+      // }
 
       final response = await dio.get(
           "/Items('$query')?\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry,ManageSerialNumbers,ManageBatchNumbers");
@@ -55,22 +55,23 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
         '/UnitOfMeasurementGroups(${response.data['UoMGroupEntry']})',
       );
 
-      final itemModel = ItemModel.fromJson(response.data);
-      await db.into(db.itemTable).insert(
-            ItemTableCompanion(
-              code: Value(itemModel.code),
-              name: Value(itemModel.name),
-              uoMGroupEntry: Value(itemModel.uoMGroupEntry),
-              inventoryUOM: Value(itemModel.inventoryUOM),
-              iunventoryUoMEntry: Value(itemModel.inventoryUoMEntry),
-              isManageBatch: Value(itemModel.isManageBatch),
-              isManageSerial: Value(itemModel.isManageSerial),
-              inventoryItem: Value(itemModel.inventoryItem),
-              purchaseItem: Value(itemModel.purchaseItem),
-              saleItem: Value(itemModel.saleItem),
-              uoMGroupDefinitionCollection: Value(jsonEncode(uomGroup.data)),
-            ),
-          );
+      final itemModel = ItemModel.fromJson(
+          {...response.data, "uoMGroupDefinitionCollection": uomGroup.data});
+      // await db.into(db.itemTable).insert(
+      //       ItemTableCompanion(
+      //         code: Value(itemModel.code),
+      //         name: Value(itemModel.name),
+      //         uoMGroupEntry: Value(itemModel.uoMGroupEntry),
+      //         inventoryUOM: Value(itemModel.inventoryUOM),
+      //         iunventoryUoMEntry: Value(itemModel.inventoryUoMEntry),
+      //         isManageBatch: Value(itemModel.isManageBatch),
+      //         isManageSerial: Value(itemModel.isManageSerial),
+      //         inventoryItem: Value(itemModel.inventoryItem),
+      //         purchaseItem: Value(itemModel.purchaseItem),
+      //         saleItem: Value(itemModel.saleItem),
+      //         uoMGroupDefinitionCollection: Value(jsonEncode(uomGroup.data)),
+      //       ),
+      //     );
 
       return itemModel;
     } on Failure {

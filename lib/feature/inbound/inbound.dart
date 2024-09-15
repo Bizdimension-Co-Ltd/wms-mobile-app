@@ -28,7 +28,7 @@ class Inbound extends StatefulWidget {
 class _InboundState extends State<Inbound> {
   final routes = [
     PurchaseOrderPage(),
-    CreateGoodReceiptPOScreen(quickReceipt:true),
+    CreateGoodReceiptPOScreen(quickReceipt: true),
     CreateReturnReceiptScreen(),
     CreateGoodReceiptScreen(),
     CreatePutAwayScreen(),
