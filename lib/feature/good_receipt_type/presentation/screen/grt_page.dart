@@ -41,6 +41,7 @@ class _GrtPageState extends State<GrtPage> {
       setState(() {
         data;
       });
+      print(data);
     }
   }
 
@@ -100,17 +101,19 @@ class _GrtPageState extends State<GrtPage> {
                                             fontWeight: FontWeight.w800,
                                           ),
                                         ),
-                                          SizedBox(
+                                        SizedBox(
                                           width: 5,
                                         ),
-                                         Text(
+                                        Text(
                                           "-",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w800,
                                           ),
                                         ),
-                                        SizedBox(width: 5,),
-                                         Text(
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
                                           Grt.name,
                                           style: TextStyle(
                                             fontWeight: FontWeight.w800,

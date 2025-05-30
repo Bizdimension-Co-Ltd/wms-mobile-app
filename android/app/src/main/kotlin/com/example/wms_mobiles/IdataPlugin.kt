@@ -1,36 +1,29 @@
 package com.example.wms_mobiles
 
-
-import android.annotation.SuppressLint
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.PluginRegistry.Registrar
+import io.flutter.plugin.common.MethodChannel.Result
 
-public class IdataPlugin : MethodCallHandler  {
+class IdataPlugin : FlutterPlugin, MethodCallHandler {
+    private lateinit var channel: MethodChannel
 
-    private var registrar: Registrar? = null
-
-    var channelBarcodeScan: MethodChannel? = null
-
-    var channelRfid: MethodChannel? = null
-
-    private fun IdataPlugin(registrar: Registrar): MethodCallHandler? {
-        this.registrar = registrar
-        return TODO("Provide the return value")
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(binding.binaryMessenger, "idata_plugin")
+        channel.setMethodCallHandler(this)
     }
 
-    /** Plugin registration.  */
-    fun registerWith(registrar: Registrar) {
-        check(channelBarcodeScan == null) { "You should not call registerWith more than once." }
-        channelBarcodeScan = MethodChannel(registrar.messenger(), "idata_barcode_plugin")
-        channelBarcodeScan!!.setMethodCallHandler(IdataPlugin(registrar))
-        check(channelRfid == null) { "You should not call registerWith more than once." }
-        channelRfid = MethodChannel(registrar.messenger(), "idata_rfid_plugin")
-        channelRfid!!.setMethodCallHandler(IdataPlugin(registrar))
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        if (call.method == "yourMethod") {
+            // Implement your logic here
+            result.success("Response from IdataPlugin")
+        } else {
+            result.notImplemented()
+        }
     }
 
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-//        TODO("Not yet implemented")
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
     }
 }

@@ -7,7 +7,8 @@ import '../cubit/bin_cubit.dart';
 import '/constant/style.dart';
 
 class BinPage extends StatefulWidget {
-  const BinPage({super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
+  const BinPage(
+      {super.key, required this.warehouse, this.itemCode, this.fromBinlookUp});
 
   final String warehouse;
   final dynamic itemCode;
@@ -105,7 +106,7 @@ class _BinPageState extends State<BinPage> {
                 ),
               ),
               child: Row(
-                children:  [
+                children: [
                   Expanded(
                     flex: 5,
                     child: Text(
@@ -117,8 +118,9 @@ class _BinPageState extends State<BinPage> {
                     flex: 2,
                     child: Padding(
                       padding: EdgeInsets.only(left: 5),
-                      child: widget.fromBinlookUp == true ? Text('')
-                          :Text('Total Qty'),
+                      child: widget.fromBinlookUp == true
+                          ? Text('')
+                          : Text('Total Qty'),
                     ),
                   ),
                 ],
@@ -175,20 +177,24 @@ class _BinPageState extends State<BinPage> {
                                               ),
                                               Expanded(
                                                 flex: 2,
-                                                child: widget.fromBinlookUp == true ? Text(''): Text(
-                                                  getDataFromDynamic(
-                                                      qty.firstWhere(
-                                                    (e) =>
-                                                        e["BinCode"] ==
-                                                        bin.code,
-                                                    orElse: () => {
-                                                      "OnHandQty": 0
-                                                    }, // Default value if not found
-                                                  )["OnHandQty"]),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w800,
-                                                  ),
-                                                ),
+                                                child: widget.fromBinlookUp ==
+                                                        true
+                                                    ? Text('')
+                                                    : Text(
+                                                        getDataFromDynamic(
+                                                            qty.firstWhere(
+                                                          (e) =>
+                                                              e["BinCode"] ==
+                                                              bin.code,
+                                                          orElse: () => {
+                                                            "OnHandQty": 0
+                                                          }, // Default value if not found
+                                                        )["OnHandQty"]),
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                        ),
+                                                      ),
                                               ),
                                             ],
                                           ),
