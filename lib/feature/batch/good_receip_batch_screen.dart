@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
+import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/list_batch/presentation/screen/batch_list_page.dart';
 import 'package:wms_mobile/utilies/formart.dart';
 
@@ -16,17 +17,18 @@ import '/utilies/dialog/dialog.dart';
 import '../../constant/style.dart';
 
 class GoodReceiptBatchScreen extends StatefulWidget {
-  const GoodReceiptBatchScreen({
-    super.key,
-    required this.itemCode,
-    required this.quantity,
-    this.serials,
-    this.isEdit,
-    this.listAllBatch,
-    this.binCode,
-    this.isQuickCount,
-    this.alcQty,
-  });
+  const GoodReceiptBatchScreen(
+      {super.key,
+      required this.itemCode,
+      required this.quantity,
+      this.serials,
+      this.isEdit,
+      this.listAllBatch,
+      this.binCode,
+      this.isQuickCount,
+      this.alcQty,
+      this.itemName,
+      this.warehouse});
 
   final String quantity;
   final dynamic listAllBatch;
@@ -36,6 +38,8 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final dynamic binCode;
   final dynamic isQuickCount;
   final dynamic alcQty;
+  final dynamic warehouse;
+  final dynamic itemName;
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -46,6 +50,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   final totalSerial = TextEditingController();
   final textSerial = TextEditingController();
   final quantityPerBatch = TextEditingController();
+  final warehouse = TextEditingController();
+  final itemName = TextEditingController();
+
   DateTime? expDate;
   List<dynamic> items = [];
   int updateIndex = -1;
@@ -57,6 +64,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   void initState() {
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
+    warehouse.text = widget.warehouse;
+    itemName.text = widget.itemName;
+
     if (widget.isQuickCount == true) {
       quantityPerBatch.text = widget.alcQty.toString();
     } else {
@@ -71,7 +81,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items = [];
       });
     }
-
+    final totalQty = items.fold<int>(0, (sum, item) {
+      final qty = int.tryParse(item["Quantity"].toString()) ?? 0;
+      return sum + qty;
+    });
+    totalSerial.text = totalQty.toString();
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onScanResults") {
         setState(() {
@@ -89,9 +103,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 
   void onEnterSerial() {
     try {
+      // print(quantityPerBatch.text);
+      // print(textSerial.text);
       if (textSerial.text == '') return;
-      final index =
-          items.indexWhere((e) => e['BatchNumber'] == textSerial.text);
+      // final index =
+      //     items.indexWhere((e) => e['BatchNumber'] == textSerial.text);
       // Calculate the total added quantity so far
       int totalAddedQuantity = items.fold(
           0, (sum, item) => sum + double.parse(item['Quantity']).toInt());
@@ -108,10 +124,10 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       }
 
       if (totalAddedQuantity + currentQuantity >
-              double.parse(widget.quantity).toInt() &&
+              double.parse(quantity.text).toInt() &&
           updateIndex < 0) {
         throw Exception(
-            'Quantity exceeds available. Remaining quantity is ${double.parse(widget.quantity).toInt() - totalAddedQuantity}.');
+            'Quantity exceeds available. Remaining quantity is ${double.parse(quantity.text).toInt() - totalAddedQuantity}.');
       }
 
       if (updateIndex < 0) {
@@ -133,17 +149,17 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                     0,
                     (sum, item) =>
                         sum + double.parse(item['Quantity']).toInt()) >
-                double.parse(widget.quantity).toInt() &&
+                double.parse(quantity.text).toInt() &&
             updateIndex >= 0) {
           updateIndex = -1;
-          quantityPerBatch.text = widget.quantity;
+          quantityPerBatch.text = quantity.text;
           textSerial.text = "";
+
           items = [];
           throw Exception(
               'Quantity exceeds available. Remaining quantity is ${double.parse(widget.quantity).toInt() - totalAddedQuantity}.');
         }
       }
-
       totalSerial.text = items.length.toString();
       textSerial.text = "";
       quantityPerBatch.text = "0";
@@ -153,6 +169,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         items;
         updateIndex = -1;
       });
+      final totalQty = items.fold<int>(0, (sum, item) {
+        final qty = int.tryParse(item["Quantity"].toString()) ?? 0;
+        return sum + qty;
+      });
+      totalSerial.text = totalQty.toString();
       FocusScope.of(context).requestFocus(FocusNode());
     } catch (e) {
       FocusScope.of(context).requestFocus(FocusNode());
@@ -256,17 +277,22 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Batches',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Text(
+              "Batch No",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
           ),
         ),
+        actions: [IconButton(onPressed: onComplete, icon: Icon(Icons.check))],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -278,61 +304,205 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Input(
-                  label: 'Item.',
-                  placeholder: 'Item',
-                  readOnly: true,
-                  controller: itemCode,
-                  // onPressed: onSelectItem,
+                // Input(
+                //   label: 'Item.',
+                //   placeholder: 'Item',
+                //   readOnly: true,
+                //   controller: itemCode,
+                //   // onPressed: onSelectItem,
+                // ),
+                // Input(
+                //   controller: quantity,
+                //   label: 'Qty.',
+                //   placeholder: '0',
+                //   readOnly: true,
+                //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                // ),
+                // Input(
+                //   controller: quantityPerBatch,
+                //   label: 'Alc.Bt',
+                //   placeholder: '0',
+                //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                // ),
+                // Input(
+                //   controller: textSerial,
+                //   label: 'Batch.',
+                //   placeholder: 'Batch',
+                //   onPressed: () async {
+                //     if (widget.listAllBatch == null) return;
+                //     onNavigateBatchList();
+                //   },
+                //   icon: Icons.barcode_reader,
+                //   onEditingComplete: onEnterSerial,
+                // ),
+                // widget.listAllBatch == true
+                //     ? Container()
+                //     : DatePicker(
+                //         key: _datePickerKey,
+                //         title: "Expiry Date",
+                //         restorationId: 'main_date_picker',
+                //         req: 'true',
+                //         onDateSelected: _selectPostingDate,
+                //         defaultValue: expDate,
+                //       ),
+                // const SizedBox(height: 12),
+                // // Text('Batch No.'),
+                // Button(
+                //   bgColor: Colors.green.shade700,
+                //   onPressed: onEnterSerial,
+                //   child: Text(
+                //     updateIndex == -1 ? "Add" : "Update",
+                //     style: TextStyle(
+                //       color: Colors.white,
+                //     ),
+                //   ),
+                // ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(5),
+                  child: Column(
+                    children: [
+                      Input(
+                        label: 'Item Code',
+                        placeholder: 'Item',
+                        readOnly: true,
+                        controller: itemCode,
+                        // onPressed: onSelectItem,
+                      ),
+                      Input(
+                        controller: itemName,
+                        label: 'Description',
+                        placeholder: 'desc',
+                        readOnly: true,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                      Input(
+                        controller: quantity,
+                        label: 'Quantity',
+                        placeholder: 'Qty',
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                      Divider(thickness: 1, color: Colors.grey.shade400),
+                      // if (widget.po != null)
+                      //   Input(
+                      //     label: 'PO #',
+                      //     placeholder: 'PO DocNum',
+                      //     controller: poText,
+                      //     readOnly: true,
+                      //   ),
+                      Input(
+                        label: 'Warehouse',
+                        placeholder: 'Warehouse',
+                        controller: warehouse,
+                        readOnly: true,
+                      ),
+                    ],
+                  ),
                 ),
-                Input(
-                  controller: quantity,
-                  label: 'Qty.',
-                  placeholder: '0',
-                  readOnly: true,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                SizedBox(
+                  height: 23,
                 ),
-                Input(
-                  controller: quantityPerBatch,
-                  label: 'Alc.Bt',
-                  placeholder: '0',
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(),
+                    Row(
+                      children: [
+                        Text("Batch No"),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Container(
+                          width: 60,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 236, 238, 239),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "${totalSerial.text == "" ? 0 : totalSerial.text}/${quantity.text == "" ? 0 : quantity.text}",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                Input(
+                SizedBox(
+                  height: 15,
+                ),
+                Divider(thickness: 0.5, color: Colors.grey.shade400),
+                SizedBox(
+                  height: 15,
+                ),
+                InputCol(
                   controller: textSerial,
-                  label: 'Batch.',
-                  placeholder: 'Batch',
+                  label: 'Batch',
+                  placeholder: 'Enter Batch',
                   onPressed: () async {
                     if (widget.listAllBatch == null) return;
                     onNavigateBatchList();
                   },
                   icon: Icons.barcode_reader,
-                  onEditingComplete: onEnterSerial,
                 ),
-                widget.listAllBatch == true
-                    ? Container()
-                    : DatePicker(
-                        key: _datePickerKey,
-                        title: "Expiry Date",
-                        restorationId: 'main_date_picker',
-                        req: 'true',
-                        onDateSelected: _selectPostingDate,
-                        defaultValue: expDate,
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InputCol(
+                        controller: quantityPerBatch,
+                        label: 'Qty',
+                        placeholder: 'qty',
                       ),
-                const SizedBox(height: 12),
-                // Text('Batch No.'),
-                Button(
-                  bgColor: Colors.green.shade700,
-                  onPressed: onEnterSerial,
-                  child: Text(
-                    updateIndex == -1 ? "Add" : "Update",
-                    style: TextStyle(
-                      color: Colors.white,
                     ),
-                  ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          widget.listAllBatch == true
+                              ? Container()
+                              : DatePicker(
+                                  key: _datePickerKey,
+                                  title: "Expiry Date",
+                                  restorationId: 'main_date_picker',
+                                  req: 'true',
+                                  onDateSelected: _selectPostingDate,
+                                  defaultValue: expDate,
+                                ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 40),
+
+                const SizedBox(height: 30),
+                // const SizedBox(height: 40),
                 ContentHeader(),
+                 items.isEmpty
+                    ? Container(
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: Text(
+                            "No Batch available",
+                            style: TextStyle(fontSize: 15, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                   child: Scrollbar(
                     child: ListView(
@@ -353,42 +523,16 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: size(context).height * 0.09,
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Expanded(
-              child: Button(
-                onPressed: onComplete,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  'Done',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+        child: Button(
+          bgColor: PRIMARY_COLOR,
+          onPressed: onEnterSerial,
+          child: Text(
+            updateIndex == -1 ? "Add" : "Update",
+            style: TextStyle(
+              color: Colors.white,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SizedBox(),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Button(
-                variant: ButtonVariant.outline,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: PRIMARY_COLOR,
-                  ),
-                ),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );
@@ -396,32 +540,60 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key});
-
+  const ContentHeader({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border(
-          bottom: BorderSide(width: 0.1),
-          top: BorderSide(width: 0.1),
+        color: PRIMARY_COLOR, // Dark navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
         ),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
         children: const [
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Text(
-              'Batch No.',
+              'Batch No',
               style: TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
-          Expanded(child: Text('Qty')),
-          Expanded(child: Text('Expiry')),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Qty',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: EdgeInsets.only(left: 60),
+              child: Text(
+                'Expire Date',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -429,35 +601,75 @@ class ContentHeader extends StatelessWidget {
 }
 
 class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item});
-
+  const ItemRow({super.key, required this.item, this.po});
+  final dynamic po;
   final dynamic item;
+  String getDataFromDynamic(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 0.1))),
+      color: Colors.grey.shade100,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // First Row (Item, UoM, Qty, Open Qty)
           Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: Text(
                   getDataFromDynamic(item['BatchNumber']),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
                 ),
               ),
-              Expanded(child: Text(getDataFromDynamic(item['Quantity']))),
-              Expanded(child: Text(splitDate2(item['ExpiryDate']))),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  getDataFromDynamic(item['Quantity']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left:60 ),
+                  child: Text(
+                    getDataFromDynamic(item['ExpiryDate']?.split(" ")[0]),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ),
             ],
           ),
-          SizedBox(height: 6),
-          // Text(getDataFromDynamic(item['ItemDescription']))
+
+          // const SizedBox(height: 4),
+
+          // // Second Row (Description)
+          // Text(
+          //   getDataFromDynamic(item['ItemDescription']),
+          //   style: const TextStyle(
+          //     color: Colors.black87,
+          //     fontSize: 13,
+          //   ),
+          // ),
+
+          // // Divider
+          // const SizedBox(height: 8),
+          // Divider(
+          //   height: 1,
+          //   thickness: 0.6,
+          //   color: Colors.grey.shade300,
+          // ),
         ],
       ),
     );

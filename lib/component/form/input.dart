@@ -32,15 +32,17 @@ class Input extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.fromLTRB(15, 0, 5, 0),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(width: 0.1),
-        ),
+        color: Colors.grey.shade100, // ✅ soft background
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(label),
+          Text(
+            label,
+            style: TextStyle(fontSize: 14.3,color: Colors.grey.shade700),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextFormField(
@@ -48,21 +50,22 @@ class Input extends StatelessWidget {
               textAlign: TextAlign.right,
               readOnly: readOnly,
               onEditingComplete: onEditingComplete,
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14.5,color: Colors.black),
               keyboardType: keyboardType,
               // initialValue: initialValue,
+
               decoration: InputDecoration(
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
+                // enabledBorder: UnderlineInputBorder(
+                //   borderSide: BorderSide(color: Colors.transparent),
+                // ),
+                // focusedBorder: UnderlineInputBorder(
+                //   borderSide: BorderSide(color: Colors.transparent),
+                // ),
                 contentPadding: onPressed != null
                     ? const EdgeInsets.only(top: 14)
                     : const EdgeInsets.only(top: 0),
                 hintText: placeholder,
-                hintStyle: TextStyle(fontSize: 14),
+                hintStyle: TextStyle(fontSize: 14,color: Colors.grey),
                 suffixIconConstraints: BoxConstraints(
                   maxWidth: 30,
                   minWidth: 30,
@@ -77,6 +80,10 @@ class Input extends StatelessWidget {
                           size: iconSize,
                         ),
                       ),
+                // ✅ No border
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
               ),
             ),
           )

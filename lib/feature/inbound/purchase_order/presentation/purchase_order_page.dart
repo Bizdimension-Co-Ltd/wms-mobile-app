@@ -133,43 +133,186 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Purchase Order Lists',
-          style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 65),
+            child: const Text(
+              'Purchase Order Lists',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
+          ),
         ),
       ),
       // bottomNavigationBar: MyBottomSheet(),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Color.fromARGB(255, 243, 243, 243),
+        color: Color.fromARGB(255, 255, 255, 255),
         child: Column(
           children: [
+            const SizedBox(height: 8),
+
             Container(
-              padding:
-                  const EdgeInsets.only(left: 14, right: 14, bottom: 6, top: 4),
+              padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white),
-              child: TextFormField(
-                controller: filter,
-                decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent)),
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent)),
-                  contentPadding: const EdgeInsets.only(top: 15),
-                  hintText: 'Supplier Code...',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: PRIMARY_COLOR,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Row(
+                children: [
+                  // 👈 Scan button
+                  GestureDetector(
+                    // onTap: onScan, // <-- call your scan function here
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F3F4),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.document_scanner_outlined,
+                            color: Color(0xFF12169D),
+                            size: 20,
+                          ),
+                        ],
+                      ),
                     ),
-                    onPressed: onFilter,
                   ),
-                ),
+
+                  const SizedBox(width: 10),
+
+                  // 👇 Input field expanded
+                  Expanded(
+                    child: TextFormField(
+                      controller: filter,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 12),
+                        hintText: 'Supplier Code...',
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Colors.transparent),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Colors.transparent),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF2F3F4),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // 🔍 Search button
+                  GestureDetector(
+                    onTap: onFilter,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F3F4),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.search,
+                            color: Color(0xFF12169D),
+                            size: 20,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            "Search",
+                            style: TextStyle(
+                              color: Color(0xFF12169D),
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: [
+            //     // Scan PO number button
+            //     Expanded(
+            //       child: Container(
+            //         padding: const EdgeInsets.symmetric(vertical: 14),
+            //         margin: const EdgeInsets.only(right: 8),
+            //         decoration: BoxDecoration(
+            //           color: const Color(0xFFF2F3F4), // light gray background
+            //           borderRadius: BorderRadius.circular(12),
+            //         ),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             Icon(
+            //               Icons.document_scanner_outlined,
+            //               color: const Color(0xFF12169D), // dark blue
+            //               size: 22,
+            //             ),
+            //             const SizedBox(width: 8),
+            //             const Text(
+            //               "Scan PO number",
+            //               style: TextStyle(
+            //                 color: Color(0xFF12169D),
+            //                 fontSize: 15,
+            //                 fontWeight: FontWeight.w500,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+
+            // Search button
+            // Expanded(
+            //   child: Container(
+            //     padding: const EdgeInsets.symmetric(vertical: 14),
+            //     margin: const EdgeInsets.only(left: 8),
+            //     decoration: BoxDecoration(
+            //       color: const Color(0xFFF2F3F4),
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Icon(
+            //           Icons.search,
+            //           color: Colors.grey.shade700,
+            //           size: 22,
+            //         ),
+            //         const SizedBox(width: 8),
+            //         const Text(
+            //           "Search",
+            //           style: TextStyle(
+            //             color: Color(0xFF12169D),
+            //             fontSize: 15,
+            //             fontWeight: FontWeight.w500,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            //   ],
+            // ),
             // const SizedBox(height: 10),
             const Divider(thickness: 0.1, height: 15),
             Expanded(
@@ -177,9 +320,65 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                 listener: (context, state) {},
                 builder: (context, state) {
                   if (state is RequestingPurchaseOrder) {
-                    return Center(child: CircularProgressIndicator());
+                    return Padding(
+                        padding: EdgeInsets.only(bottom: 100),
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF12169D),
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Loading Purchase Order...",
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      ],
+                    ));
                   }
-
+                  if (data.isEmpty) {
+                    return Padding(
+                        padding: EdgeInsets.only(bottom: 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.file_copy,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "No purchase order found Try ",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "adjusting your search terms",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ));
+                  }
                   return ListView(
                     controller: _scrollController,
                     children: [
@@ -188,11 +387,13 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                             (po) => GestureDetector(
                               onTap: () => forward(po),
                               child: Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(13),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  color:
+                                      const Color.fromARGB(255, 242, 243, 244),
                                 ),
-                                margin: const EdgeInsets.only(bottom: 8),
+                                margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                                 child: Column(
                                   children: [
                                     Row(
@@ -207,11 +408,13 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                                         ),
                                         Text(
                                           'Doc Date : ${getDataFromDynamic(po['DocDueDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
+                                          style: TextStyle(
+                                              fontSize: 13.5,
+                                              color: Colors.black54),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 6),
+                                    const SizedBox(height: 8),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -225,7 +428,9 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                                         const SizedBox(width: 30),
                                         Text(
                                           'Dilvery Date : ${getDataFromDynamic(po['DocDate'], isDate: true)}',
-                                          style: TextStyle(fontSize: 13),
+                                          style: TextStyle(
+                                              fontSize: 13.5,
+                                              color: Colors.black54),
                                         ),
                                       ],
                                     )
@@ -244,6 +449,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                               height: 30,
                               child: CircularProgressIndicator(
                                 strokeWidth: 3,
+                                color: Color(0xFF12169D),
                               ),
                             ),
                           ),

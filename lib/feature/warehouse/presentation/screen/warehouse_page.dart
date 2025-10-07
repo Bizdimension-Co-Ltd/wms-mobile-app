@@ -86,11 +86,13 @@ class _WarehousePageState extends State<WarehousePage> {
     });
   }
 
-  void onPressed(String code) {
+  void onPressed(String code, String name) {
     if (widget.isPicker) {
       LocalStorageManger.setString('warehouse', code);
+      LocalStorageManger.setString('warehouseName', name);
       goTo(context, Dashboard(), removeAllPreviousRoutes: true);
     } else {
+      LocalStorageManger.setString('warehouseName', name);
       LocalStorageManger.setString('warehouse', code);
       Navigator.pop(context, code);
     }
@@ -127,16 +129,23 @@ class _WarehousePageState extends State<WarehousePage> {
           ),
           backgroundColor: PRIMARY_COLOR,
           iconTheme: IconThemeData(color: Colors.white),
-          title: const Text(
-            'Warehouse Lists',
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+          title: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 65),
+              child: const Text(
+                'Warehouse Lists',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white),
+              ),
+            ),
           ),
         ),
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Color.fromARGB(255, 243, 243, 243),
+          color: Color.fromARGB(255, 255, 255, 255),
           child: Column(
             children: [
               if (!widget.isPicker)
@@ -179,29 +188,50 @@ class _WarehousePageState extends State<WarehousePage> {
                         ...data
                             .map(
                               (warehouse) => GestureDetector(
-                                onTap: () => onPressed(warehouse.code),
+                                onTap: () =>
+                                    onPressed(warehouse.code, warehouse.name),
                                 child: Container(
-                                  padding: const EdgeInsets.all(12),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 25, 12, 25),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: const Color.fromARGB(
+                                        255, 242, 243, 244),
                                   ),
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  margin:
+                                      const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        warehouse.code,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        warehouse.name,
-                                      ),
+                                          "${warehouse.code} - ${warehouse.name}",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 15.1)),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: Colors.grey,
+                                      )
                                     ],
                                   ),
+                                  //  Column(
+                                  //   crossAxisAlignment:
+                                  //       CrossAxisAlignment.start,
+                                  //   children: [
+                                  //     Text(
+                                  //       warehouse.code,
+                                  //       style: TextStyle(
+                                  //         fontWeight: FontWeight.w800,
+                                  //       ),
+                                  //     ),
+                                  //     const SizedBox(height: 6),
+                                  //     Text(
+                                  //       warehouse.name,
+                                  //     ),
+                                  //   ],
+                                  // ),
                                 ),
                               ),
                             )

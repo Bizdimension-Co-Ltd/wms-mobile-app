@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/list_serial/presentation/screen/Serial_list_page.dart';
 import '/component/button/button.dart';
 import '/component/form/input.dart';
@@ -9,15 +10,17 @@ import '../../constant/style.dart';
 import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 
 class GoodReceiptSerialScreen extends StatefulWidget {
-  const GoodReceiptSerialScreen({
-    super.key,
-    required this.itemCode,
-    required this.quantity,
-    this.serials,
-    this.isEdit,
-    this.listAllSerial,
-    this.binCode, this.isQuickCount,
-  });
+  const GoodReceiptSerialScreen(
+      {super.key,
+      required this.itemCode,
+      required this.quantity,
+      this.warehouse,
+      this.serials,
+      this.isEdit,
+      this.listAllSerial,
+      this.binCode,
+      this.isQuickCount,
+      this.itemName});
 
   final String quantity;
   final String itemCode;
@@ -26,6 +29,9 @@ class GoodReceiptSerialScreen extends StatefulWidget {
   final dynamic listAllSerial;
   final dynamic binCode;
   final dynamic isQuickCount;
+  final dynamic itemName;
+  final dynamic warehouse;
+
   @override
   State<GoodReceiptSerialScreen> createState() =>
       _GoodReceiptSerialScreenState();
@@ -33,9 +39,12 @@ class GoodReceiptSerialScreen extends StatefulWidget {
 
 class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   final itemCode = TextEditingController();
+  final itemName = TextEditingController();
   final quantity = TextEditingController();
   final totalSerial = TextEditingController();
   final textSerial = TextEditingController();
+  final warehouse = TextEditingController();
+
   int updateIndex = -1;
 
   List<dynamic> items = [];
@@ -44,9 +53,12 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   void initState() {
     itemCode.text = widget.itemCode;
     quantity.text = widget.quantity;
+    itemName.text = widget.itemName;
+    warehouse.text = widget.warehouse;
     totalSerial.text = items.length.toString();
     if (widget.isEdit >= 0) {
       setState(() {
+        print(widget.serials);
         items = widget.serials ?? [];
         totalSerial.text = items.length.toString();
       });
@@ -84,7 +96,10 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         FocusScope.of(context).requestFocus(FocusNode());
         return;
       }
-
+      if (quantity.text.isEmpty) {
+        throw Exception(
+            "Opps, Quantity not found can't generate serial number!");
+      }
       if (items.length >= double.parse(quantity.text).toInt()) {
         throw Exception(
             'Serial Number can not be greater than ${widget.quantity}.');
@@ -159,12 +174,11 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
           "Quantity": "1",
         });
         serialNumbers.add(serial);
-        if(widget.isQuickCount && widget.listAllSerial == true){
+        if (widget.isQuickCount && widget.listAllSerial == true) {
           totalSerial.text = "-${items.length}";
-        }else{
-           totalSerial.text = items.length.toString();
+        } else {
+          totalSerial.text = items.length.toString();
         }
-       
 
         setState(() {
           items;
@@ -185,7 +199,8 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
 
   void onComplete() {
     try {
-      if (items.length < double.parse(quantity.text).toInt() && widget.isQuickCount != true) {
+      if (items.length < double.parse(quantity.text).toInt() &&
+          widget.isQuickCount != true) {
         throw Exception(
             'Cannot add document without complete selection of serial numbers.');
       }
@@ -204,17 +219,22 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Serialize',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Text(
+              "Serial No",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
           ),
         ),
+        actions: [IconButton(onPressed: onComplete, icon: Icon(Icons.check))],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -226,58 +246,163 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Input(
-                  label: 'Item.',
-                  placeholder: 'Item',
-                  readOnly: true,
-                  controller: itemCode,
-                  // onPressed: onSelectItem,
-                ),
-                Input(
-                  controller: quantity,
-                  label: 'Qty.',
-                  placeholder: '0',
-                  readOnly: true,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                ),
-                Input(
-                  controller: quantity,
-                  label: 'Sn#..',
-                  placeholder: '0',
-                  readOnly: true,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                ),
-                Input(
-                  controller: totalSerial,
-                  label: 'Alc.Sn',
-                  placeholder: '0',
-                  readOnly: true,
-                ),
-                Input(
-                  controller: textSerial,
-                  label: 'Serial.',
-                  placeholder: 'Serial',
-                  onPressed: () async {
-                    if (widget.listAllSerial != true) return;
-                    onNavigateSerialList();
-                  },
-                  icon: Icons.barcode_reader,
-                  onEditingComplete: onEnterSerial,
-                ),
-                const SizedBox(height: 40),
-                Button(
-                  bgColor: Colors.green.shade700,
-                  onPressed: onEnterSerial,
-                  child: Text(
-                    updateIndex == -1 ? "Add" : "Update",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(5),
+                  child: Column(
+                    children: [
+                      Input(
+                        label: 'Item Code',
+                        placeholder: 'Item',
+                        readOnly: true,
+                        controller: itemCode,
+                        // onPressed: onSelectItem,
+                      ),
+                      Input(
+                        controller: itemName,
+                        label: 'Description',
+                        placeholder: 'desc',
+                        readOnly: true,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                      Input(
+                        controller: quantity,
+                        label: 'Quantity',
+                        placeholder: 'Qty',
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                      Divider(thickness: 1, color: Colors.grey.shade400),
+                      // if (widget.po != null)
+                      //   Input(
+                      //     label: 'PO #',
+                      //     placeholder: 'PO DocNum',
+                      //     controller: poText,
+                      //     readOnly: true,
+                      //   ),
+                      Input(
+                        label: 'Warehouse',
+                        placeholder: 'Warehouse',
+                        controller: warehouse,
+                        readOnly: true,
+                      ),
+                    ],
                   ),
                 ),
-                // Text('Serial No.'),
-                const SizedBox(height: 12),
+                SizedBox(
+                  height: 23,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text("Qty of Serial"),
+                        SizedBox(
+                          width: 6,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 236, 238, 239),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              totalSerial.text,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text("Serial No"),
+                        SizedBox(
+                          width: 6,
+                        ),
+                        Container(
+                          width: 60,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 236, 238, 239),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "${totalSerial.text}/${quantity.text == "" ? 0 : quantity.text}",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Divider(thickness: 0.5, color: Colors.grey.shade400),
+                SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InputCol(
+                        controller: textSerial,
+                        label: 'Serial No',
+                        placeholder: 'Serial',
+                        onPressed: () async {
+                          if (widget.listAllSerial != true) return;
+                          onNavigateSerialList();
+                        },
+                        icon: Icons.barcode_reader,
+                        onEditingComplete: onEnterSerial,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: InputCol(
+                        controller: totalSerial,
+                        label: 'Serial Qty',
+                        placeholder: '0',
+                        readOnly: true,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
                 ContentHeader(),
+                 items.isEmpty
+                    ? Container(
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: Text(
+                            "No Serial  available",
+                            style: TextStyle(fontSize: 15, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                   child: Scrollbar(
                     child: ListView(
@@ -298,75 +423,84 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: size(context).height * 0.09,
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Expanded(
-              child: Button(
-                onPressed: onComplete,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  'Done',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+        child: Button(
+          bgColor: PRIMARY_COLOR,
+          onPressed: onEnterSerial,
+          child: Text(
+            updateIndex == -1 ? "Add" : "Update",
+            style: TextStyle(
+              color: Colors.white,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SizedBox(),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Button(
-                variant: ButtonVariant.outline,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: PRIMARY_COLOR,
-                  ),
-                ),
-              ),
-            )
-          ],
+          ),
         ),
       ),
+      //  Container(
+      //   height: size(context).height * 0.09,
+      //   padding: const EdgeInsets.all(12),
+      //   child: Row(
+      //     children: [
+      //       Expanded(
+      //         child: Button(
+      //           variant: ButtonVariant.outline,
+      //           onPressed: () {
+      //             Navigator.of(context).pop();
+      //           },
+      //           child: Text(
+      //             'Cancel',
+      //             style: TextStyle(
+      //               color: PRIMARY_COLOR,
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //       const SizedBox(width: 12),
+      //       Expanded(
+      //         child: Button(
+      //           onPressed: onComplete,
+      //           bgColor: PRIMARY_COLOR,
+      //           child: Text(
+      //             'Done',
+      //             style: TextStyle(
+      //               color: Colors.white,
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //       const SizedBox(width: 12),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
 
 class ContentHeader extends StatelessWidget {
   const ContentHeader({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border(
-          bottom: BorderSide(width: 0.1),
-          top: BorderSide(width: 0.1),
+        color: PRIMARY_COLOR, // Dark navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
         ),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
         children: const [
           Expanded(
             flex: 3,
             child: Text(
-              'Serial No.',
+              'Serial No',
               style: TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
-          Expanded(child: Text('Qty.')),
-          // Expanded(child: Text('Qty/Op.')),
         ],
       ),
     );
@@ -381,8 +515,9 @@ class ItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 0.1))),
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(width: 0.1)), color: const Color.fromARGB(255, 244, 245, 246)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -398,7 +533,6 @@ class ItemRow extends StatelessWidget {
                 ),
               ),
               // Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
-              Expanded(child: Text('${item['Quantity']}')),
             ],
           ),
           SizedBox(height: 6),

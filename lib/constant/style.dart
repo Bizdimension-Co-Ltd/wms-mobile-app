@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // color
-const PRIMARY_COLOR = Color.fromARGB(255, 17, 18, 48);
+const PRIMARY_COLOR = Color.fromARGB(255, 10, 13, 85);
 const PRIMARY_BG_COLOR = Color.fromARGB(255, 241, 241, 241);
 
 // Constant

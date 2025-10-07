@@ -40,6 +40,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   String warehouseCode = '';
+  String warehouseName = '';
   void _logout(BuildContext context) {
     MaterialDialog.loading(context);
 
@@ -86,8 +87,11 @@ class _DashboardState extends State<Dashboard> {
 
   void init() async {
     final value = await LocalStorageManger.getString('warehouse');
+    final name = await LocalStorageManger.getString('warehouseName');
+
     setState(() {
       warehouseCode = value;
+      warehouseName = name;
     });
   }
 
@@ -100,29 +104,29 @@ class _DashboardState extends State<Dashboard> {
         leading: Container(
           padding: EdgeInsets.all(14), // Add some padding if necessary
           child: GestureDetector(
-            onTap: () {
-              // goTo(
-              //     context,
-              //     const BatchListPage(
-              //       warehouse: '',
-              //     ));
-            },
-            child: SvgPicture.asset(
-              "images/svg/menu.svg",
-              color: Colors.white,
-              fit: BoxFit.contain, // Ensure the SVG fits within the container
-            ),
-          ),
+              onTap: () {
+                // goTo(
+                //     context,
+                //     const BatchListPage(
+                //       warehouse: '',
+                //     ));
+              },
+              child: Icon(Icons.dashboard, color: Colors.white)),
         ),
         iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
         ),
         backgroundColor: PRIMARY_COLOR,
-        title: Text(
-          "Main Menu",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: size(context).width * 0.045,
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Text(
+              warehouseName,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
           ),
         ),
         actions: [
@@ -131,7 +135,7 @@ class _DashboardState extends State<Dashboard> {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: Colors.white,
-              fontSize: size(context).width * 0.045,
+              fontSize: 17,
             ),
           ),
           const SizedBox(width: 15),
@@ -145,29 +149,77 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                child: ListView.builder(
-                  // padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  shrinkWrap: true,
-                  itemCount: gridList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)),
-                      child: ListTile(
-                        onTap: () => onPressMenu(context, index),
-                        leading: SvgPicture.asset(
-                          color: Color.fromARGB(235, 28, 60, 176),
-                          "images/svg/${gridList[index]["img"]}",
-                          width: size(context).width * 0.08,
-                          height: size(context).width * 0.08,
-                        ),
-                        title: Text('${gridList[index]['name']}'),
-                      ),
-                    );
-                  },
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 20, 0, 10),
+                child: Row(
+                  children: const [
+                    Icon(Icons.circle,
+                        color: Color.fromARGB(255, 217, 217, 222)),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text("Main Menu",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 20,
+                            color: PRIMARY_COLOR)),
+                  ],
                 ),
-              )
+              ),
+              SizedBox(
+                  child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: gridList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final isLast =
+                      index == gridList.length - 1; // 👈 check last index
+
+                  return GestureDetector(
+                    onTap: () {
+                      onPressMenu(context, index);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(15, 22, 12, 22),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromARGB(255, 242, 243, 244),
+                      ),
+                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                color: isLast ? Colors.red : const Color.fromARGB(255, 18, 22, 157),
+                                "images/svg/${gridList[index]["img"]}",
+                                width: 30,
+                                height: 30,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "${gridList[index]['name']}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15.5,
+                                  color: isLast ? Colors.red : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          isLast
+                              ? const SizedBox() // 👈 hide arrow for last item
+                              : Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 20,
+                                  color: Colors.grey,
+                                ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ))
             ],
           )),
     );
