@@ -523,7 +523,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+        margin: EdgeInsets.fromLTRB(15, 0, 15, 15),
         child: Button(
           bgColor: PRIMARY_COLOR,
           onPressed: onEnterSerial,

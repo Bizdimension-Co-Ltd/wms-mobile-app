@@ -32,11 +32,16 @@ class _ProductLookUpState extends State<ProductLookUp> {
           color: Colors.white, //change your color here
         ),
         backgroundColor: PRIMARY_COLOR,
-        title: Text(
-          "Lookup",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: size(context).width * 0.045,
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 65),
+            child: const Text(
+              'Lookup',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
           ),
         ),
       ),
@@ -48,34 +53,55 @@ class _ProductLookUpState extends State<ProductLookUp> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+                SizedBox(
+                height: 10,
+              ), 
               SizedBox(
                 child: ListView.builder(
                   // padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                   shrinkWrap: true,
                   itemCount: gridList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)),
-                      child: ListTile(
-                        onTap: () {
-                          if (!routes.asMap().containsKey(index)) {
-                            MaterialDialog.success(context,
-                                title: 'Oop',
-                                body:
-                                    '${gridList[index]['name']} is not implement yet!');
-                            return;
-                          }
-
-                          goTo(context, routes[index]);
-                        },
-                        leading: SvgPicture.asset(
-                          color: Color.fromARGB(235, 28, 60, 176),
-                          "images/svg/${gridList[index]["img"]}",
-                          width: size(context).width * 0.08,
-                          height: size(context).width * 0.08,
+                    return GestureDetector(
+                      onTap: () {
+                        goTo(context, routes[index]);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(15, 22, 12, 22),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color.fromARGB(255, 242, 243, 244),
                         ),
-                        title: Text('${gridList[index]['name']}'),
+                        margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(
+                                  color: const Color.fromARGB(255, 18, 22, 157),
+                                  "images/svg/${gridList[index]["img"]}",
+                                  width: 30,
+                                  height: 30,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "${gridList[index]['name']}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15.5,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

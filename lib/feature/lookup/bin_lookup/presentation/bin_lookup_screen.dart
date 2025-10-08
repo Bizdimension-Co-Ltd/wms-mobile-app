@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/screen/bin_page.dart';
 import 'package:wms_mobile/feature/lookup/bin_lookup/presentation/cubit/binlocation_lookup_cubit.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
@@ -75,7 +76,8 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
   }
 
   void onChangeBin() async {
-    goTo(context, BinPage(warehouse: warehouse.text,fromBinlookUp:true)).then((value) {
+    goTo(context, BinPage(warehouse: warehouse.text, fromBinlookUp: true))
+        .then((value) {
       if (value == null) return;
 
       binCode.text = getDataFromDynamic(value.code);
@@ -155,45 +157,85 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Bin Lookup',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 65),
+            child: const Text(
+              'Bin  Lookup',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
           ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Input(
-                label: 'Warehouse',
-                placeholder: 'Warehouse',
-                controller: warehouse,
-                readOnly: true,
-                onPressed: onChangeWhs,
-              ),
+              // Input(
+              //   label: 'Warehouse',
+              //   placeholder: 'Warehouse',
+              //   controller: warehouse,
+              //   readOnly: true,
+              //   onPressed: onChangeWhs,
+              // ),
 
+              // // Input(
+              // //   controller: binCode,
+              // //   label: 'Bin.',
+              // //   placeholder: 'Bin Location',
+              // //   onPressed: onSelectItem,
+              // // ),
+              // // Input(
+              // //   controller: itemName,
+              // //   label: 'Desc.',
+              // //   placeholder: 'Description',
+              // // ),
               // Input(
               //   controller: binCode,
               //   label: 'Bin.',
               //   placeholder: 'Bin Location',
-              //   onPressed: onSelectItem,
+              //   onPressed: onChangeBin,
               // ),
-              // Input(
-              //   controller: itemName,
-              //   label: 'Desc.',
-              //   placeholder: 'Description',
-              // ),
-              Input(
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    Input(
+                      label: 'Warehouse',
+                      placeholder: 'Warehouse',
+                      controller: warehouse,
+                      readOnly: true,
+                      onPressed: onChangeWhs,
+                    ),
+                    // Divider(thickness: 1, color: Colors.grey.shade400),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Divider(thickness: 0.5, color: Colors.grey.shade500),
+
+              // ====== Scan & Select Items ======
+
+              const SizedBox(height: 7),
+
+              // ====== Input Qty & UoM ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Bin',
                 controller: binCode,
-                label: 'Bin.',
-                placeholder: 'Bin Location',
+                readOnly: true,
                 onPressed: onChangeBin,
               ),
+
+              const SizedBox(height: 8),
               items.isEmpty
                   ? Container()
                   : Padding(
@@ -288,17 +330,39 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
                         ],
                       ),
                     ),
-              const SizedBox(height: 40),
-              ContentHeader(),
+              const SizedBox(height: 30),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300, width: 0.5),
+                ),
+                child: Column(
+                  children: [
+                    ContentHeader(),
+                    items.isEmpty
+                        ? Container(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              "No Item available",
+                              style:
+                                  TextStyle(fontSize: 15, color: Colors.grey),
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+              ),
               Column(
                 children: items
                     .where((e) => e["OnHandQty"] > 0)
                     .map((item) => GestureDetector(
                           // onTap: () => onEdit(item),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: EdgeInsets.fromLTRB(7, 7, 5, 7),
                             decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(width: 0.1))),
+                                border: Border(bottom: BorderSide(width: 0.1)),
+                                color: Colors.grey.shade50),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -345,26 +409,16 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: size(context).height * 0.09,
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            const SizedBox(width: 12),
-            Expanded(
-              child: Button(
-                bgColor: Colors.green.shade900,
-                variant: ButtonVariant.primary,
-                onPressed: onGetItem,
-                child: Text(
-                  'Done',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+        margin: EdgeInsets.fromLTRB(15, 0, 15, 15),
+        child: Button(
+          bgColor: PRIMARY_COLOR,
+          onPressed: onGetItem,
+          child: Text(
+            "Search",
+            style: TextStyle(
+              color: Colors.white,
             ),
-            Expanded(child: Container()),
-            Expanded(child: Container()),
-            const SizedBox(width: 12),
-          ],
+          ),
         ),
       ),
     );
@@ -372,32 +426,59 @@ class _CreateBinLookUpScreenState extends State<CreateBinLookUpScreen> {
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key});
-
+  const ContentHeader({super.key, this.hideOpenQty});
+  final dynamic hideOpenQty;
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border(
-          bottom: BorderSide(width: 0.1),
-          top: BorderSide(width: 0.1),
+        color: PRIMARY_COLOR, // Dark navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
         ),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
         children: const [
           Expanded(
             flex: 3,
             child: Text(
-              'Items.',
+              'Bin Info',
               style: TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
-          Expanded(child: Text('UoM')),
-          Expanded(child: Text('Qty')),
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: EdgeInsets.only(right: 30),
+              child: Text(
+                'UoM',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Qty',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );

@@ -142,6 +142,14 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
   }
 
   void onNavigateSerialList() async {
+    if (quantity.text.isEmpty) {
+      MaterialDialog.success(
+        context,
+        title: 'Failed',
+        body: "Opps, Quantity not found can't generate serial number!",
+      );
+      return;
+    }
     goTo(
       context,
       SerialListPage(
@@ -174,15 +182,16 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
           "Quantity": "1",
         });
         serialNumbers.add(serial);
-        if (widget.isQuickCount && widget.listAllSerial == true) {
-          totalSerial.text = "-${items.length}";
-        } else {
-          totalSerial.text = items.length.toString();
-        }
+        // if (widget.isQuickCount && widget.listAllSerial == true) {
+        //   totalSerial.text = "-${items.length}";
+        // } else {
+        //   totalSerial.text = items.length.toString();
+        // }
 
         setState(() {
           items;
         });
+        print(items);
       }
 
       // Check if the number of serial numbers exceeds the allowed quantity
@@ -388,11 +397,9 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 30),
-
                 ContentHeader(),
-                 items.isEmpty
+                items.isEmpty
                     ? Container(
                         padding: EdgeInsets.all(20),
                         child: Center(
@@ -423,7 +430,7 @@ class _GoodReceiptSerialScreenState extends State<GoodReceiptSerialScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+        margin: EdgeInsets.fromLTRB(15, 0, 15, 15),
         child: Button(
           bgColor: PRIMARY_COLOR,
           onPressed: onEnterSerial,
@@ -517,7 +524,8 @@ class ItemRow extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: 0.1)), color: const Color.fromARGB(255, 244, 245, 246)),
+          border: Border(bottom: BorderSide(width: 0.1)),
+          color: const Color.fromARGB(255, 244, 245, 246)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

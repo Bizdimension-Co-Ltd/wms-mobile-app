@@ -1,4 +1,4 @@
-package com.example.wms_mobiles
+package com.example.wmsmobiles
 
 import android.content.Context
 import android.os.BatteryManager

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -520,9 +521,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onNavigateSerialOrBatch({bool force = false}) {
     // return;
-    if (quantity.text == "") return;
-    if (double.parse(inWhsQty.text).toInt() ==
-        double.parse(quantity.text).toInt()) return;
+    // if (quantity.text == "") return;
+    // if (double.parse(inWhsQty.text).toInt() ==
+    //     double.parse(quantity.text).toInt()) return;
 
     if (isSerial.text == 'tYES') {
       final serialList = serialsInput.text == "" || serialsInput.text == "null"
@@ -544,6 +545,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             binCode: binCode.text,
             serials: serialList,
             isQuickCount: true,
+            itemName: itemName.text,
+            warehouse: warehouse.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -569,6 +572,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 : true,
             serials: batches,
             binCode: binCode.text,
+            itemName: itemName.text,
+            warehouse: warehouse.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -594,73 +599,221 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Input(
-                label: 'Warehouse',
-                placeholder: 'Warehouse',
-                controller: warehouse,
-                readOnly: true,
-                onPressed: onChangeWhs,
+              // Input(
+              //   label: 'Warehouse',
+              //   placeholder: 'Warehouse',
+              //   controller: warehouse,
+              //   readOnly: true,
+              //   onPressed: onChangeWhs,
+              // ),
+              // Input(
+              //   controller: ref,
+              //   label: 'Ref.',
+              //   placeholder: 'Referance',
+              // ),
+              // Input(
+              //   controller: itemCode,
+              //   onEditingComplete: onCompleteTextEditItem,
+              //   label: 'Item.',
+              //   placeholder: 'Item',
+              //   onPressed: onSelectItem,
+              // ),
+              // Input(
+              //   controller: uom,
+              //   label: 'UoM.',
+              //   placeholder: 'Unit Of Measurement',
+              //   onPressed: onChangeUoM,
+              // ),
+              // Input(
+              //   controller: binCode,
+              //   label: 'Bin.',
+              //   placeholder: 'Bin Location',
+              //   onPressed: onChangeBin,
+              // ),
+              // Input(
+              //   controller: inWhsQty,
+              //   label: 'In Whs Qty.',
+              //   placeholder: 'Total Qty',
+              //   readOnly: true,
+              // ),
+              // Input(
+              //   controller: quantity,
+              //   label: 'Quantity.',
+              //   placeholder: 'Quantity',
+              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+              //   onEditingComplete: onCompleteQuantiyInput,
+              //   onPressed: isSerialOrBatch
+              //       ? () {
+              //           onNavigateSerialOrBatch(force: true);
+              //         }
+              //       : null,
+              // ),
+              // const SizedBox(height: 40),
+              // ContentHeader(),
+              // Column(
+              //   children: items.asMap().entries.map((entry) {
+              //     final index = entry.key;
+              //     final item = entry.value;
+
+              //     return GestureDetector(
+              //       onTap: () =>
+              //           onEdit(item, index), // Pass both item and index
+              //       child: ItemRow(item: item),
+              //     );
+              //   }).toList(),
+              // ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  children: [
+                    Input(
+                      label: 'Warehouse',
+                      placeholder: 'Warehouse',
+                      controller: warehouse,
+                      readOnly: true,
+                      onPressed: onChangeWhs,
+                    ),
+                    // Divider(thickness: 1, color: Colors.grey.shade400),
+                  ],
+                ),
               ),
-              Input(
+              const SizedBox(height: 14),
+              Divider(thickness: 0.5, color: Colors.grey.shade500),
+              const SizedBox(height: 5),
+              InputCol(
+                label: 'Referance',
+                placeholder: 'Please input referance',
                 controller: ref,
-                label: 'Ref.',
-                placeholder: 'Referance',
               ),
-              Input(
-                controller: itemCode,
-                onEditingComplete: onCompleteTextEditItem,
-                label: 'Item.',
-                placeholder: 'Item',
-                onPressed: onSelectItem,
+
+              // ====== Scan & Select Items ======
+              Row(
+                children: [
+                  Expanded(
+                    child: InputCol(
+                      label: 'Item Code',
+                      placeholder: 'Chose Item',
+                      controller: itemCode,
+                      readOnly: true,
+                      onPressed: onSelectItem,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 30),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        // your action here
+                      },
+                      icon:
+                          const Icon(Icons.document_scanner_outlined, size: 22),
+                      color: Colors.black87,
+                      tooltip: 'Scan items', // optional hover/long-press text
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
               ),
-              Input(
-                controller: uom,
-                label: 'UoM.',
-                placeholder: 'Unit Of Measurement',
-                onPressed: onChangeUoM,
+
+              const SizedBox(height: 7),
+
+              // ====== Input Qty & UoM ======
+              Row(
+                children: [
+                  Expanded(
+                    child: InputCol(
+                      label: 'Input Qty',
+                      placeholder: 'Quantity',
+                      controller: quantity,
+                      readOnly: isSerialOrBatch ? true : false, // simpler
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onTap: isSerialOrBatch
+                          ? () {
+                              onNavigateSerialOrBatch(force: true);
+                            }
+                          : null,
+                      onEditingComplete: onCompleteQuantiyInput,
+                      onPressed: isSerialOrBatch
+                          ? () {
+                              onNavigateSerialOrBatch(force: true);
+                            }
+                          : null, // remove if icon not needed
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InputCol(
+                      label: 'Input UoM',
+                      placeholder: 'UoM',
+                      controller: uom,
+                      readOnly: true,
+                      onPressed: onChangeUoM,
+                    ),
+                  ),
+                ],
               ),
-              Input(
+
+              const SizedBox(height: 8),
+
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
                 controller: binCode,
-                label: 'Bin.',
-                placeholder: 'Bin Location',
+                readOnly: true,
                 onPressed: onChangeBin,
               ),
-              Input(
-                controller: inWhsQty,
-                label: 'In Whs Qty.',
-                placeholder: 'Total Qty',
-                readOnly: true,
-              ),
-              Input(
-                controller: quantity,
-                label: 'Quantity.',
-                placeholder: 'Quantity',
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onEditingComplete: onCompleteQuantiyInput,
-                onPressed: isSerialOrBatch
-                    ? () {
-                        onNavigateSerialOrBatch(force: true);
-                      }
-                    : null,
-              ),
-              const SizedBox(height: 40),
-              ContentHeader(),
-              Column(
-                children: items.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
 
-                  return GestureDetector(
-                    onTap: () =>
-                        onEdit(item, index), // Pass both item and index
-                    child: ItemRow(item: item),
-                  );
-                }).toList(),
-              ),
+              const SizedBox(height: 30),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300, width: 0.5),
+                ),
+                child: Column(
+                  children: [
+                    ContentHeader(),
+                    items.isEmpty
+                        ? Container(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              "No Item available",
+                              style:
+                                  TextStyle(fontSize: 15, color: Colors.grey),
+                            ),
+                          )
+                        : Container(),
+                    ...items.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+                      return GestureDetector(
+                        onTap: () => onEdit(item, index),
+                        child: ItemRow(
+                          item: item,
+
+                          // Optional: pass index if you need inside ItemRow
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -732,32 +885,56 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key});
-
+  const ContentHeader({super.key, this.hideOpenQty});
+  final dynamic hideOpenQty;
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border(
-          bottom: BorderSide(width: 0.1),
-          top: BorderSide(width: 0.1),
+        color: PRIMARY_COLOR, // Dark navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
         ),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
         children: const [
           Expanded(
             flex: 3,
             child: Text(
-              'Item No.',
+              'Item No',
               style: TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
-          Expanded(child: Text('UoM')),
-          Expanded(child: Text('Qty/Op.')),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'UoM',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Qty',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );
@@ -765,35 +942,73 @@ class ContentHeader extends StatelessWidget {
 }
 
 class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item});
-
+  const ItemRow({super.key, required this.item, this.po, this.hideOpenQty});
+  final dynamic po;
   final dynamic item;
+  final dynamic hideOpenQty;
+  String getDataFromDynamic(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 0.1))),
+      color: Colors.grey.shade50,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // First Row (Item, UoM, Qty, Open Qty)
           Row(
             children: [
               Expanded(
                 flex: 3,
                 child: Text(
                   getDataFromDynamic(item['ItemCode']),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
                 ),
               ),
-              Expanded(child: Text(getDataFromDynamic(item['UoMCode']))),
-              Expanded(child: Text('${item['Quantity']}/0')),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  getDataFromDynamic(item['UoMCode']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  getDataFromDynamic(item['Quantity']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
             ],
           ),
-          SizedBox(height: 6),
-          Text(getDataFromDynamic(item['ItemDescription']))
+
+          const SizedBox(height: 4),
+
+          // Second Row (Description)
+          Text(
+            getDataFromDynamic(item['ItemDescription']),
+            style: const TextStyle(
+              color: Colors.black87,
+              fontSize: 13,
+            ),
+          ),
+
+          // Divider
+          const SizedBox(height: 8),
+          Divider(
+            height: 1,
+            thickness: 0.6,
+            color: Colors.grey.shade300,
+          ),
         ],
       ),
     );

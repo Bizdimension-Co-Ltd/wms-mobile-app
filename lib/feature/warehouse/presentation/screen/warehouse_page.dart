@@ -30,6 +30,7 @@ class _WarehousePageState extends State<WarehousePage> {
   @override
   void initState() {
     super.initState();
+    print("WH");
     _bloc = context.read<WarehouseCubit>();
     final state = context.read<WarehouseCubit>().state;
 

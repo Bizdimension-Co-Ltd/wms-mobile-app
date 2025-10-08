@@ -1,4 +1,4 @@
-package com.example.wms_mobiles
+package com.example.wmsmobiles
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall

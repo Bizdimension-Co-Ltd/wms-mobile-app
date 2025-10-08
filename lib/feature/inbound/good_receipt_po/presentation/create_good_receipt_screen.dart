@@ -694,10 +694,10 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     }
   }
 
-  // void onCompleteQuantiyInput() {
-  //   FocusScope.of(context).requestFocus(FocusNode());
-  //   onNavigateSerialOrBatch();
-  // }
+  void onCompleteQuantiyInput() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    onNavigateSerialOrBatch();
+  }
 
   void onNavigateSerialOrBatch({bool force = false}) {
     if (isSerial.text == 'tYES') {
@@ -881,7 +881,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                                 onNavigateSerialOrBatch(force: true);
                               }
                             : null,
-                        // onEditingComplete: onCompleteQuantiyInput,
+                        onEditingComplete: onCompleteQuantiyInput,
                         onPressed: isSerialOrBatch
                             ? () {
                                 onNavigateSerialOrBatch(force: true);
