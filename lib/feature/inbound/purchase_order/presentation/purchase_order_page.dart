@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iscan_data_plugin/iscan_data_plugin.dart';
 import '/constant/style.dart';
 import '/feature/inbound/good_receipt_po/presentation/create_good_receipt_screen.dart';
 import '/utilies/storage/locale_storage.dart';
@@ -66,6 +68,19 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
               setState(() => data = [...data, ...value]);
             });
           }
+        }
+      });
+      IscanDataPlugin.methodChannel
+          .setMethodCallHandler((MethodCall call) async {
+        if (call.method == "onScanResults") {
+          // if (loading) return;
+          print(call.arguments);
+          setState(() {
+            if (call.arguments['data'] == "decode error") return;
+            //
+            filter.text = call.arguments['data'];
+            // onCompleteTextEditItem();
+          });
         }
       });
     } catch (err) {
@@ -154,7 +169,6 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
         child: Column(
           children: [
             const SizedBox(height: 8),
-
             Container(
               padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
               width: double.infinity,
@@ -246,7 +260,6 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                 ],
               ),
             ),
-
             const Divider(thickness: 0.1, height: 15),
             Expanded(
               child: BlocConsumer<PurchaseOrderCubit, PurchaseOrderState>(
@@ -256,26 +269,27 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                     return Padding(
                         padding: EdgeInsets.only(bottom: 100),
                         child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF12169D),
-                            strokeWidth: 3,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Loading Purchase Order...",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ],
-                    ));
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                color: Color(0xFF12169D),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Loading Purchase Order...",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          ],
+                        ));
                   }
                   if (data.isEmpty) {
                     return Padding(

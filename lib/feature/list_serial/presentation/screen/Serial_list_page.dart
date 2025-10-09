@@ -66,14 +66,18 @@ class _SerialListPageState extends State<SerialListPage> {
   }
 
   void init(BuildContext context) async {
+    print(widget.binCode);
+    print(widget.itemCode);
     try {
       final warehouse = await LocalStorageManger.getString('warehouse');
+      print(warehouse);
 
       _bloc = context.read<SerialListCubit>();
       _bloc
           .get(
-              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and AbsEntry eq ${widget.binCode}" : ""} and WhsCode eq '$warehouse'")
           .then((value) {
+        print(value);
         if (mounted) {
           setState(() {
             data = value;

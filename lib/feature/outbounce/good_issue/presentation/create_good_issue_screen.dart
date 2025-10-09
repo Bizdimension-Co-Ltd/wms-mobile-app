@@ -322,14 +322,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             }
           ];
 
-          bool _isBatch = item['ManageBatchNumbers'] == 'tYES';
-          bool _isSerial = item['ManageSerialNumbers'] == 'tYES';
+          bool isBatch = item['ManageBatchNumbers'] == 'tYES';
+          bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
-          if (_isBatch || _isSerial) {
+          if (isBatch || isSerial) {
             binAllocations = [];
 
             List<dynamic> batchOrSerialLines =
-                _isSerial ? item['Serials'] : item['Batches'];
+                isSerial ? item['Serials'] : item['Batches'];
 
             int index = 0;
             for (var element in batchOrSerialLines) {
@@ -414,7 +414,6 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       if (bin.data["value"].length == 0) {
         isBin.clear();
       }
-      ;
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
@@ -474,7 +473,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       quantity.text = '';
       MaterialDialog.loading(context);
       final barcodeRes = await dio.get(
-          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
       if (barcodeRes.statusCode == 200) {
         if (barcodeRes.data["value"].length == 0) {
           if (barcodeRes.data["value"].length == 0) {
@@ -552,7 +551,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             quantity: quantity.text,
             serials: serialList,
             binCode: binCode.text,
-            listAllSerial: true, 
+            listAllSerial: true,
             itemName: itemName.text,
             warehouse: warehouse.text,
             isEdit: isEdit),
@@ -598,12 +597,17 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Create Good Issue',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 60),
+          child: Center(
+            child: const Text(
+              'Create Good Issue',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),

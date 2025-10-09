@@ -76,6 +76,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   List<dynamic> items = [];
   bool loading = false;
   List<dynamic> itemCodeFilter = [];
+  bool isReview = false;
   @override
   void initState() {
     init();
@@ -320,6 +321,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
   void onEdit(dynamic item, int index) {
     // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
+    print(item);
 
     if (index < 0) return;
 
@@ -636,7 +638,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         quantity.text = '';
         MaterialDialog.loading(context);
         final barcodeRes = await dio.get(
-            "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+            "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
         if (barcodeRes.statusCode == 200) {
           if (barcodeRes.data["value"].length == 0) {
             MaterialDialog.close(
@@ -662,6 +664,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
               if (mounted) {
                 MaterialDialog.close(context);
               }
+              print(barcodeRes.data["value"]);
               uom.text =
                   getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
               uomAbEntry.text =
@@ -749,6 +752,18 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back), // Back arrow icon
+            onPressed: () {
+              if (isReview && !widget.quickReceipt) {
+                setState(() {
+                  isReview = false;
+                });
+              } else {
+                Navigator.pop(context); // Go back to previous screen
+              }
+            },
+          ),
           backgroundColor: PRIMARY_COLOR,
           iconTheme: IconThemeData(color: Colors.white),
           title: widget.quickReceipt
@@ -779,167 +794,13 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
       body: Padding(
           padding: const EdgeInsets.all(15),
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ====== Supplier Info Card ======
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(5),
-                  child: Column(
+            child: isReview
+                ? Column(
                     children: [
-                      Input(
-                        label: 'Supplier Code',
-                        placeholder: 'Supplier Code',
-                        controller: cardCode,
-                        readOnly: true,
-                        onPressed:
-                            widget.quickReceipt ? onChangeCardCode : null,
+                      SizedBox(
+                        height: 5,
                       ),
-                      Input(
-                        label: 'Supplier Name',
-                        placeholder: 'Supplier Name',
-                        controller: cardName,
-                        readOnly: true,
-                      ),
-                      Divider(thickness: 1, color: Colors.grey.shade400),
-                      if (widget.po != null)
-                        Input(
-                          label: 'PO #',
-                          placeholder: 'PO DocNum',
-                          controller: poText,
-                          readOnly: true,
-                        ),
-                      Input(
-                        label: 'Warehouse',
-                        placeholder: 'Warehouse',
-                        controller: warehouse,
-                        readOnly: true,
-                        onPressed: onChangeWhs,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-                Divider(thickness: 0.5, color: Colors.grey.shade300),
-                const SizedBox(height: 5),
-
-                // ====== Scan & Select Items ======
-                Row(
-                  children: [
-                    Expanded(
-                      child: InputCol(
-                        label: 'Item Code',
-                        placeholder: 'Chose Item',
-                        controller: itemCode,
-                        readOnly: true,
-                        onPressed: onSelectItem,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 30),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          // your action here
-                        },
-                        icon: const Icon(Icons.document_scanner_outlined,
-                            size: 22),
-                        color: Colors.black87,
-                        tooltip: 'Scan items', // optional hover/long-press text
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                ),
-
-                const SizedBox(height: 7),
-
-                // ====== Input Qty & UoM ======
-                Row(
-                  children: [
-                    Expanded(
-                      child: InputCol(
-                        label: 'Input Qty',
-                        placeholder: 'Quantity',
-                        controller: quantity,
-                        readOnly: isSerialOrBatch ? true : false, // simpler
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
-                        onTap: isSerialOrBatch
-                            ? () {
-                                onNavigateSerialOrBatch(force: true);
-                              }
-                            : null,
-                        onEditingComplete: onCompleteQuantiyInput,
-                        onPressed: isSerialOrBatch
-                            ? () {
-                                onNavigateSerialOrBatch(force: true);
-                              }
-                            : null, // remove if icon not needed
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InputCol(
-                        label: 'Input UoM',
-                        placeholder: 'UoM',
-                        controller: uom,
-                        readOnly: true,
-                        onPressed: onChangeUoM,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // ====== Bin Location ======
-                InputCol(
-                  label: 'Select Bin Location',
-                  placeholder: 'Please select bin location',
-                  controller: binCode,
-                  readOnly: true,
-                  onPressed: onChangeBin,
-                ),
-
-                const SizedBox(height: 30),
-
-                // ====== Items Section ======
-                // ContentHeader(),
-                // Column(
-                //   children: items.asMap().entries.map((entry) {
-                //     final index = entry.key;
-                //     final item = entry.value;
-
-                //     return GestureDetector(
-                //       onTap: () => onEdit(item, index),
-                //       child: ItemRow(
-                //         item: item,
-                //         po: widget.po,
-                //       ),
-                //     );
-                //   }).toList(),
-                // ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300, width: 0.5),
-                  ),
-                  child: Column(
-                    children: [
-                      ContentHeader(hideOpenQty: widget.quickReceipt),
+                      ReviewHeader(hideOpenQty: widget.quickReceipt),
                       items.isEmpty
                           ? Container(
                               padding: EdgeInsets.all(20),
@@ -953,21 +814,202 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                       ...items.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-                        return GestureDetector(
-                          onTap: () => onEdit(item, index),
-                          child: ItemRow(
-                              item: item,
-                              po: widget.po,
-                              hideOpenQty: widget.quickReceipt
-                              // Optional: pass index if you need inside ItemRow
-                              ),
+                        return ReviewRow(
+                          item: item,
+                          // Optional: pass index if you need inside ItemRow
                         );
                       }).toList(),
                     ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ====== Supplier Info Card ======
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.all(5),
+                        child: Column(
+                          children: [
+                            Input(
+                              label: 'Supplier Code',
+                              placeholder: 'Supplier Code',
+                              controller: cardCode,
+                              readOnly: true,
+                              onPressed:
+                                  widget.quickReceipt ? onChangeCardCode : null,
+                            ),
+                            Input(
+                              label: 'Supplier Name',
+                              placeholder: 'Supplier Name',
+                              controller: cardName,
+                              readOnly: true,
+                            ),
+                            Divider(thickness: 1, color: Colors.grey.shade400),
+                            if (widget.po != null)
+                              Input(
+                                label: 'PO #',
+                                placeholder: 'PO DocNum',
+                                controller: poText,
+                                readOnly: true,
+                              ),
+                            Input(
+                              label: 'Warehouse',
+                              placeholder: 'Warehouse',
+                              controller: warehouse,
+                              readOnly: true,
+                              onPressed: onChangeWhs,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+                      Divider(thickness: 0.5, color: Colors.grey.shade300),
+                      const SizedBox(height: 5),
+
+                      // ====== Scan & Select Items ======
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InputCol(
+                              label: 'Item Code',
+                              placeholder: 'Chose Item',
+                              controller: itemCode,
+                              readOnly: true,
+                              onPressed: onSelectItem,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 30),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                // your action here
+                              },
+                              icon: const Icon(Icons.document_scanner_outlined,
+                                  size: 22),
+                              color: Colors.black87,
+                              tooltip:
+                                  'Scan items', // optional hover/long-press text
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                      ),
+
+                      const SizedBox(height: 7),
+
+                      // ====== Input Qty & UoM ======
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InputCol(
+                              label: 'Input Qty',
+                              placeholder: 'Quantity',
+                              controller: quantity,
+                              readOnly:
+                                  isSerialOrBatch ? true : false, // simpler
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              onTap: isSerialOrBatch
+                                  ? () {
+                                      onNavigateSerialOrBatch(force: true);
+                                    }
+                                  : null,
+                              onEditingComplete: onCompleteQuantiyInput,
+                              onPressed: isSerialOrBatch
+                                  ? () {
+                                      onNavigateSerialOrBatch(force: true);
+                                    }
+                                  : null, // remove if icon not needed
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: InputCol(
+                              label: 'Input UoM',
+                              placeholder: 'UoM',
+                              controller: uom,
+                              readOnly: true,
+                              onPressed: onChangeUoM,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // ====== Bin Location ======
+                      InputCol(
+                        label: 'Select Bin Location',
+                        placeholder: 'Please select bin location',
+                        controller: binCode,
+                        readOnly: true,
+                        onPressed: onChangeBin,
+                      ),
+
+                      const SizedBox(height: 20),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                        child: Button(
+                          bgColor: PRIMARY_COLOR,
+                          onPressed: onAddItem,
+                          child: Text(
+                            isEdit == -1 ? "Enter" : "Edit",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              color: Colors.grey.shade300, width: 0.5),
+                        ),
+                        child: Column(
+                          children: [
+                            ContentHeader(hideOpenQty: widget.quickReceipt),
+                            items.isEmpty
+                                ? Container(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text(
+                                      "No Item available",
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.grey),
+                                    ),
+                                  )
+                                : Container(),
+                            ...items.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final item = entry.value;
+                              return GestureDetector(
+                                onTap: () => onEdit(item, index),
+                                child: ItemRow(
+                                    item: item,
+                                    po: widget.po,
+                                    hideOpenQty: widget.quickReceipt
+                                    // Optional: pass index if you need inside ItemRow
+                                    ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
           )),
       bottomNavigationBar: Container(
         height: size(context).height * 0.09,
@@ -976,49 +1018,60 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
           children: [
             Expanded(
               child: Button(
-                onPressed: onAddItem,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  isEdit >= 0 ? 'Update' : 'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Button(
                 variant: ButtonVariant.primary,
                 disabled: isEdit != -1,
                 onPressed: onPostToSAP,
                 child: Text(
-                  'Finish',
+                  'Post ',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
+            isReview || widget.quickReceipt
+                ? Container()
+                : const SizedBox(width: 12),
+            isReview || widget.quickReceipt
+                ? Container()
+                : Expanded(
+                    child: Button(
+                      onPressed: () {
+                        setState(() {
+                          isReview = !isReview;
+                        });
+                      },
+                      bgColor: Colors.green.shade700,
+                      child: Text(
+                        "Review",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
             const SizedBox(width: 12),
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
                 onPressed: () {
-                  if (items.length > 0) {
-                    MaterialDialog.warning(
-                      context,
-                      title: 'Warning',
-                      body:
-                          'Are you sure leave? once you pressed ok the data will be ereas.',
-                      confirmLabel: 'Ok',
-                      cancelLabel: 'Cancel',
-                      onConfirm: () {
-                        Navigator.of(context).pop();
-                      },
-                      onCancel: () {},
-                    );
-                  } else {
-                    Navigator.of(context).pop();
-                  }
+                  // if (items.length > 0) {
+                  //   MaterialDialog.warning(
+                  //     context,
+                  //     title: 'Warning',
+                  //     body:
+                  //         'Are you sure leave? once you pressed ok the data will be ereas.',
+                  //     confirmLabel: 'Ok',
+                  //     cancelLabel: 'Cancel',
+                  //     onConfirm: () {
+                  //       Navigator.of(context).pop();
+                  //     },
+                  //     onCancel: () {},
+                  //   );
+                  // } else {
+                  //   Navigator.of(context).pop();
+                  // }
+                  setState(() {
+                    isReview = false;
+                  });
                 },
                 child: Text(
                   'Cancel',
@@ -1042,7 +1095,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: PRIMARY_COLOR, // Dark navy header
+        color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -1056,7 +1109,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Item No',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1067,7 +1120,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1079,7 +1132,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Qty',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1157,7 +1210,11 @@ class ItemRow extends StatelessWidget {
                   ? Expanded(
                       flex: 1,
                       child: Text(
-                        getDataFromDynamic(item['TotalQuantity'] ?? 0),
+                        ((double.tryParse(item['TotalQuantity'].toString()) ??
+                                    0) -
+                                (double.tryParse(item['Quantity'].toString()) ??
+                                    0))
+                            .toString(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 13),
                       ),
@@ -1183,6 +1240,194 @@ class ItemRow extends StatelessWidget {
             height: 1,
             thickness: 0.6,
             color: Colors.grey.shade300,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewHeader extends StatelessWidget {
+  const ReviewHeader({super.key, this.hideOpenQty = false});
+  final bool hideOpenQty;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: PRIMARY_COLOR, // Navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Row(
+        children: const [
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Item Code',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Description',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewRow extends StatelessWidget {
+  const ReviewRow({
+    super.key,
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
+
+  String getDataFromDynamic(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 245, 246, 247),
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300, width: 0.8),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔹 First row: ItemCode + Description
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                getDataFromDynamic(item['ItemCode']),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  getDataFromDynamic(item['ItemDescription']),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // 🔹 Second row: Qty | Qty Receive | UoM | Open Qty
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Expanded(
+                child: Text(
+                  "Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Qty Receive",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "UoM",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Open Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 4),
+
+          // 🔹 Third row: values
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['TotalQuantity']),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['Quantity']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['UoMCode']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  ((double.tryParse(item['TotalQuantity'].toString()) ?? 0) -
+                          (double.tryParse(item['Quantity'].toString()) ?? 0))
+                      .toString(),
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
         ],
       ),

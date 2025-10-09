@@ -149,32 +149,87 @@ class _WarehousePageState extends State<WarehousePage> {
           color: Color.fromARGB(255, 255, 255, 255),
           child: Column(
             children: [
-              if (!widget.isPicker)
-                Container(
-                  padding: const EdgeInsets.only(
-                      left: 14, right: 14, bottom: 6, top: 4),
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: TextFormField(
-                    controller: filter,
-                    decoration: InputDecoration(
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)),
-                      contentPadding: const EdgeInsets.only(top: 15),
-                      hintText: 'Warehouse Code...',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          Icons.search,
-                          color: PRIMARY_COLOR,
+              // if (!widget.isPicker)
+                // Container(
+                //   padding: const EdgeInsets.only(
+                //       left: 14, right: 14, bottom: 6, top: 4),
+                //   width: double.infinity,
+                //   decoration: BoxDecoration(color: Colors.white),
+                //   child: TextFormField(
+                //     controller: filter,
+                //     decoration: InputDecoration(
+                //       enabledBorder: UnderlineInputBorder(
+                //           borderSide: BorderSide(color: Colors.transparent)),
+                //       focusedBorder: UnderlineInputBorder(
+                //           borderSide: BorderSide(color: Colors.transparent)),
+                //       contentPadding: const EdgeInsets.only(top: 15),
+                //       hintText: 'Warehouse Code...',
+                //       suffixIcon: IconButton(
+                //         icon: Icon(
+                //           Icons.search,
+                //           color: PRIMARY_COLOR,
+                //         ),
+                //         onPressed: onFilter,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                 const SizedBox(height: 10),
+              // 🔍 Search Bar
+              Container(
+                padding: const EdgeInsets.all(8),
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: filter,
+                        decoration: InputDecoration(
+                          hintText: 'Search Warehouse',
+                          filled: true,
+                          fillColor: const Color.fromARGB(255, 243, 243, 243),
+                          prefixIcon: Icon(Icons.search,
+                              color: PRIMARY_COLOR), // left icon
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                                color: Colors.grey.shade300, width: 1),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                                color: Colors.grey.shade300, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                BorderSide(color: PRIMARY_COLOR, width: 0.2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 10),
                         ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: PRIMARY_COLOR,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_forward,
+                            color: Colors.white),
                         onPressed: onFilter,
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              if (!widget.isPicker) const Divider(thickness: 0.1, height: 15),
+              ),
+
+              const SizedBox(height: 5),
+              // if (!widget.isPicker) const Divider(thickness: 0.1, height: 15),
               Expanded(
                 child: BlocConsumer<WarehouseCubit, WarehouseState>(
                   listener: (context, state) {},

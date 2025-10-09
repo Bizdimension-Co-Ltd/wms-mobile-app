@@ -488,7 +488,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       quantity.text = '';
       MaterialDialog.loading(context);
       final barcodeRes = await dio.get(
-          "/sml.svc/WMS_ITEM_BARCODE?\$filter=contains(BarCode,'${barCode.text}')");
+          "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
       if (barcodeRes.statusCode == 200) {
         if (barcodeRes.data["value"].length == 0) {
           if (barcodeRes.data["value"].length == 0) {
@@ -567,6 +567,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             serials: serialList,
             itemName: itemName.text,
             warehouse: warehouse.text,
+            binCode: sbinId.text,
             listAllSerial: true,
             isEdit: isEdit),
       ).then((value) {
@@ -588,6 +589,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             listAllBatch: true,
             itemName: itemName.text,
             warehouse: warehouse.text,
+             binCode: sbinId.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;
@@ -642,12 +644,17 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Create Put Away',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 60),
+          child: Center(
+            child: const Text(
+              'Create Put Away',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),
@@ -684,7 +691,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
               // ),
               // Input(
               //   controller: uom,
-              //   label: 'UoM.', 
+              //   label: 'UoM.',
               //   placeholder: 'Unit Of Measurement',
               //   onPressed: onChangeUoM,
               // ),
@@ -822,7 +829,20 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
                 ],
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Button(
+                  bgColor: PRIMARY_COLOR,
+                  onPressed: onAddItem,
+                  child: Text(
+                    isEdit == -1 ? "Enter" : "Edit",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
@@ -868,24 +888,11 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
           children: [
             Expanded(
               child: Button(
-                onPressed: onAddItem,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  isEdit >= 0 ? 'Update' : 'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Button(
                 variant: ButtonVariant.primary,
                 disabled: isEdit != -1,
                 onPressed: onPostToSAP,
                 child: Text(
-                  'Finish',
+                  'Post',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -934,7 +941,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: PRIMARY_COLOR, // Dark navy header
+        color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -948,7 +955,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Item No',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -959,7 +966,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -971,7 +978,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Qty',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

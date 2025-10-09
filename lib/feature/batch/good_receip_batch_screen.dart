@@ -528,7 +528,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
           bgColor: PRIMARY_COLOR,
           onPressed: onEnterSerial,
           child: Text(
-            updateIndex == -1 ? "Add" : "Update",
+            updateIndex == -1 ? "Add" : "Edit",
             style: TextStyle(
               color: Colors.white,
             ),

@@ -613,7 +613,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       // Show loading indicator
       if (mounted) MaterialDialog.loading(context);
       final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
       if (bin.data["value"].length == 0) {
         isBin.clear();
       }
@@ -708,12 +708,17 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Create Delivery',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 60),
+          child: Center(
+            child: const Text(
+              'Create Delivery',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),
@@ -936,24 +941,20 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                   onPressed: onChangeBin,
                 ),
 
-                const SizedBox(height: 30),
-
-                // ====== Items Section ======
-                // ContentHeader(),
-                // Column(
-                //   children: items.asMap().entries.map((entry) {
-                //     final index = entry.key;
-                //     final item = entry.value;
-
-                //     return GestureDetector(
-                //       onTap: () => onEdit(item, index),
-                //       child: ItemRow(
-                //         item: item,
-                //         po: widget.po,
-                //       ),
-                //     );
-                //   }).toList(),
-                // ),
+               const SizedBox(height: 20),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                  child: Button(
+                    bgColor: PRIMARY_COLOR,
+                    onPressed: onAddItem,
+                    child: Text(
+                      isEdit == -1 ? "Enter" : "Edit",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
@@ -998,26 +999,14 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Expanded(
-              child: Button(
-                onPressed: onAddItem,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  isEdit >= 0 ? 'Update' : 'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
+          
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
                 disabled: isEdit != -1,
                 onPressed: onPostToSAP,
                 child: Text(
-                  'Finish',
+                  'Post',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -1066,7 +1055,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: PRIMARY_COLOR, // Dark navy header
+         color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -1080,7 +1069,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Item No',
               style: TextStyle(
-                color: Colors.white,
+               color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1091,7 +1080,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-                color: Colors.white,
+                 color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1103,7 +1092,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Qty',
               style: TextStyle(
-                color: Colors.white,
+                 color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

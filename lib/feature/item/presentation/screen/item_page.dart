@@ -21,7 +21,7 @@ class _ItemPageState extends State<ItemPage> {
   String query =
       "?\$top=10&\$skip=0&\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry, ManageSerialNumbers, ManageBatchNumbers";
 
-  int _skip = 0;
+  final int _skip = 0;
 
   int check = 1;
   TextEditingController filter = TextEditingController();
@@ -118,45 +118,84 @@ class _ItemPageState extends State<ItemPage> {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          'Item Lists',
-          style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        title: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 70),
+            child: Text(
+              "Item Lists",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
+            ),
+          ),
         ),
       ),
       // bottomNavigationBar: MyBottomSheet(),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Color.fromARGB(255, 243, 243, 243),
+        color: Colors.white,
         child: Column(
           children: [
+            SizedBox(
+              height: 10,
+            ),
             Container(
-              padding:
-                  const EdgeInsets.only(left: 14, right: 14, bottom: 6, top: 4),
+              padding: const EdgeInsets.all(8),
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white),
-              child: TextFormField(
-                controller: filter,
-                decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent)),
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent)),
-                  contentPadding: const EdgeInsets.only(top: 15),
-                  hintText: 'Item Code...',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: PRIMARY_COLOR,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: filter,
+                      decoration: InputDecoration(
+                        hintText: 'Search Item Lists',
+                        filled: true,
+                        fillColor:
+                            Color.fromARGB(255, 243, 243, 243), // bg-slate
+                        prefixIcon: Icon(Icons.search,
+                            color: PRIMARY_COLOR), // left icon
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade300, width: 1),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade300, width: 1),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: PRIMARY_COLOR, width: 0.2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 10),
+                      ),
                     ),
-                    onPressed: onFilter,
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 48,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      color: PRIMARY_COLOR, // search button background
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon:
+                          const Icon(Icons.arrow_forward, color: Colors.white),
+                      onPressed: onFilter,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // const SizedBox(height: 10),
-            const Divider(thickness: 0.1, height: 15),
+
+            const SizedBox(height: 10),
+            // const Divider(thickness: 0.1, height: 15),
             Expanded(
               child: BlocConsumer<ItemCubit, ItemState>(
                 listener: (context, state) {},
@@ -174,11 +213,13 @@ class _ItemPageState extends State<ItemPage> {
                               onTap: () =>
                                   onFind(getDataFromDynamic(item['ItemCode'])),
                               child: Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 243, 243, 243),
                                 ),
-                                margin: const EdgeInsets.only(bottom: 8),
+                                margin: const EdgeInsets.only(
+                                    bottom: 8, left: 15, right: 15),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [

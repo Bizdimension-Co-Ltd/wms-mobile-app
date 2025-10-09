@@ -18,7 +18,6 @@ import 'package:wms_mobile/mobile_function/inventoryScreen.dart';
 import 'package:wms_mobile/mobile_function/packingScreen.dart';
 import 'package:wms_mobile/mobile_function/receivingScreen.dart';
 import 'package:wms_mobile/mobile_function/rmaScreen.dart';
-import 'package:wms_mobile/provider/login_provider.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
 import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 
@@ -43,37 +42,14 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   String warehouseCode = '';
   String warehouseName = '';
-  // void _logout(BuildContext context) {
-  //   MaterialDialog.loading(context);
+  void _logout(BuildContext context) {
+    MaterialDialog.loading(context);
 
-  //   const timeoutDuration = Duration(seconds: 1);
-  //   Future.delayed(timeoutDuration, () {
-  //     BlocProvider.of<AuthorizationBloc>(context)
-  //         .add(const RequestLogoutEvent());
-  //   });
-  // }
-  Future<void> _onLogout(BuildContext context) async {
-    final provider = Provider.of<LoginProvider>(context, listen: false);
-
-    // Clear login data from provider and storage
-    await provider.logout();
-
-    // Clear stored credentials if any
-    await LocalStorageManger.removeString('username');
-    await LocalStorageManger.removeString('password');
-    await LocalStorageManger.removeString('CONNECT_COMPANY');
-
-    // Optional: show confirmation message
-    MaterialDialog.snackBar(context, "Logged out successfully.");
-
-    // Redirect back to login screen
-    if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen(fromLogout: true)),
-        (Route<dynamic> route) => false, // remove all previous routes
-      );
-    }
+    const timeoutDuration = Duration(seconds: 1);
+    Future.delayed(timeoutDuration, () {
+      BlocProvider.of<AuthorizationBloc>(context)
+          .add(const RequestLogoutEvent());
+    });
   }
 
   void onPressMenu(BuildContext context, int index) {
@@ -91,7 +67,7 @@ class _DashboardState extends State<Dashboard> {
         goTo(context, const ProductLookUp());
         break;
       case 5:
-        _onLogout(context);
+        _logout(context);
 
         // goTo(context, const LoginScreen());
         // goTo(
