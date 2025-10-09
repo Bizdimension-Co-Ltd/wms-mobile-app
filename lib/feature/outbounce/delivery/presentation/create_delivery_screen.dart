@@ -612,8 +612,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       // });
       // Show loading indicator
       if (mounted) MaterialDialog.loading(context);
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
+      final bin = await dio.get(
+          "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
       if (bin.data["value"].length == 0) {
         isBin.clear();
       }
@@ -725,272 +725,264 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: size(context).height,
-              maxHeight: size(context).height,
-              minWidth: size(context).width,
-              maxWidth: size(context).width,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Input(
-                //   controller: poText,
-                //   readOnly: true,
-                //   label: 'SO. #',
-                //   placeholder: 'DocNum',
-                //   onPressed: onNavigateToSO,
-                // ),
-                // Input(
-                //   controller: cardCode,
-                //   readOnly: true,
-                //   label: 'Customer Code',
-                //   placeholder: 'Customer Code',
-                // ),
-                // Input(
-                //   controller: cardName,
-                //   readOnly: true,
-                //   label: 'Customer Name',
-                //   placeholder: 'Customer Name',
-                // ),
-                // Input(
-                //   label: 'Warehouse',
-                //   placeholder: 'Warehouse',
-                //   controller: warehouse,
-                //   readOnly: true,
-                //   onPressed: onChangeWhs,
-                // ),
-                // const SizedBox(height: 20),
-                // Text(''),
-                // Input(
-                //   controller: itemCode,
-                //   onEditingComplete: onCompleteTextEditItem,
-                //   label: 'Item.',
-                //   placeholder: 'Item',
-                //   onPressed: onSelectItem,
-                // ),
-                // Input(
-                //   controller: uom,
-                //   label: 'UoM.',
-                //   placeholder: 'Unit Of Measurement',
-                //   onPressed: onChangeUoM,
-                // ),
-                // Input(
-                //   controller: binCode,
-                //   label: 'Bin.',
-                //   placeholder: 'Bin Location',
-                //   onPressed: onChangeBin,
-                // ),
-                // Input(
-                //   controller: quantity,
-                //   label: 'Quantity.',
-                //   placeholder: 'Quantity',
-                //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-                //   onEditingComplete: onCompleteQuantiyInput,
-                //   onPressed: isSerialOrBatch
-                //       ? () {
-                //           onNavigateSerialOrBatch(force: true);
-                //         }
-                //       : null,
-                // ),
-                // const SizedBox(height: 40),
-                // ContentHeader(),
-                // Expanded(
-                //   child: Scrollbar(
-                //     child: ListView(
-                //       // crossAxisAlignment: CrossAxisAlignment.start,
-                //       children: items.asMap().entries.map((entry) {
-                //         final index = entry.key;
-                //         final item = entry.value;
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Input(
+              //   controller: poText,
+              //   readOnly: true,
+              //   label: 'SO. #',
+              //   placeholder: 'DocNum',
+              //   onPressed: onNavigateToSO,
+              // ),
+              // Input(
+              //   controller: cardCode,
+              //   readOnly: true,
+              //   label: 'Customer Code',
+              //   placeholder: 'Customer Code',
+              // ),
+              // Input(
+              //   controller: cardName,
+              //   readOnly: true,
+              //   label: 'Customer Name',
+              //   placeholder: 'Customer Name',
+              // ),
+              // Input(
+              //   label: 'Warehouse',
+              //   placeholder: 'Warehouse',
+              //   controller: warehouse,
+              //   readOnly: true,
+              //   onPressed: onChangeWhs,
+              // ),
+              // const SizedBox(height: 20),
+              // Text(''),
+              // Input(
+              //   controller: itemCode,
+              //   onEditingComplete: onCompleteTextEditItem,
+              //   label: 'Item.',
+              //   placeholder: 'Item',
+              //   onPressed: onSelectItem,
+              // ),
+              // Input(
+              //   controller: uom,
+              //   label: 'UoM.',
+              //   placeholder: 'Unit Of Measurement',
+              //   onPressed: onChangeUoM,
+              // ),
+              // Input(
+              //   controller: binCode,
+              //   label: 'Bin.',
+              //   placeholder: 'Bin Location',
+              //   onPressed: onChangeBin,
+              // ),
+              // Input(
+              //   controller: quantity,
+              //   label: 'Quantity.',
+              //   placeholder: 'Quantity',
+              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+              //   onEditingComplete: onCompleteQuantiyInput,
+              //   onPressed: isSerialOrBatch
+              //       ? () {
+              //           onNavigateSerialOrBatch(force: true);
+              //         }
+              //       : null,
+              // ),
+              // const SizedBox(height: 40),
+              // ContentHeader(),
+              // Expanded(
+              //   child: Scrollbar(
+              //     child: ListView(
+              //       // crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: items.asMap().entries.map((entry) {
+              //         final index = entry.key;
+              //         final item = entry.value;
 
-                //         return GestureDetector(
-                //           onTap: () =>
-                //               onEdit(item, index), // Pass both item and index
-                //           child: ItemRow(item: item),
-                //         );
-                //       }).toList(),
-                //     ),
-                //   ),
-                // ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(5),
-                  child: Column(
-                    children: [
-                      Input(
-                        controller: poText,
-                        readOnly: true,
-                        label: 'SO. #',
-                        placeholder: 'DocNum',
-                        onPressed: onNavigateToSO,
-                      ),
-                      Input(
-                        label: 'Warehouse',
-                        placeholder: 'Warehouse',
-                        controller: warehouse,
-                        readOnly: true,
-                        onPressed: onChangeWhs,
-                      ),
-                      Divider(thickness: 1, color: Colors.grey.shade400),
-                      Input(
-                        controller: cardCode,
-                        readOnly: true,
-                        label: 'Customer Code',
-                        placeholder: 'Customer Code',
-                      ),
-                      Input(
-                        controller: cardName,
-                        readOnly: true,
-                        label: 'Customer Name',
-                        placeholder: 'Customer Name',
-                      ),
-                    ],
-                  ),
+              //         return GestureDetector(
+              //           onTap: () =>
+              //               onEdit(item, index), // Pass both item and index
+              //           child: ItemRow(item: item),
+              //         );
+              //       }).toList(),
+              //     ),
+              //   ),
+              // ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-
-                const SizedBox(height: 14),
-                Divider(thickness: 0.5, color: Colors.grey.shade300),
-                const SizedBox(height: 5),
-
-                // ====== Scan & Select Items ======
-                Row(
+                padding: const EdgeInsets.all(5),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: InputCol(
-                        label: 'Item Code',
-                        placeholder: 'Chose Item',
-                        controller: itemCode,
-                        readOnly: true,
-                        onPressed: onSelectItem,
-                      ),
+                    Input(
+                      controller: poText,
+                      readOnly: true,
+                      label: 'SO. #',
+                      placeholder: 'DocNum',
+                      onPressed: onNavigateToSO,
                     ),
-                    SizedBox(
-                      width: 15,
+                    Input(
+                      label: 'Warehouse',
+                      placeholder: 'Warehouse',
+                      controller: warehouse,
+                      readOnly: true,
+                      onPressed: onChangeWhs,
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: 30),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          // your action here
-                        },
-                        icon: const Icon(Icons.document_scanner_outlined,
-                            size: 22),
-                        color: Colors.black87,
-                        tooltip: 'Scan items', // optional hover/long-press text
-                      ),
+                    Divider(thickness: 1, color: Colors.grey.shade400),
+                    Input(
+                      controller: cardCode,
+                      readOnly: true,
+                      label: 'Customer Code',
+                      placeholder: 'Customer Code',
                     ),
-                    const SizedBox(width: 12),
-                  ],
-                ),
-
-                const SizedBox(height: 7),
-
-                // ====== Input Qty & UoM ======
-                Row(
-                  children: [
-                    Expanded(
-                      child: InputCol(
-                        label: 'Input Qty',
-                        placeholder: 'Quantity',
-                        controller: quantity,
-                        readOnly: isSerialOrBatch ? true : false, // simpler
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
-                        onTap: isSerialOrBatch
-                            ? () {
-                                onNavigateSerialOrBatch(force: true);
-                              }
-                            : null,
-                        onEditingComplete: onCompleteQuantiyInput,
-                        onPressed: isSerialOrBatch
-                            ? () {
-                                onNavigateSerialOrBatch(force: true);
-                              }
-                            : null, // remove if icon not needed
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InputCol(
-                        label: 'Input UoM',
-                        placeholder: 'UoM',
-                        controller: uom,
-                        readOnly: true,
-                        onPressed: onChangeUoM,
-                      ),
+                    Input(
+                      controller: cardName,
+                      readOnly: true,
+                      label: 'Customer Name',
+                      placeholder: 'Customer Name',
                     ),
                   ],
                 ),
+              ),
 
-                const SizedBox(height: 8),
+              const SizedBox(height: 14),
+              Divider(thickness: 0.5, color: Colors.grey.shade300),
+              const SizedBox(height: 5),
 
-                // ====== Bin Location ======
-                InputCol(
-                  label: 'Select Bin Location',
-                  placeholder: 'Please select bin location',
-                  controller: binCode,
-                  readOnly: true,
-                  onPressed: onChangeBin,
-                ),
+              // ====== Scan & Select Items ======
+              Row(
+                children: [
+                  Expanded(
+                    child: InputCol(
+                      label: 'Item Code',
+                      placeholder: 'Chose Item',
+                      controller: itemCode,
+                      readOnly: true,
+                      onPressed: onSelectItem,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 30),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        // your action here
+                      },
+                      icon:
+                          const Icon(Icons.document_scanner_outlined, size: 22),
+                      color: Colors.black87,
+                      tooltip: 'Scan items', // optional hover/long-press text
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ),
 
-               const SizedBox(height: 20),
-                Container(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                  child: Button(
-                    bgColor: PRIMARY_COLOR,
-                    onPressed: onAddItem,
-                    child: Text(
-                      isEdit == -1 ? "Enter" : "Edit",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+              const SizedBox(height: 7),
+
+              // ====== Input Qty & UoM ======
+              Row(
+                children: [
+                  Expanded(
+                    child: InputCol(
+                      label: 'Input Qty',
+                      placeholder: 'Quantity',
+                      controller: quantity,
+                      readOnly: isSerialOrBatch ? true : false, // simpler
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onTap: isSerialOrBatch
+                          ? () {
+                              onNavigateSerialOrBatch(force: true);
+                            }
+                          : null,
+                      onEditingComplete: onCompleteQuantiyInput,
+                      onPressed: isSerialOrBatch
+                          ? () {
+                              onNavigateSerialOrBatch(force: true);
+                            }
+                          : null, // remove if icon not needed
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InputCol(
+                      label: 'Input UoM',
+                      placeholder: 'UoM',
+                      controller: uom,
+                      readOnly: true,
+                      onPressed: onChangeUoM,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+
+              const SizedBox(height: 20),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Button(
+                  bgColor: PRIMARY_COLOR,
+                  onPressed: onAddItem,
+                  child: Text(
+                    isEdit == -1 ? "Enter" : "Edit",
+                    style: TextStyle(
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300, width: 0.5),
-                  ),
-                  child: Column(
-                    children: [
-                      ContentHeader(),
-                      items.isEmpty
-                          ? Container(
-                              padding: EdgeInsets.all(20),
-                              child: Text(
-                                "No Item available",
-                                style:
-                                    TextStyle(fontSize: 15, color: Colors.grey),
-                              ),
-                            )
-                          : Container(),
-                      ...items.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-                        return GestureDetector(
-                          onTap: () => onEdit(item, index),
-                          child: ItemRow(
-                            item: item,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300, width: 0.5),
+                ),
+                child: Column(
+                  children: [
+                    ContentHeader(),
+                    items.isEmpty
+                        ? Container(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              "No Item available",
+                              style:
+                                  TextStyle(fontSize: 15, color: Colors.grey),
+                            ),
+                          )
+                        : Container(),
+                    ...items.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+                      return GestureDetector(
+                        onTap: () => onEdit(item, index),
+                        child: ItemRow(
+                          item: item,
 
-                            // Optional: pass index if you need inside ItemRow
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                          // Optional: pass index if you need inside ItemRow
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -999,7 +991,6 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-          
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
@@ -1055,7 +1046,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-         color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
+        color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -1069,7 +1060,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Item No',
               style: TextStyle(
-               color: Colors.black54,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1080,7 +1071,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-                 color: Colors.black54,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -1092,7 +1083,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Qty',
               style: TextStyle(
-                 color: Colors.black54,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

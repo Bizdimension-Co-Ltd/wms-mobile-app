@@ -367,6 +367,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onSetItemTemp(dynamic value) async {
     try {
+        setState(() {
+          isSerialOrBatch = false;
+        });
       if (value == null) return;
       binId.text = '';
       binCode.text = '';
@@ -538,10 +541,11 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         GoodReceiptSerialScreen(
             itemCode: itemCode.text,
             quantity: quantity.text,
-            listAllSerial: double.parse(inWhsQty.text).toInt() <
-                    double.parse(quantity.text).toInt()
-                ? null
-                : true,
+            // listAllSerial: double.parse(inWhsQty.text).toInt() <
+            //         double.parse(quantity.text).toInt()
+            //     ? null
+            //     : true,
+             listAllSerial:true,
             binCode: binCode.text,
             serials: serialList,
             isQuickCount: true,

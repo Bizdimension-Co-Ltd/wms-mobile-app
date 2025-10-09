@@ -584,7 +584,7 @@ class ContentHeader extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(left: 60),
               child: Text(
-                'Expire Date',
+                'Exp. Date',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -641,7 +641,7 @@ class ItemRow extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(left:60 ),
+                  padding: const EdgeInsets.only(left:50 ),
                   child: Text(
                     getDataFromDynamic(item['ExpiryDate']?.split(" ")[0]),
                     textAlign: TextAlign.center,

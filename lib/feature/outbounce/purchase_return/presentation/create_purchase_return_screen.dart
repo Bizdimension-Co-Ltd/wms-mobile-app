@@ -688,14 +688,7 @@ class _CreatePurchaseReturnScreenState
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: size(context).height,
-              maxHeight: size(context).height,
-              minWidth: size(context).width,
-              maxWidth: size(context).width,
-            ),
-            child: Column(
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Input(
@@ -940,7 +933,7 @@ class _CreatePurchaseReturnScreenState
             ),
           ),
         ),
-      ),
+      
       bottomNavigationBar: Container(
         height: size(context).height * 0.09,
         padding: const EdgeInsets.all(12),

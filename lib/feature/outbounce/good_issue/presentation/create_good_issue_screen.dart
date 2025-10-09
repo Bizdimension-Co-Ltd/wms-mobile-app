@@ -406,6 +406,9 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
 
   void onSetItemTemp(dynamic value) async {
     try {
+       setState(() {
+          isSerialOrBatch = false;
+        });
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
@@ -803,7 +806,20 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                   onPressed: onChangeBin,
                 ),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Button(
+                  bgColor: PRIMARY_COLOR,
+                  onPressed: onAddItem,
+                  child: Text(
+                    isEdit == -1 ? "Enter" : "Edit",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
@@ -848,26 +864,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Expanded(
-              child: Button(
-                onPressed: onAddItem,
-                bgColor: Colors.green.shade900,
-                child: Text(
-                  isEdit >= 0 ? 'Update' : 'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
+          
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
                 disabled: isEdit != -1,
                 onPressed: onPostToSAP,
                 child: Text(
-                  'Finish',
+                  'Post',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -916,7 +920,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: PRIMARY_COLOR, // Dark navy header
+         color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -930,7 +934,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Item No',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -941,7 +945,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-                color: Colors.white,
+               color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -953,7 +957,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'Qty',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
