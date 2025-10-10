@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -71,12 +72,15 @@ class _CreatePurchaseReturnScreenState
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
+  bool isReview = false;
+  late BinCubit _blocBin;
 
   @override
   void initState() {
     init();
     _bloc = context.read<PurchaseReturnCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -575,9 +579,14 @@ class _CreatePurchaseReturnScreenState
       //   items;
       // });
       if (mounted) MaterialDialog.loading(context);
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
-      if (bin.data["value"].length == 0) {
+      final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
         isBin.clear();
       }
       // Initialize the list of items
@@ -688,221 +697,13 @@ class _CreatePurchaseReturnScreenState
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Input(
-              //   controller: poText,
-              //   readOnly: true,
-              //   label: 'RTR. #',
-              //   placeholder: 'DocNum',
-              //   onPressed: onNavigateToPurchaseReturnRequest,
-              // ),
-              // Input(
-              //   controller: cardCode,
-              //   readOnly: true,
-              //   label: 'Vendor',
-              //   placeholder: 'Vendor',
-              // ),
-              // Input(
-              //   controller: cardName,
-              //   readOnly: true,
-              //   label: 'Name',
-              //   placeholder: 'Name',
-              // ),
-              // const SizedBox(height: 20),
-              // Text(''),
-              // Input(
-              //   controller: itemCode,
-              //   onEditingComplete: onCompleteTextEditItem,
-              //   label: 'Item.',
-              //   placeholder: 'Item',
-              //   onPressed: onSelectItem,
-              // ),
-              // Input(
-              //   controller: uom,
-              //   label: 'UoM.',
-              //   placeholder: 'Unit Of Measurement',
-              //   onPressed: onChangeUoM,
-              // ),
-              // Input(
-              //   controller: binCode,
-              //   label: 'Bin.',
-              //   placeholder: 'Bin Location',
-              //   onPressed: onChangeBin,
-              // ),
-              // Input(
-              //   controller: quantity,
-              //   label: 'Quantity.',
-              //   placeholder: 'Quantity',
-              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-              //   onEditingComplete: onCompleteQuantiyInput,
-              //   onPressed: isSerialOrBatch
-              //       ? () {
-              //           onNavigateSerialOrBatch(force: true);
-              //         }
-              //       : null,
-              // ),
-              // const SizedBox(height: 40),
-              // ContentHeader(),
-              // Expanded(
-              //   child: Scrollbar(
-              //     child: ListView(
-              //       // crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: items.asMap().entries.map((entry) {
-              //         final index = entry.key;
-              //         final item = entry.value;
-
-              //         return GestureDetector(
-              //           onTap: () =>
-              //               onEdit(item, index), // Pass both item and index
-              //           child: ItemRow(item: item),
-              //         );
-              //       }).toList(),
-              //     ),
-              //   ),
-              // ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(5),
-                child: Column(
+          child: isReview
+              ? Column(
                   children: [
-                    Input(
-                      controller: poText,
-                      readOnly: true,
-                      label: 'RTR. #',
-                      placeholder: 'DocNum',
-                      onPressed: onNavigateToPurchaseReturnRequest,
+                    SizedBox(
+                      height: 5,
                     ),
-                    Input(
-                      controller: cardCode,
-                      readOnly: true,
-                      label: 'Vendor',
-                      placeholder: 'Vendor',
-                    ),
-                    Input(
-                      controller: cardName,
-                      readOnly: true,
-                      label: 'Name',
-                      placeholder: 'Name',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-              Divider(thickness: 0.5, color: Colors.grey.shade500),
-              const SizedBox(height: 5),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
-              const SizedBox(height: 8),
-
-              // ====== Scan & Select Items ======
-              Row(
-                children: [
-                  Expanded(
-                    child: InputCol(
-                      label: 'Item Code',
-                      placeholder: 'Chose Item',
-                      controller: itemCode,
-                      readOnly: true,
-                      onPressed: onSelectItem,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 30),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        // your action here
-                      },
-                      icon:
-                          const Icon(Icons.document_scanner_outlined, size: 22),
-                      color: Colors.black87,
-                      tooltip: 'Scan items', // optional hover/long-press text
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-              ),
-
-              const SizedBox(height: 7),
-
-              // ====== Input Qty & UoM ======
-              Row(
-                children: [
-                  Expanded(
-                    child: InputCol(
-                      label: 'Input Qty',
-                      placeholder: 'Quantity',
-                      controller: quantity,
-                      // readOnly: isSerialOrBatch ? true : false, // simpler
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onTap: isSerialOrBatch
-                          ? () {
-                              onNavigateSerialOrBatch(force: true);
-                            }
-                          : null,
-                      onEditingComplete: onCompleteQuantiyInput,
-                      onPressed: isSerialOrBatch
-                          ? () {
-                              onNavigateSerialOrBatch(force: true);
-                            }
-                          : null, // remove if icon not needed
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: InputCol(
-                      label: 'Input UoM',
-                      placeholder: 'UoM',
-                      controller: uom,
-                      readOnly: true,
-                      onPressed: onChangeUoM,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: Button(
-                  bgColor: PRIMARY_COLOR,
-                  onPressed: onAddItem,
-                  child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300, width: 0.5),
-                ),
-                child: Column(
-                  children: [
-                    ContentHeader(),
+                    ReviewHeader(),
                     items.isEmpty
                         ? Container(
                             padding: EdgeInsets.all(20),
@@ -916,20 +717,257 @@ class _CreatePurchaseReturnScreenState
                     ...items.asMap().entries.map((entry) {
                       final index = entry.key;
                       final item = entry.value;
-                      return GestureDetector(
-                        onTap: () => onEdit(item, index),
-                        child: ItemRow(
-                          item: item,
-
-                          // Optional: pass index if you need inside ItemRow
-                        ),
+                      return ReviewRow(
+                        item: item,
+                        // Optional: pass index if you need inside ItemRow
                       );
                     }).toList(),
                   ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Input(
+                    //   controller: poText,
+                    //   readOnly: true,
+                    //   label: 'RTR. #',
+                    //   placeholder: 'DocNum',
+                    //   onPressed: onNavigateToPurchaseReturnRequest,
+                    // ),
+                    // Input(
+                    //   controller: cardCode,
+                    //   readOnly: true,
+                    //   label: 'Vendor',
+                    //   placeholder: 'Vendor',
+                    // ),
+                    // Input(
+                    //   controller: cardName,
+                    //   readOnly: true,
+                    //   label: 'Name',
+                    //   placeholder: 'Name',
+                    // ),
+                    // const SizedBox(height: 20),
+                    // Text(''),
+                    // Input(
+                    //   controller: itemCode,
+                    //   onEditingComplete: onCompleteTextEditItem,
+                    //   label: 'Item.',
+                    //   placeholder: 'Item',
+                    //   onPressed: onSelectItem,
+                    // ),
+                    // Input(
+                    //   controller: uom,
+                    //   label: 'UoM.',
+                    //   placeholder: 'Unit Of Measurement',
+                    //   onPressed: onChangeUoM,
+                    // ),
+                    // Input(
+                    //   controller: binCode,
+                    //   label: 'Bin.',
+                    //   placeholder: 'Bin Location',
+                    //   onPressed: onChangeBin,
+                    // ),
+                    // Input(
+                    //   controller: quantity,
+                    //   label: 'Quantity.',
+                    //   placeholder: 'Quantity',
+                    //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    //   onEditingComplete: onCompleteQuantiyInput,
+                    //   onPressed: isSerialOrBatch
+                    //       ? () {
+                    //           onNavigateSerialOrBatch(force: true);
+                    //         }
+                    //       : null,
+                    // ),
+                    // const SizedBox(height: 40),
+                    // ContentHeader(),
+                    // Expanded(
+                    //   child: Scrollbar(
+                    //     child: ListView(
+                    //       // crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: items.asMap().entries.map((entry) {
+                    //         final index = entry.key;
+                    //         final item = entry.value;
+
+                    //         return GestureDetector(
+                    //           onTap: () =>
+                    //               onEdit(item, index), // Pass both item and index
+                    //           child: ItemRow(item: item),
+                    //         );
+                    //       }).toList(),
+                    //     ),
+                    //   ),
+                    // ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        children: [
+                          Input(
+                            controller: poText,
+                            readOnly: true,
+                            label: 'RTR. #',
+                            placeholder: 'DocNum',
+                            onPressed: onNavigateToPurchaseReturnRequest,
+                          ),
+                          Input(
+                            controller: cardCode,
+                            readOnly: true,
+                            label: 'Vendor',
+                            placeholder: 'Vendor',
+                          ),
+                          Input(
+                            controller: cardName,
+                            readOnly: true,
+                            label: 'Name',
+                            placeholder: 'Name',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Divider(thickness: 0.5, color: Colors.grey.shade500),
+                    const SizedBox(height: 5),
+
+                    // ====== Bin Location ======
+                    InputCol(
+                      label: 'Select Bin Location',
+                      placeholder: 'Please select bin location',
+                      controller: binCode,
+                      readOnly: true,
+                      onPressed: onChangeBin,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ====== Scan & Select Items ======
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputCol(
+                            label: 'Item Code',
+                            placeholder: 'Chose Item',
+                            controller: itemCode,
+                            readOnly: true,
+                            // onPressed: onSelectItem,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(top: 30),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              // your action here
+                            },
+                            icon: const Icon(Icons.document_scanner_outlined,
+                                size: 22),
+                            color: Colors.black87,
+                            tooltip:
+                                'Scan items', // optional hover/long-press text
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+
+                    const SizedBox(height: 7),
+
+                    // ====== Input Qty & UoM ======
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputCol(
+                            label: 'Input Qty',
+                            placeholder: 'Quantity',
+                            controller: quantity,
+                            // readOnly: isSerialOrBatch ? true : false, // simpler
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            onTap: isSerialOrBatch
+                                ? () {
+                                    onNavigateSerialOrBatch(force: true);
+                                  }
+                                : null,
+                            onEditingComplete: onCompleteQuantiyInput,
+                            onPressed: isSerialOrBatch
+                                ? () {
+                                    onNavigateSerialOrBatch(force: true);
+                                  }
+                                : null, // remove if icon not needed
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InputCol(
+                            label: 'Input UoM',
+                            placeholder: 'UoM',
+                            controller: uom,
+                            readOnly: true,
+                            onPressed: onChangeUoM,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                      child: Button(
+                        bgColor: PRIMARY_COLOR,
+                        onPressed: onAddItem,
+                        child: Text(
+                          isEdit == -1 ? "Enter" : "Edit",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: Colors.grey.shade300, width: 0.5),
+                      ),
+                      child: Column(
+                        children: [
+                          ContentHeader(),
+                          items.isEmpty
+                              ? Container(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    "No Item available",
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.grey),
+                                  ),
+                                )
+                              : Container(),
+                          ...items.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            return GestureDetector(
+                              onTap: () => onEdit(item, index),
+                              child: ItemRow(
+                                item: item,
+
+                                // Optional: pass index if you need inside ItemRow
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -949,6 +987,25 @@ class _CreatePurchaseReturnScreenState
               ),
             ),
             const SizedBox(width: 12),
+            isReview
+                ? Container()
+                : Expanded(
+                    child: Button(
+                      onPressed: () {
+                        setState(() {
+                          isReview = !isReview;
+                        });
+                      },
+                      bgColor: Colors.green.shade700,
+                      child: Text(
+                        "Review",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+            isReview ? Container() : const SizedBox(width: 12),
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
@@ -986,8 +1043,9 @@ class _CreatePurchaseReturnScreenState
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key, this.hideOpenQty});
-  final dynamic hideOpenQty;
+  const ContentHeader({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1000,7 +1058,7 @@ class ContentHeader extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
-        children: const [
+        children: [
           Expanded(
             flex: 3,
             child: Text(
@@ -1036,6 +1094,18 @@ class ContentHeader extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Open Qty',
+              style: TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
         ],
       ),
     );
@@ -1043,10 +1113,8 @@ class ContentHeader extends StatelessWidget {
 }
 
 class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item, this.po, this.hideOpenQty});
-  final dynamic po;
+  const ItemRow({super.key, required this.item});
   final dynamic item;
-  final dynamic hideOpenQty;
   String getDataFromDynamic(dynamic value) {
     if (value == null) return '';
     return value.toString();
@@ -1089,6 +1157,16 @@ class ItemRow extends StatelessWidget {
                   style: const TextStyle(fontSize: 13),
                 ),
               ),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  ((double.tryParse(item['TotalQuantity'].toString()) ?? 0) -
+                          (double.tryParse(item['Quantity'].toString()) ?? 0))
+                      .toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              )
             ],
           ),
 
@@ -1109,6 +1187,194 @@ class ItemRow extends StatelessWidget {
             height: 1,
             thickness: 0.6,
             color: Colors.grey.shade300,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewHeader extends StatelessWidget {
+  const ReviewHeader({super.key, this.hideOpenQty = false});
+  final bool hideOpenQty;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: PRIMARY_COLOR, // Navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Row(
+        children: const [
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Item Code',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Description',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewRow extends StatelessWidget {
+  const ReviewRow({
+    super.key,
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
+
+  String getDataFromDynamic(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 245, 246, 247),
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300, width: 0.8),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔹 First row: ItemCode + Description
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                getDataFromDynamic(item['ItemCode']),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  getDataFromDynamic(item['ItemDescription']),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // 🔹 Second row: Qty | Qty Receive | UoM | Open Qty
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Expanded(
+                child: Text(
+                  "Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Qty Receive",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "UoM",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Open Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 4),
+
+          // 🔹 Third row: values
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['TotalQuantity']),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['Quantity']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['UoMCode']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  ((double.tryParse(item['TotalQuantity'].toString()) ?? 0) -
+                          (double.tryParse(item['Quantity'].toString()) ?? 0))
+                      .toString(),
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
         ],
       ),

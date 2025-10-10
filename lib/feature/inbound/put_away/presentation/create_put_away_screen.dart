@@ -80,6 +80,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     _bloc = context.read<PutAwayCubit>();
     _blocItem = context.read<ItemCubit>();
     _blocWarehouse = context.read<WarehouseCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -98,7 +99,6 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   }
 
   void init() async {
-    _blocBin = context.read<BinCubit>();
     // Load warehouse code first
     final whs = await LocalStorageManger.getString('warehouse');
     warehouse.text = whs;
@@ -465,7 +465,6 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     try {
       if (value == null) return;
       FocusScope.of(context).requestFocus(FocusNode());
-
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';

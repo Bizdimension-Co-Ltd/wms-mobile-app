@@ -118,9 +118,14 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
         // Show loading indicator
         if (mounted) MaterialDialog.loading(context);
-        final bin = await dio.get(
-            "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
-        if (bin.data["value"].length == 0) {
+        final state = _blocBin.state;
+        // If state is not BinData, just return (no data yet)
+        if (state is! BinData) {
+          debugPrint("BinCubit has no data yet.");
+          return;
+        }
+        final bins = state.entities;
+        if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
           isBin.clear();
         }
         // Initialize the list of items
@@ -224,7 +229,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         // print(value["UoMGroupDefinitionCollection"]);
         onSetItemTemp(value);
       });
-    } 
+    }
     // else {
     //   // return;
     //   goTo(
@@ -898,7 +903,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                         readOnly: true,
                         onPressed: onChangeBin,
                       ),
-                                            const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
                       // ====== Scan & Select Items ======
                       Row(
@@ -909,7 +914,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                               placeholder: 'Chose Item',
                               controller: itemCode,
                               readOnly: true,
-                              onPressed: widget.quickReceipt ? onSelectItem :null,
+                              onPressed:
+                                  widget.quickReceipt ? onSelectItem : null,
                             ),
                           ),
                           SizedBox(
@@ -976,8 +982,6 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                           ),
                         ],
                       ),
-
-                    
 
                       const SizedBox(height: 20),
                       Container(

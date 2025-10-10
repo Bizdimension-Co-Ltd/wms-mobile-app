@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/good_isuse_select/domain/entity/grt_entity.dart';
 import 'package:wms_mobile/feature/good_isuse_select/presentation/screen/grt_page.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
@@ -71,12 +72,14 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
+  late BinCubit _blocBin;
 
   @override
   void initState() {
     init();
     _bloc = context.read<GoodIssueCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -412,15 +415,20 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
-      if (bin.data["value"].length == 0) {
+     final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
         isBin.clear();
       }
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -553,7 +561,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             serials: serialList,
-            binCode: binCode.text,
+            binCode: binId.text,
             listAllSerial: true,
             itemName: itemName.text,
             warehouse: warehouse.text,
@@ -575,7 +583,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
             quantity: quantity.text,
             serials: batches,
             listAllBatch: true,
-            binCode: binCode.text,
+            binCode: binId.text,
             itemName: itemName.text,
             warehouse: warehouse.text,
             isEdit: isEdit),

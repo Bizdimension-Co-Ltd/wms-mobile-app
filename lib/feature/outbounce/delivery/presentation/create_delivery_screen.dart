@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
@@ -71,12 +72,15 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   List<dynamic> items = [];
   List<dynamic> baseEntry = [];
   bool loading = false;
+  late BinCubit _blocBin;
+  bool isReview = false;
 
   @override
   void initState() {
     init();
     _bloc = context.read<DeliveryCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -409,9 +413,14 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio.get(
-          "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select = Warehouse");
-      if (bin.data["value"].length == 0) {
+      final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
         isBin.clear();
       }
       itemCode.text = getDataFromDynamic(value['ItemCode']);
@@ -612,9 +621,14 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       // });
       // Show loading indicator
       if (mounted) MaterialDialog.loading(context);
-      final bin = await dio.get(
-          "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
-      if (bin.data["value"].length == 0) {
+      final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
         isBin.clear();
       }
       // Initialize the list of items
@@ -725,7 +739,34 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
-          child: Column(
+          child:isReview
+                ? Column(
+                    children: [
+                      SizedBox(
+                        height: 5,
+                      ),
+                      ReviewHeader(),
+                      items.isEmpty
+                          ? Container(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                "No Item available",
+                                style:
+                                    TextStyle(fontSize: 15, color: Colors.grey),
+                              ),
+                            )
+                          : Container(),
+                      ...items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        return ReviewRow(
+                          item: item,
+                          // Optional: pass index if you need inside ItemRow
+                        );
+                      }).toList(),
+                    ],
+                  )
+                : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Input(
@@ -1002,6 +1043,28 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
               ),
             ),
             const SizedBox(width: 12),
+           
+            isReview 
+                ? Container()
+                : Expanded(
+                    child: Button(
+                      onPressed: () {
+                        setState(() {
+                          isReview = !isReview;
+                        });
+                      },
+                      bgColor: Colors.green.shade700,
+                      child: Text(
+                        "Review",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                    isReview 
+                ? Container()
+                : const SizedBox(width: 12),
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
@@ -1039,8 +1102,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key, this.hideOpenQty});
-  final dynamic hideOpenQty;
+  const ContentHeader({super.key,});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1053,7 +1115,7 @@ class ContentHeader extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       child: Row(
-        children: const [
+        children: [
           Expanded(
             flex: 3,
             child: Text(
@@ -1089,6 +1151,18 @@ class ContentHeader extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Open Qty',
+              style: TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
         ],
       ),
     );
@@ -1096,10 +1170,8 @@ class ContentHeader extends StatelessWidget {
 }
 
 class ItemRow extends StatelessWidget {
-  const ItemRow({super.key, required this.item, this.po, this.hideOpenQty});
-  final dynamic po;
+  const ItemRow({super.key, required this.item});
   final dynamic item;
-  final dynamic hideOpenQty;
   String getDataFromDynamic(dynamic value) {
     if (value == null) return '';
     return value.toString();
@@ -1142,6 +1214,16 @@ class ItemRow extends StatelessWidget {
                   style: const TextStyle(fontSize: 13),
                 ),
               ),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  ((double.tryParse(item['TotalQuantity'].toString()) ?? 0) -
+                          (double.tryParse(item['Quantity'].toString()) ?? 0))
+                      .toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              )
             ],
           ),
 
@@ -1162,6 +1244,194 @@ class ItemRow extends StatelessWidget {
             height: 1,
             thickness: 0.6,
             color: Colors.grey.shade300,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewHeader extends StatelessWidget {
+  const ReviewHeader({super.key, this.hideOpenQty = false});
+  final bool hideOpenQty;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: PRIMARY_COLOR, // Navy header
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Row(
+        children: const [
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Item Code',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Description',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewRow extends StatelessWidget {
+  const ReviewRow({
+    super.key,
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
+
+  String getDataFromDynamic(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 245, 246, 247),
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300, width: 0.8),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔹 First row: ItemCode + Description
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                getDataFromDynamic(item['ItemCode']),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  getDataFromDynamic(item['ItemDescription']),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // 🔹 Second row: Qty | Qty Receive | UoM | Open Qty
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Expanded(
+                child: Text(
+                  "Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Qty Receive",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "UoM",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Open Qty",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 4),
+
+          // 🔹 Third row: values
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['TotalQuantity']),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['Quantity']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  getDataFromDynamic(item['UoMCode']),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  ((double.tryParse(item['TotalQuantity'].toString()) ?? 0) -
+                          (double.tryParse(item['Quantity'].toString()) ?? 0))
+                      .toString(),
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
         ],
       ),
