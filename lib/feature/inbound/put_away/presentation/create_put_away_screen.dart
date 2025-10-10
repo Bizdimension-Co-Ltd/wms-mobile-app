@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
+import 'package:wms_mobile/feature/warehouse/presentation/cubit/warehouse_cubit.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
@@ -60,6 +62,8 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
 
   late PutAwayCubit _bloc;
   late ItemCubit _blocItem;
+  late WarehouseCubit _blocWarehouse;
+
   final DioClient dio = DioClient();
   List<dynamic> itemCodeFilter = [];
   final barCode = TextEditingController();
@@ -68,12 +72,14 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
   bool loading = false;
+  late BinCubit _blocBin;
 
   @override
   void initState() {
     init();
     _bloc = context.read<PutAwayCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocWarehouse = context.read<WarehouseCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -92,8 +98,36 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   }
 
   void init() async {
+    _blocBin = context.read<BinCubit>();
+    // Load warehouse code first
     final whs = await LocalStorageManger.getString('warehouse');
     warehouse.text = whs;
+    // Get current BinCubit state
+    final state = _blocBin.state;
+    final stateWarehouse = _blocWarehouse.state;
+    // If state is not BinData, just return (no data yet)
+    if (state is! BinData) {
+      debugPrint("BinCubit has no data yet.");
+      return;
+    }
+    if (stateWarehouse is! WarehouseData) {
+      debugPrint("WarehouseCubit has no data yet.");
+      return;
+    }
+    final warehouses = stateWarehouse.entities;
+    final bins = state.entities; // List<BinEntity>
+    // Try to find bin with matching warehouse
+    try {
+      final defBinFromWhs =
+          warehouses.firstWhere((w) => w.code == warehouse.text).defBin;
+      final binInit = bins.firstWhere(
+          (b) => b.id == int.tryParse(defBinFromWhs?.toString() ?? ''));
+      // Assign values to your text controllers
+      sbinId.text = binInit.id.toString();
+      sbinCode.text = binInit.code;
+    } catch (e) {
+      debugPrint("No bin found for warehouse ${warehouse.text}: $e");
+    }
   }
 
   void onSelectItem() async {
@@ -435,7 +469,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -589,7 +623,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
             listAllBatch: true,
             itemName: itemName.text,
             warehouse: warehouse.text,
-             binCode: sbinId.text,
+            binCode: sbinId.text,
             isEdit: isEdit),
       ).then((value) {
         if (value == null) return;

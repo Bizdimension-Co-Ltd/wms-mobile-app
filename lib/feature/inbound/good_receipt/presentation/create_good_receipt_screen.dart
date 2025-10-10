@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/good_receipt_type/domain/entity/grt_entity.dart';
 import 'package:wms_mobile/feature/good_receipt_type/presentation/screen/grt_page.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
@@ -66,6 +67,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
 
   late GoodReceiptCubit _bloc;
   late ItemCubit _blocItem;
+  late BinCubit _blocBin;
+
   List<dynamic> isBin = [{}];
   int isEdit = -1;
   bool isSerialOrBatch = false;
@@ -80,6 +83,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     init();
     _bloc = context.read<GoodReceiptCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     try {
@@ -422,16 +426,21 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
-      if (bin.data["value"].length == 0) {
+      final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
         isBin.clear();
       }
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
-      // uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
       uoMGroupDefinitionCollection.text = jsonEncode(
@@ -722,6 +731,16 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
               Divider(thickness: 0.5, color: Colors.grey.shade500),
               const SizedBox(height: 5),
 
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+              const SizedBox(height: 8),
+
               // ====== Scan & Select Items ======
               Row(
                 children: [
@@ -796,18 +815,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                 ],
               ),
 
-              const SizedBox(height: 8),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
-
-                const SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Button(
@@ -864,7 +872,6 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-          
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,

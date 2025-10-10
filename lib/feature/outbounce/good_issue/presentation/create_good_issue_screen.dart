@@ -406,9 +406,9 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
 
   void onSetItemTemp(dynamic value) async {
     try {
-       setState(() {
-          isSerialOrBatch = false;
-        });
+      setState(() {
+        isSerialOrBatch = false;
+      });
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
@@ -721,6 +721,16 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                 Divider(thickness: 0.5, color: Colors.grey.shade500),
                 const SizedBox(height: 5),
 
+                // ====== Bin Location ======
+                InputCol(
+                  label: 'Select Bin Location',
+                  placeholder: 'Please select bin location',
+                  controller: binCode,
+                  readOnly: true,
+                  onPressed: onChangeBin,
+                ),
+                const SizedBox(height: 8),
+
                 // ====== Scan & Select Items ======
                 Row(
                   children: [
@@ -795,31 +805,20 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 8),
-
-                // ====== Bin Location ======
-                InputCol(
-                  label: 'Select Bin Location',
-                  placeholder: 'Please select bin location',
-                  controller: binCode,
-                  readOnly: true,
-                  onPressed: onChangeBin,
-                ),
-
-                  const SizedBox(height: 20),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: Button(
-                  bgColor: PRIMARY_COLOR,
-                  onPressed: onAddItem,
-                  child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
-                    style: TextStyle(
-                      color: Colors.white,
+                const SizedBox(height: 20),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                  child: Button(
+                    bgColor: PRIMARY_COLOR,
+                    onPressed: onAddItem,
+                    child: Text(
+                      isEdit == -1 ? "Enter" : "Edit",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
@@ -864,7 +863,6 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-          
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
@@ -920,7 +918,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-         color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
+        color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -945,7 +943,7 @@ class ContentHeader extends StatelessWidget {
             child: Text(
               'UoM',
               style: TextStyle(
-               color: Colors.black54,
+                color: Colors.black54,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

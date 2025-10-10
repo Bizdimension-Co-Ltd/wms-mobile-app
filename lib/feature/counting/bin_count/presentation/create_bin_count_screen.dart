@@ -651,6 +651,15 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
               const SizedBox(height: 14),
               Divider(thickness: 0.5, color: Colors.grey.shade500),
               const SizedBox(height: 5),
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+              const SizedBox(height: 8),
 
               // ====== Scan & Select Items ======
               Row(
@@ -726,18 +735,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
                 ],
               ),
 
-              const SizedBox(height: 8),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
-
-                 const SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Button(
@@ -794,7 +792,6 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-           
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,
@@ -850,7 +847,7 @@ class ContentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-       color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
+        color: const Color.fromARGB(255, 214, 214, 215), // Dark navy header
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),

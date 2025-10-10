@@ -100,22 +100,22 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
   }
 
   void onSelectItem() async {
-    if (cardCode.text == "") return;
-    setState(() {
-      isEdit = -1;
-    });
-    goTo(
-            context,
-            ItemByCodePage(
-                type: ItemType.sale,
-                itemCode: itemCodeFilter
-                    .map((item) => "ItemCode eq '$item'")
-                    .join(' or ')))
-        .then((value) {
-      if (value == null) return;
+    // if (cardCode.text == "") return;
+    // setState(() {
+    //   isEdit = -1;
+    // });
+    // goTo(
+    //         context,
+    //         ItemByCodePage(
+    //             type: ItemType.sale,
+    //             itemCode: itemCodeFilter
+    //                 .map((item) => "ItemCode eq '$item'")
+    //                 .join(' or ')))
+    //     .then((value) {
+    //   if (value == null) return;
 
-      onSetItemTemp(value);
-    });
+    //   onSetItemTemp(value);
+    // });
   }
 
   void onChangeUoM() async {
@@ -409,8 +409,8 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      final bin = await dio.get(
+          "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select = Warehouse");
       if (bin.data["value"].length == 0) {
         isBin.clear();
       }
@@ -849,6 +849,16 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
               Divider(thickness: 0.5, color: Colors.grey.shade300),
               const SizedBox(height: 5),
 
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+              const SizedBox(height: 8),
+
               // ====== Scan & Select Items ======
               Row(
                 children: [
@@ -858,7 +868,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                       placeholder: 'Chose Item',
                       controller: itemCode,
                       readOnly: true,
-                      onPressed: onSelectItem,
+                      // onPressed: onSelectItem,
                     ),
                   ),
                   SizedBox(
@@ -921,17 +931,6 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                     ),
                   ),
                 ],
-              ),
-
-              const SizedBox(height: 8),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
               ),
 
               const SizedBox(height: 20),

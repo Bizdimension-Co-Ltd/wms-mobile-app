@@ -492,6 +492,16 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
               Divider(thickness: 0.5, color: Colors.grey.shade500),
               const SizedBox(height: 5),
 
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+                            const SizedBox(height: 8),
+
               // ====== Scan & Select Items ======
               Row(
                 children: [
@@ -566,16 +576,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 ],
               ),
 
-              const SizedBox(height: 8),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
+             
 
               const SizedBox(height: 20),
               Container(

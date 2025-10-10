@@ -702,6 +702,17 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 placeholder: 'Please input referance',
                 controller: ref,
               ),
+              const SizedBox(height: 8),
+
+              // ====== Bin Location ======
+              InputCol(
+                label: 'Select Bin Location',
+                placeholder: 'Please select bin location',
+                controller: binCode,
+                readOnly: true,
+                onPressed: onChangeBin,
+              ),
+                            const SizedBox(height: 8),
 
               // ====== Scan & Select Items ======
               Row(
@@ -777,16 +788,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 ],
               ),
 
-              const SizedBox(height: 8),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
+           
 
               const SizedBox(height: 20),
               Container(

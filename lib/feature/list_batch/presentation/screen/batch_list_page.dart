@@ -62,7 +62,7 @@ class _BatchListPageState extends State<BatchListPage> {
 
   void init(BuildContext context) async {
     try {
-  ;
+  
       final warehouse = await LocalStorageManger.getString('warehouse');
     setState(() {
         print(warehouse);

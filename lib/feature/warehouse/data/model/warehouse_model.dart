@@ -5,23 +5,19 @@ import '/feature/warehouse/domain/entity/warehouse_entity.dart';
 class Warehouse extends WarehouseEntity {
   @override
   final String code;
-  @override
   final String name;
+  final dynamic defBin;
+  Warehouse({required this.code, required this.name, this.defBin})
+      : super(code: code, name: name, defBin: defBin);
 
-  Warehouse({required this.code, required this.name})
-      : super(code: code, name: name);
-
-  Warehouse copyWith({
-    String? code,
-    String? name,
-  }) =>
-      Warehouse(
-        name: name ?? this.name,
-        code: code ?? this.code,
-      );
+  Warehouse copyWith({String? code, String? name, dynamic defBin}) => Warehouse(
+      name: name ?? this.name,
+      code: code ?? this.code,
+      defBin: defBin ?? this.defBin);
 
   factory Warehouse.fromJson(Map<String, dynamic> json) => Warehouse(
         code: json["WarehouseCode"],
         name: getDataFromDynamic(json["WarehouseName"]),
+        defBin: getDataFromDynamic(json["DefaultBin"]),
       );
 }

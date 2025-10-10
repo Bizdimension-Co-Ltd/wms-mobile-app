@@ -465,6 +465,8 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                         controller: quantityPerBatch,
                         label: 'Qty',
                         placeholder: 'qty',
+                           keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                       ),
                     ),
                     SizedBox(

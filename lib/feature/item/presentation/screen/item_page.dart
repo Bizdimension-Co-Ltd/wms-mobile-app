@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../../core/enum/global.dart';
 import '../../../../utilies/dialog/dialog.dart';
 import '/helper/helper.dart';
@@ -22,6 +23,7 @@ class _ItemPageState extends State<ItemPage> {
       "?\$top=10&\$skip=0&\$select=ItemCode,ItemName,PurchaseItem,InventoryItem,SalesItem,InventoryUOM,UoMGroupEntry,InventoryUoMEntry,DefaultPurchasingUoMEntry,DefaultSalesUoMEntry, ManageSerialNumbers, ManageBatchNumbers";
 
   final int _skip = 0;
+  final DioClient dio = DioClient();
 
   int check = 1;
   TextEditingController filter = TextEditingController();
@@ -93,21 +95,30 @@ class _ItemPageState extends State<ItemPage> {
     });
   }
 
-  void onFind(String code) async {
+  void onFind(dynamic item) async {
     try {
       if (!mounted) return;
-
+      // print("geting..");
       MaterialDialog.loading(context);
-      final response = await _bloc.find("('$code')");
+      // final response = await _bloc.find("('$code')");
       if (mounted) {
+        final uomGroup = await dio.get(
+          '/UnitOfMeasurementGroups(${item['UoMGroupEntry']})',
+        );
+        final itemMappde = {
+          ...item,
+          "BaseUoM": uomGroup.data['BaseUoM'],
+          "UoMGroupDefinitionCollection":
+              uomGroup.data['UoMGroupDefinitionCollection'],
+        };
         MaterialDialog.close(context);
 
-        Navigator.pop(context, response);
+        Navigator.pop(context, itemMappde);
       }
     } catch (e) {
       if (mounted) {
         MaterialDialog.success(context,
-            title: 'Invalid', body: 'Item not found - $code');
+            title: 'Invalid', body: 'Item not found ');
       }
     }
   }
@@ -210,8 +221,7 @@ class _ItemPageState extends State<ItemPage> {
                       ...data
                           .map(
                             (item) => GestureDetector(
-                              onTap: () =>
-                                  onFind(getDataFromDynamic(item['ItemCode'])),
+                              onTap: () => onFind(item),
                               child: Container(
                                 padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(

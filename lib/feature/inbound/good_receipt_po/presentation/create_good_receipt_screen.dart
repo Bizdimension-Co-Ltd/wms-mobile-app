@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/batch/good_receip_batch_screen.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/serial/good_receip_serial_screen.dart';
@@ -69,6 +70,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   late PurchaseGoodReceiptCubit _bloc;
   late ItemCubit _blocItem;
   late PurchaseOrderCubit _blocCubit;
+  late BinCubit _blocBin;
+
   final DioClient dio = DioClient();
 
   int isEdit = -1;
@@ -83,6 +86,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     _bloc = context.read<PurchaseGoodReceiptCubit>();
     _blocItem = context.read<ItemCubit>();
     _blocCubit = context.read<PurchaseOrderCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -114,15 +118,18 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
         // Show loading indicator
         if (mounted) MaterialDialog.loading(context);
-        final bin = await dio
-            .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+        final bin = await dio.get(
+            "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
         if (bin.data["value"].length == 0) {
           isBin.clear();
         }
         // Initialize the list of items
         List<Map<String, dynamic>> rawItems = [];
+        final openLines = widget.po['DocumentLines']
+            .where((line) => line['LineStatus'] == 'bost_Open')
+            .toList();
 
-        for (var element in widget.po['DocumentLines']) {
+        for (var element in openLines) {
           final itemResponse =
               await _blocItem.find("('${element['ItemCode']}')");
 
@@ -214,22 +221,24 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
     if (widget.quickReceipt) {
       goTo(context, ItemPage(type: ItemType.purchase)).then((value) {
         if (value == null) return;
+        // print(value["UoMGroupDefinitionCollection"]);
         onSetItemTemp(value);
       });
-    } else {
-      // return;
-      goTo(
-              context,
-              ItemByCodePage(
-                  type: ItemType.purchase,
-                  itemCode: itemCodeFilter
-                      .map((item) => "ItemCode eq '$item'")
-                      .join(' or ')))
-          .then((value) {
-        if (value == null) return;
-        onSetItemTemp(value);
-      });
-    }
+    } 
+    // else {
+    //   // return;
+    //   goTo(
+    //           context,
+    //           ItemByCodePage(
+    //               type: ItemType.purchase,
+    //               itemCode: itemCodeFilter
+    //                   .map((item) => "ItemCode eq '$item'")
+    //                   .join(' or ')))
+    //       .then((value) {
+    //     if (value == null) return;
+    //     onSetItemTemp(value);
+    //   });
+    // }
   }
 
   void onChangeUoM() async {
@@ -566,18 +575,29 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
   void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+      // print(value);
+      final state = _blocBin.state;
+      // If state is not BinData, just return (no data yet)
+      if (state is! BinData) {
+        debugPrint("BinCubit has no data yet.");
+        return;
+      }
+      final bins = state.entities;
+      if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
+        isBin.clear();
+      }
       isSerialOrBatch = false;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
-      if (bin.data["value"].length == 0) {
-        isBin.clear();
-      }
+      // final bin = await dio
+      //     .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      // if (bin.data["value"].length == 0) {
+      //   isBin.clear();
+      // }
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
       // log(value.toString());
@@ -870,6 +890,16 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                       Divider(thickness: 0.5, color: Colors.grey.shade300),
                       const SizedBox(height: 5),
 
+                      // ====== Bin Location ======
+                      InputCol(
+                        label: 'Select Bin Location',
+                        placeholder: 'Please select bin location',
+                        controller: binCode,
+                        readOnly: true,
+                        onPressed: onChangeBin,
+                      ),
+                                            const SizedBox(height: 8),
+
                       // ====== Scan & Select Items ======
                       Row(
                         children: [
@@ -879,7 +909,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                               placeholder: 'Chose Item',
                               controller: itemCode,
                               readOnly: true,
-                              onPressed: onSelectItem,
+                              onPressed: widget.quickReceipt ? onSelectItem :null,
                             ),
                           ),
                           SizedBox(
@@ -947,16 +977,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                         ],
                       ),
 
-                      const SizedBox(height: 8),
-
-                      // ====== Bin Location ======
-                      InputCol(
-                        label: 'Select Bin Location',
-                        placeholder: 'Please select bin location',
-                        controller: binCode,
-                        readOnly: true,
-                        onPressed: onChangeBin,
-                      ),
+                    
 
                       const SizedBox(height: 20),
                       Container(
@@ -1145,7 +1166,7 @@ class ContentHeader extends StatelessWidget {
                   child: Text(
                     'Open Qty',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black54,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),

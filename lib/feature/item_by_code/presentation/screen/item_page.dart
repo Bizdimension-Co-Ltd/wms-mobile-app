@@ -226,6 +226,7 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../../../core/enum/global.dart';
 import '../../../../utilies/dialog/dialog.dart';
 import '/helper/helper.dart';
@@ -250,6 +251,7 @@ class _ItemPageState extends State<ItemByCodePage> {
   TextEditingController filter = TextEditingController();
   List<dynamic> data = [];
   late ItemByCodeCubit _bloc;
+  final DioClient dio = DioClient();
 
   @override
   void initState() {
@@ -298,19 +300,33 @@ class _ItemPageState extends State<ItemByCodePage> {
     });
   }
 
-  void onFind(String code) async {
+  // void onFind(String code) async {
+  void onFind(dynamic item) async {
     try {
       if (!mounted) return;
       MaterialDialog.loading(context);
-      final response = await _bloc.find("('$code')");
+      // final response = await _bloc.find("('$code')");
       if (mounted) {
-        MaterialDialog.close(context);
-        Navigator.pop(context, response);
+        MaterialDialog.loading(context);
+        // final response = await _bloc.find("('$code')");
+        if (mounted) {
+          final uomGroup = await dio.get(
+            '/UnitOfMeasurementGroups(${item['UoMGroupEntry']})',
+          );
+          final itemMappde = {
+            ...item,
+            "BaseUoM": uomGroup.data['BaseUoM'],
+            "UoMGroupDefinitionCollection":
+                uomGroup.data['UoMGroupDefinitionCollection'],
+          };
+          MaterialDialog.close(context);
+          Navigator.pop(context, itemMappde);
+        }
       }
     } catch (e) {
       if (mounted) {
         MaterialDialog.success(context,
-            title: 'Invalid', body: 'Item not found - $code');
+            title: 'Invalid', body: 'Item not found');
       }
     }
   }
@@ -340,7 +356,9 @@ class _ItemPageState extends State<ItemByCodePage> {
         color: Colors.white,
         child: Column(
           children: [
-            SizedBox(height: 4,),
+            SizedBox(
+              height: 4,
+            ),
             // 🔍 Modern Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -402,8 +420,7 @@ class _ItemPageState extends State<ItemByCodePage> {
                     children: [
                       ...data.map((item) {
                         return GestureDetector(
-                          onTap: () =>
-                              onFind(getDataFromDynamic(item['ItemCode'])),
+                          onTap: () => onFind(item),
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/helper/helper.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
@@ -26,12 +27,15 @@ class _WarehousePageState extends State<WarehousePage> {
   TextEditingController filter = TextEditingController();
   List<WarehouseEntity> data = [];
   late WarehouseCubit _bloc;
+  late BinCubit _blocBin;
 
   @override
   void initState() {
     super.initState();
-    print("WH");
+    // print("WH");
     _bloc = context.read<WarehouseCubit>();
+    _blocBin = context.read<BinCubit>();
+
     final state = context.read<WarehouseCubit>().state;
 
     if (state is WarehouseData) {
@@ -87,11 +91,17 @@ class _WarehousePageState extends State<WarehousePage> {
     });
   }
 
-  void onPressed(String code, String name) {
+  void onPressed(String code, String name) async {
     if (widget.isPicker) {
-      LocalStorageManger.setString('warehouse', code);
-      LocalStorageManger.setString('warehouseName', name);
-      goTo(context, Dashboard(), removeAllPreviousRoutes: true);
+      MaterialDialog.loading(context);
+
+      await LocalStorageManger.setString('warehouse', code);
+      await LocalStorageManger.setString('warehouseName', name);
+      await _blocBin.get("?\$filter=Warehouse eq '$code'").then((value) {
+        _blocBin.set(value);
+        print(value);
+      });
+      await goTo(context, Dashboard(), removeAllPreviousRoutes: true);
     } else {
       LocalStorageManger.setString('warehouseName', name);
       LocalStorageManger.setString('warehouse', code);
@@ -150,31 +160,31 @@ class _WarehousePageState extends State<WarehousePage> {
           child: Column(
             children: [
               // if (!widget.isPicker)
-                // Container(
-                //   padding: const EdgeInsets.only(
-                //       left: 14, right: 14, bottom: 6, top: 4),
-                //   width: double.infinity,
-                //   decoration: BoxDecoration(color: Colors.white),
-                //   child: TextFormField(
-                //     controller: filter,
-                //     decoration: InputDecoration(
-                //       enabledBorder: UnderlineInputBorder(
-                //           borderSide: BorderSide(color: Colors.transparent)),
-                //       focusedBorder: UnderlineInputBorder(
-                //           borderSide: BorderSide(color: Colors.transparent)),
-                //       contentPadding: const EdgeInsets.only(top: 15),
-                //       hintText: 'Warehouse Code...',
-                //       suffixIcon: IconButton(
-                //         icon: Icon(
-                //           Icons.search,
-                //           color: PRIMARY_COLOR,
-                //         ),
-                //         onPressed: onFilter,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                 const SizedBox(height: 10),
+              // Container(
+              //   padding: const EdgeInsets.only(
+              //       left: 14, right: 14, bottom: 6, top: 4),
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(color: Colors.white),
+              //   child: TextFormField(
+              //     controller: filter,
+              //     decoration: InputDecoration(
+              //       enabledBorder: UnderlineInputBorder(
+              //           borderSide: BorderSide(color: Colors.transparent)),
+              //       focusedBorder: UnderlineInputBorder(
+              //           borderSide: BorderSide(color: Colors.transparent)),
+              //       contentPadding: const EdgeInsets.only(top: 15),
+              //       hintText: 'Warehouse Code...',
+              //       suffixIcon: IconButton(
+              //         icon: Icon(
+              //           Icons.search,
+              //           color: PRIMARY_COLOR,
+              //         ),
+              //         onPressed: onFilter,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(height: 10),
               // 🔍 Search Bar
               Container(
                 padding: const EdgeInsets.all(8),

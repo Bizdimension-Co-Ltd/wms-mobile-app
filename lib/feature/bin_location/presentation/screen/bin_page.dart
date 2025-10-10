@@ -19,7 +19,8 @@ class BinPage extends StatefulWidget {
 
 class _BinPageState extends State<BinPage> {
   String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
-  int check = -1;
+  // int check = -1;
+    int check = 1;
   List<BinEntity> data = [];
   List<BinEntity> filteredData = []; // NEW: filtered list
   late BinCubit _bloc;
@@ -52,7 +53,7 @@ class _BinPageState extends State<BinPage> {
       });
     }
 
-    getGetdataInit();
+    // getGetdataInit();
 
     // Listen to filter changes
     _filter.addListener(() {
@@ -67,24 +68,24 @@ class _BinPageState extends State<BinPage> {
     });
   }
 
-  void getGetdataInit() async {
-    if (widget.itemCode == "") {
-      setState(() {
-        check = 1;
-      });
-      return;
-    }
+  // void getGetdataInit() async {
+  //   if (widget.itemCode == "") {
+  //     setState(() {
+  //       check = 1;
+  //     });
+  //     return;
+  //   }
 
-    final response = await dio.get(
-        "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
+  //   final response = await dio.get(
+  //       "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
 
-    if (response.statusCode == 200) {
-      setState(() {
-        qty.addAll(response.data["value"]);
-        check = 1;
-      });
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     setState(() {
+  //       qty.addAll(response.data["value"]);
+  //       check = 1;
+  //     });
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -187,23 +188,23 @@ class _BinPageState extends State<BinPage> {
                                               fontWeight: FontWeight.w800),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: widget.fromBinlookUp == true
-                                            ? const Text('')
-                                            : Text(
-                                                getDataFromDynamic(
-                                                    qty.firstWhere(
-                                                  (e) =>
-                                                      e["BinCode"] == bin.code,
-                                                  orElse: () =>
-                                                      {"OnHandQty": 0},
-                                                )["OnHandQty"]),
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                      ),
+                                      // Expanded(
+                                      //   flex: 2,
+                                      //   child: widget.fromBinlookUp == true
+                                      //       ? const Text('')
+                                      //       : Text(
+                                      //           getDataFromDynamic(
+                                      //               qty.firstWhere(
+                                      //             (e) =>
+                                      //                 e["BinCode"] == bin.code,
+                                      //             orElse: () =>
+                                      //                 {"OnHandQty": 0},
+                                      //           )["OnHandQty"]),
+                                      //           style: const TextStyle(
+                                      //               fontWeight:
+                                      //                   FontWeight.w800),
+                                      //         ),
+                                      // ),
                                     ],
                                   ),
                                 ),

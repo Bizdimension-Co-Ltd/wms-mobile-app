@@ -26,7 +26,7 @@ import '../constant/style.dart';
 const gridList = [
   {"name": "Inbound", "img": "download.svg"},
   {"name": "Outbound", "img": "upload.svg"},
-  {"name": "Pick & Pack", "img": "heigth.svg"},
+  // {"name": "Pick & Pack", "img": "heigth.svg"},
   {"name": "Counting", "img": "counting1.svg"},
   {"name": "Lookup", "img": "look.svg"},
   {"name": "Log Out", "img": "logout1.svg"}
@@ -45,7 +45,7 @@ class _DashboardState extends State<Dashboard> {
   void _logout(BuildContext context) {
     MaterialDialog.loading(context);
 
-    const timeoutDuration = Duration(seconds: 1);
+    const timeoutDuration = Duration(milliseconds: 200);
     Future.delayed(timeoutDuration, () {
       BlocProvider.of<AuthorizationBloc>(context)
           .add(const RequestLogoutEvent());
@@ -60,13 +60,13 @@ class _DashboardState extends State<Dashboard> {
       case 1:
         goTo(context, const Outbound());
         break;
-      case 3:
+      case 2:
         goTo(context, const Counting());
         break;
-      case 4:
+      case 3:
         goTo(context, const ProductLookUp());
         break;
-      case 5:
+      case 4:
         _logout(context);
 
         // goTo(context, const LoginScreen());
