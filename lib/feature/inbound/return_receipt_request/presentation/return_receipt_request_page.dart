@@ -251,9 +251,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
     }
 
     if (data.isEmpty) {
-      _bloc
-          .get("$query&\$filter=${getBPTypeQueryString(widget.type)}")
-          .then((value) {
+      _bloc.get("$query&\$filter=DocumentStatus eq 'bost_Open'").then((value) {
         setState(() => data = value);
         _bloc.set(value);
       });
@@ -266,7 +264,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
         if (state is ReturnReceiptRequestData && data.isNotEmpty) {
           _bloc
               .next(
-                  "?\$top=10&\$skip=${data.length}&\$filter=${getBPTypeQueryString(widget.type)} and contains(CardCode,'${filter.text}')")
+                  "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode,'${filter.text}')")
               .then((value) {
             if (!mounted) return;
             _bloc.set([...data, ...value]);
@@ -311,7 +309,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
           child: Padding(
             padding: EdgeInsets.only(right: 60),
             child: Text(
-              'Business Partner Lists',
+              'Return Request - OPEN',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

@@ -152,7 +152,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
           child: Padding(
             padding: const EdgeInsets.only(right: 65),
             child: const Text(
-              'Purchase Order Lists',
+              'Purchase Order Lists - OPEN',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,

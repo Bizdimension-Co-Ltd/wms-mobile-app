@@ -15,7 +15,7 @@ class GoodIssueSelectRemoteDataSourceImpl implements GoodIssueSelectRemoteDataSo
   @override
   Future<List<GoodIssueSelect>> get(String query) async {
     try {
-      final response = await dio.get('/OIGE$query');
+      final response = await dio.get('/LK_OIGE$query');
 
       if (response.statusCode != 200) {
         throw ServerFailure(message: 'error');
