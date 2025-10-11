@@ -238,6 +238,14 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   }
 
   void onNavigateBatchList() async {
+     if (quantity.text.isEmpty) {
+      MaterialDialog.success(
+        context,
+        title: 'Failed',
+        body: "Opps, Quantity not found can't generate batch number!",
+      );
+      return;
+    }
     goTo(context,
             BatchListPage(itemCode: itemCode.text, binCode: widget.binCode))
         .then((value) async {

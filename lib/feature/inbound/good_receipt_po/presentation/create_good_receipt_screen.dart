@@ -118,9 +118,14 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
 
         // Show loading indicator
         if (mounted) MaterialDialog.loading(context);
-        final bin = await dio.get(
-            "/BinLocations?\$filter=Warehouse eq '${warehouse.text}' &\$select=Warehouse");
-        if (bin.data["value"].length == 0) {
+        final state = _blocBin.state;
+        // If state is not BinData, just return (no data yet)
+        if (state is! BinData) {
+          debugPrint("BinCubit has no data yet.");
+          return;
+        }
+        final bins = state.entities;
+        if (bins.where((b) => b.warehouse == warehouse.text).isEmpty) {
           isBin.clear();
         }
         // Initialize the list of items

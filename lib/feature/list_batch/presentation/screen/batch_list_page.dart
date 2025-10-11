@@ -62,17 +62,17 @@ class _BatchListPageState extends State<BatchListPage> {
 
   void init(BuildContext context) async {
     try {
-  
       final warehouse = await LocalStorageManger.getString('warehouse');
-    setState(() {
+      setState(() {
         print(warehouse);
-          print(widget.binCode);
-            print(widget.itemCode);
+        print(widget.binCode);
+        print(widget.itemCode);
+        print("asas");
       });
       _bloc = context.read<BatchListCubit>();
       _bloc
           .get(
-              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and BinCode eq '${widget.binCode}'" : ""} and WhsCode eq '$warehouse'")
+              "$query&\$filter=ItemCode eq '${widget.itemCode}' ${widget.binCode != "" ? "and AbsEntry eq ${widget.binCode}" : ""} and WhsCode eq '$warehouse'")
           .then((value) {
         if (mounted) {
           setState(() {
