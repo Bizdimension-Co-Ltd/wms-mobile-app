@@ -94,9 +94,7 @@ class _InboundState extends State<Inbound> {
             //     child: CircularProgressIndicator(
             //       color: Colors.grey,
             //     )),
-            // SizedBox(
-            //   height: 5,
-            // ),
+
             Text(
               "Waiting initialize Inbound",
               style: TextStyle(fontSize: 16, color: Colors.black54),
@@ -127,6 +125,7 @@ class _InboundState extends State<Inbound> {
       ),
       body: Container(
         width: double.infinity,
+        margin: EdgeInsets.only(top: 10),
         color: Colors.white,
         child: ListView.builder(
           shrinkWrap: true,

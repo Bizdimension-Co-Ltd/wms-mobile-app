@@ -324,7 +324,7 @@ class _PurchaseReturnRequestPageState extends State<PurchaseReturnRequestPage> {
         backgroundColor: PRIMARY_COLOR,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Return To Supplier Request Lists - OPEN',
+          'Return To Supplier Request - OPEN',
           style: TextStyle(
               fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
         ),

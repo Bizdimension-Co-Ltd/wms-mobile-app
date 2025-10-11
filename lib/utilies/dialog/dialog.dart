@@ -4,56 +4,126 @@ import 'package:wms_mobile/constant/style.dart';
 import '../../component/loading_circle.dart';
 
 class MaterialDialog {
-  static Future<void> success(
-    BuildContext context, {
-    String? title,
-    String? body,
-    Function()? onOk,
-  }) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          key: const Key('_dialog'),
-          // backgroundColor: Colors.white,
-          // surfaceTintColor: Colors.white,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-          title: Text(
-            title ?? 'Success',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: size(context).width * 0.045,
-                fontWeight: FontWeight.w500),
-          ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(body ?? '',
-                    style: TextStyle(fontSize: size(context).width * 0.04)),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Ok',
-                style: TextStyle(fontSize: size(context).width * 0.045),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
+ static Future<void> success(
+  BuildContext context, {
+  String? title,
+  String? body,
+  Function()? onOk,
+}) async {
+  final width = MediaQuery.of(context).size.width;
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
 
-                if (onOk != null) {
-                  onOk();
-                }
-              },
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 250),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[900] : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ✅ Header Row (icon + title)
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.green,
+                          size: 23,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        title ?? 'Success',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // 💬 Body
+                  if (body != null && body.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        body,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 20),
+
+                  // 🔘 OK Button (aligned right)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: PRIMARY_COLOR,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 10,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          if (onOk != null) onOk();
+                        },
+                        child: const Text(
+                          'OK',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ),
+      );
+    },
+  );
+}
 
   static Future<void> warning(
     BuildContext context, {
@@ -61,65 +131,129 @@ class MaterialDialog {
     String? body,
     Function()? onConfirm,
     Function()? onCancel,
-    String confirmLabel = 'Ok',
+    String confirmLabel = 'OK',
     String cancelLabel = 'Cancel',
   }) async {
+    final width = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return showDialog<void>(
       context: context,
-      barrierDismissible: true, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          key: const Key('_dialog'),
-          // backgroundColor: Colors.white,
-          // surfaceTintColor: Colors.white,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-
-          title: Text(
-            title ?? 'Success',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: size(context).width * 0.04,
-                fontWeight: FontWeight.w500),
-          ),
-          content: body == null
-              ? null
-              : SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text(body,
-                          style:
-                              TextStyle(fontSize: size(context).width * 0.04)),
-                    ],
-                  ),
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 250),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[900] : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                confirmLabel,
-                style: TextStyle(fontSize: size(context).width * 0.035),
-              ),
-              onPressed: () {
-                if (onConfirm != null) {
-                  onConfirm();
-                }
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header icon
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.amber,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
 
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(
-                cancelLabel,
-                style: TextStyle(fontSize: size(context).width * 0.035),
+                        // Title
+                        Text(
+                          title ?? 'Warning',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Body
+                    if (body != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        body,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: width * 0.038,
+                          color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 20),
+
+                    // Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                isDark ? Colors.grey[400] : Colors.grey[700],
+                          ),
+                          onPressed: () {
+                            if (onCancel != null) onCancel();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(cancelLabel),
+                        ),
+                        const SizedBox(width: 6),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: PRIMARY_COLOR,
+                            foregroundColor: Colors.black,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 10,
+                            ),
+                          ),
+                          onPressed: () {
+                            if (onConfirm != null) onConfirm();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            confirmLabel,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              onPressed: () {
-                if (onCancel != null) {
-                  onCancel();
-                }
-                Navigator.of(context).pop();
-              },
             ),
-          ],
+          ),
         );
       },
     );

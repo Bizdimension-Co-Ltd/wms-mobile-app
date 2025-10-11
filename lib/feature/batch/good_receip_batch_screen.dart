@@ -67,11 +67,11 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     warehouse.text = widget.warehouse;
     itemName.text = widget.itemName;
 
-    if (widget.isQuickCount == true) {
-      quantityPerBatch.text = widget.alcQty.toString();
-    } else {
+    // if (widget.isQuickCount == true) {
+    //   quantityPerBatch.text = widget.alcQty.toString();
+    // } else {
       quantityPerBatch.text = widget.quantity;
-    }
+    // }
     if (widget.isEdit >= 0) {
       setState(() {
         items = widget.serials ?? [];

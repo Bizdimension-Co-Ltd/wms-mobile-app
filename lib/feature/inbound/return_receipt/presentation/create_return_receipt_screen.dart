@@ -7,6 +7,7 @@ import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dar
 import 'package:wms_mobile/feature/business_partner/presentation/screen/business_partner_page.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/cubit/item_cubit.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt/component/item/presentation/screen/item_page.dart';
+import 'package:wms_mobile/feature/inbound/return_receipt/presentation/duplicateItem_RTR_Screen.dart';
 import 'package:wms_mobile/feature/inbound/return_receipt_request/presentation/return_receipt_request_page.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
@@ -56,6 +57,8 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   final docEntry = TextEditingController();
   final refLineNo = TextEditingController();
   final barCode = TextEditingController();
+  final totalQuantity = TextEditingController();
+
   List<dynamic> isBin = [{}];
   //
   final isBatch = TextEditingController();
@@ -159,6 +162,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         "ItemCode": itemCode.text,
         "ItemDescription": itemName.text,
         "Quantity": quantity.text,
+        "TotalQuantity": totalQuantity.text,
         "WarehouseCode": warehouse.text,
         "UoMEntry": uomAbEntry.text,
         "UoMCode": uom.text,
@@ -193,6 +197,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         data.add(item);
       } else {
         data[isEdit] = item;
+        // print(docEntry.text);
       }
 
       // print(item);
@@ -228,11 +233,13 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         binCode.text = getDataFromDynamic(item['BinCode']);
         binId.text = getDataFromDynamic(item['BinId']);
         baseUoM.text = getDataFromDynamic(item['BaseUoM']);
-        docEntry.text = getDataFromDynamic(item['DocEntry']);
+        // docEntry.text = getDataFromDynamic(item['DocEntry']);
         refLineNo.text = getDataFromDynamic(item['BaseLine']);
         uoMGroupDefinitionCollection.text = jsonEncode(
           item['UoMGroupDefinitionCollection'],
         );
+        totalQuantity.text = getDataFromDynamic(item['TotalQuantity']);
+
         isSerial.text = getDataFromDynamic(item['ManageSerialNumbers']);
         isBatch.text = getDataFromDynamic(item['ManageBatchNumbers']);
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
@@ -278,19 +285,24 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
   }
 
   void onPostToSAP() async {
+    print(docEntry.text);
+
     try {
       MaterialDialog.loading(context);
       if (cardCode.text == '') {
         throw Exception(
             "You can only perform action with Return Receipt Request Document.");
       }
-
+      final filteredItems = items.where((item) {
+        final qty = int.tryParse(item["Quantity"].toString()) ?? 0;
+        return qty != 0;
+      }).toList();
       Map<String, dynamic> data = {
         // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.asMap().entries.map((entry) {
+        "DocumentLines": filteredItems.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
 
@@ -354,8 +366,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
             "UoMEntry": item['UoMEntry'],
             "Quantity": item['Quantity'],
             "WarehouseCode": warehouse.text,
-            "BaseEntry": item['BaseEntry'],
-            "BaseLine": item['BaseLine'],
+            "BaseEntry": docEntry.text,
+            "BaseType": 234000031,
+            "BaseLine": parentIndex,
             "SerialNumbers": item['Serials'] ?? [],
             "BatchNumbers": item['Batches'] ?? [],
             "DocumentLinesBinAllocations":
@@ -395,7 +408,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     uomAbEntry.text = '';
     isBatch.text = '';
     isSerial.text = '';
-    docEntry.text = '';
+    // docEntry.text = '';
     refLineNo.text = '';
     isEdit = -1;
   }
@@ -471,53 +484,79 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
       if (barCode.text == '') return;
       quantity.text = '';
       MaterialDialog.loading(context);
-      final barcodeRes = await dio.get(
-          "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
-      if (barcodeRes.statusCode == 200) {
-        if (barcodeRes.data["value"].length == 0) {
-          if (barcodeRes.data["value"].length == 0) {
-            MaterialDialog.close(
-              context,
-            );
-            clear();
-            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
-            return;
-          }
-        }
-        if (barcodeRes.data["value"].length > 1) {
-          for (var element in barcodeRes.data["value"]) {
-            itemCodeFilter.add(element['ItemCode']);
-          }
-          goTo(
-                  context,
-                  ItemByCodePage(
-                      type: ItemType.purchase,
-                      itemCode: itemCodeFilter
-                          .map((item) => "ItemCode eq '$item'")
-                          .join(' or ')))
-              .then((value) {
-            if (value == null) return;
-            if (mounted) {
-              MaterialDialog.close(context);
-            }
-            uom.text =
-                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
-            uomAbEntry.text =
-                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
-            onSetItemTemp(value);
-          });
-          return;
-        }
-        final item = await _blocItem
-            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
-        if (mounted) {
-          MaterialDialog.close(context);
-        }
-        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
-        uomAbEntry.text =
-            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
-        onSetItemTemp(item);
+      final duplicateItem =
+          items.where((e) => e["BarCode"] == barCode.text).toList();
+      if (duplicateItem.isEmpty) {
+        MaterialDialog.success(context, title: 'Opps.', body: "Item not found");
+        return;
       }
+      if (duplicateItem.length > 1) {
+        goTo(
+            context,
+            DuplicateItemRTRPage(
+              barCode: barCode.text,
+              items: duplicateItem,
+            )).then((item) {
+          if (item == null) return;
+          final index = items.indexWhere((e) =>
+              e['BarCode'] == item['BarCode'] &&
+              e['ItemCode'] == item['ItemCode']);
+          onEdit(item, index);
+        });
+
+        return;
+      }
+      // Continue processing if there is only one matching item
+      final item = await items.firstWhere((e) => e["BarCode"] == barCode.text);
+      final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
+      onEdit(item, index);
+      // final barcodeRes = await dio.get(
+      //     "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
+      // if (barcodeRes.statusCode == 200) {
+      //   if (barcodeRes.data["value"].length == 0) {
+      //     if (barcodeRes.data["value"].length == 0) {
+      //       MaterialDialog.close(
+      //         context,
+      //       );
+      //       clear();
+      //       MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+      //       return;
+      //     }
+      //   }
+      //   if (barcodeRes.data["value"].length > 1) {
+      //     for (var element in barcodeRes.data["value"]) {
+      //       itemCodeFilter.add(element['ItemCode']);
+      //     }
+      //     goTo(
+      //             context,
+      //             ItemByCodePage(
+      //                 type: ItemType.purchase,
+      //                 itemCode: itemCodeFilter
+      //                     .map((item) => "ItemCode eq '$item'")
+      //                     .join(' or ')))
+      //         .then((value) {
+      //       if (value == null) return;
+      //       if (mounted) {
+      //         MaterialDialog.close(context);
+      //       }
+      //       uom.text =
+      //           getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+      //       uomAbEntry.text =
+      //           getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+      //       onSetItemTemp(value);
+      //     });
+      //     return;
+      //   }
+      //   final item = await _blocItem
+      //       .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+      //   if (mounted) {
+      //     MaterialDialog.close(context);
+      //   }
+      //   uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+      //   uomAbEntry.text =
+      //       getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+      //   onSetItemTemp(item);
+      // }
     } catch (e) {
       if (mounted) {
         MaterialDialog.close(context);
@@ -581,9 +620,10 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
     goTo(context, ReturnReceiptRequestPage(type: BusinessPartnerType.customer))
         .then((value) async {
       if (value == null) return;
-
       cardCode.text = getDataFromDynamic(value['CardCode']);
       cardName.text = getDataFromDynamic(value['CardName']);
+      docEntry.text = getDataFromDynamic(value['DocEntry']);
+      print(docEntry.text);
       if (mounted) MaterialDialog.loading(context);
       items = [];
       for (var element in value['DocumentLines']) {
@@ -595,7 +635,9 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
           "BaseLine": element['LineNum'],
           "ItemCode": element['ItemCode'],
           "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
-          "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          "Quantity": "0",
+          "TotalQuantity": getDataFromDynamic(element['RemainingOpenQuantity']),
+          // "Quantity": getDataFromDynamic(element['RemainingOpenQuantity']),
           "WarehouseCode": warehouse.text,
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
@@ -603,6 +645,7 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
               itemResponse['UoMGroupDefinitionCollection'],
           "BaseUoM": itemResponse['BaseUoM'],
           "BinId": binId.text,
+          "BarCode": element['BarCode'],
         });
       }
 
@@ -635,12 +678,17 @@ class _CreateReturnReceiptScreenState extends State<CreateReturnReceiptScreen> {
         title: Center(
           child: Padding(
             padding: const EdgeInsets.only(right: 65),
-            child: const Text(
-              'Create Return Receipt',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.white),
+            child: GestureDetector(
+              onTap: () {
+                print(docEntry.text);
+              },
+              child: const Text(
+                'Create Return Receipt',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white),
+              ),
             ),
           ),
         ),

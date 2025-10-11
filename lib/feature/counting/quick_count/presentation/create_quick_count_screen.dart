@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -26,8 +27,8 @@ import '../../../../constant/style.dart';
 import 'cubit/quick_count_cubit.dart';
 
 class CreateQuickCountScreen extends StatefulWidget {
-  const CreateQuickCountScreen({super.key});
-
+  CreateQuickCountScreen({super.key, required this.isQuickCount});
+  bool isQuickCount;
   @override
   State<CreateQuickCountScreen> createState() => _CreateQuickCountScreenState();
 }
@@ -97,7 +98,103 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void init() async {
     final whs = await LocalStorageManger.getString('warehouse');
     warehouse.text = whs;
-    inWhsQty.text = '0';
+    // inWhsQty.text = '0';
+    if (!widget.isQuickCount) {
+      // Populate text fields with PO data
+      // poText.text = getDataFromDynamic(widget.po['DocNum']);
+      // cardCode.text = getDataFromDynamic(widget.po['CardCode']);
+      // cardName.text = getDataFromDynamic(widget.po['CardName']);
+
+      // Show loading indicator
+      if (mounted) MaterialDialog.loading(context);
+
+      // Initialize the list of items
+      List<Map<String, dynamic>> rawItems = [];
+      // final openLines = widget.po['DocumentLines']
+      //     .where((line) => line['LineStatus'] == 'bost_Open')
+      //     .toList();
+      final cycleLineCount = await dio.get("/view.svc/CycleItemCountB1SLQuery");
+
+      if (cycleLineCount.statusCode == 200) {
+        print(cycleLineCount.data);
+        for (var element in cycleLineCount.data["value"]) {
+          final itemResponse =
+              await _blocItem.find("('${element['ItemCode']}')");
+
+          rawItems.add({
+            "ItemCode": element['ItemCode'],
+            "ItemDescription":
+                element['ItemName'] ?? element['ItemDescription'],
+            "Quantity": "0",
+            "TotalQuantity":
+                getDataFromDynamic(element['RemainingOpenQuantity']),
+            "WarehouseCode": warehouse.text,
+            "UoMEntry": getDataFromDynamic(element['UoMEntry']),
+            "UoMCode": element['UoMCode'],
+            "UoMGroupDefinitionCollection":
+                itemResponse['UoMGroupDefinitionCollection'],
+            "BaseUoM": itemResponse['BaseUoM'],
+            "BinId": binId.text,
+            "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
+            "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
+            "BarCode": element['BarCode'],
+          });
+
+          itemCodeFilter.add(element['ItemCode']);
+        }
+      }
+
+      items = combineItems(rawItems);
+
+      // Combine items with the same ItemCode and UoMCode
+
+      // Close loading indicator
+      if (mounted) MaterialDialog.close(context);
+
+      // Update state with combined items
+      if (mounted) {
+        setState(() {
+          items;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> combineItems(List<Map<String, dynamic>> rawItems) {
+    Map<String, Map<String, dynamic>> combinedItemsMap = {};
+
+    for (var item in rawItems) {
+      // Convert quantity to double
+      double quantity =
+          double.tryParse(item["TotalQuantity"].toString()) ?? 0.0;
+
+      String key = '${item["ItemCode"]}_${item["UoMCode"]}';
+
+      if (combinedItemsMap.containsKey(key)) {
+        // Add to the existing quantity
+        combinedItemsMap[key]!["TotalQuantity"] =
+            (combinedItemsMap[key]!["TotalQuantity"] as double) + quantity;
+      } else {
+        // Add a new item
+        combinedItemsMap[key] = {
+          "ItemCode": item["ItemCode"],
+          "ItemDescription": item["ItemDescription"],
+          "Quantity": "0",
+          "TotalQuantity": quantity,
+          "WarehouseCode": item["WarehouseCode"],
+          "UoMEntry": item["UoMEntry"],
+          "UoMCode": item["UoMCode"],
+          "UoMGroupDefinitionCollection": item["UoMGroupDefinitionCollection"],
+          "BaseUoM": item["BaseUoM"],
+          "BinId": item["BinId"],
+          "ManageSerialNumbers": item["ManageSerialNumbers"],
+          "ManageBatchNumbers": item["ManageBatchNumbers"],
+          "BarCode": item['BarCode'],
+        };
+      }
+    }
+
+    return combinedItemsMap.values.toList();
   }
 
   onSelectItem() async {
@@ -405,7 +502,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
       // quantity.text = '0';
-      // uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
+      uom.text = getDataFromDynamic(value['InventoryUOM'] ?? 'Manual');
 
       uomAbEntry.text = getDataFromDynamic(value['InventoryUoMEntry'] ?? '-1');
       baseUoM.text = jsonEncode(getDataFromDynamic(value['BaseUoM'] ?? '-1'));
@@ -568,12 +665,13 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             itemCode: itemCode.text,
             quantity: quantity.text,
             isQuickCount: true,
-            alcQty: double.parse(quantity.text).toInt() -
-                double.parse(inWhsQty.text).toInt(),
-            listAllBatch: double.parse(inWhsQty.text).toInt() <
-                    double.parse(quantity.text).toInt()
-                ? null
-                : true,
+            // alcQty: double.parse(quantity.text).toInt() -
+            //     double.parse(inWhsQty.text).toInt(),
+            listAllBatch: true,
+            // double.parse(inWhsQty.text).toInt() <
+            //         double.parse(quantity.text).toInt()
+            //     ? null
+            //     : true,
             serials: batches,
             binCode: binCode.text,
             itemName: itemName.text,
@@ -596,8 +694,10 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         title: Padding(
           padding: const EdgeInsets.only(right: 60),
           child: Center(
-            child: const Text(
-              'Create Quick Counting',
+            child: Text(
+              widget.isQuickCount
+                  ? 'Create Quick Counting'
+                  : 'Create Cycle Counting',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -723,7 +823,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                       placeholder: 'Chose Item',
                       controller: itemCode,
                       readOnly: true,
-                      onPressed: onSelectItem,
+                      onPressed: widget.isQuickCount ? onSelectItem : null,
                     ),
                   ),
                   SizedBox(

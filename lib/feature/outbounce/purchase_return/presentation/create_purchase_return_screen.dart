@@ -6,6 +6,7 @@ import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
+import 'package:wms_mobile/feature/outbounce/purchase_return/presentation/duplicateItem_PRT_Screen.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
 import '../../purchase_return_request/presentation/purchase_return_request_page.dart';
 import '/feature/batch/good_receip_batch_screen.dart';
@@ -290,13 +291,16 @@ class _CreatePurchaseReturnScreenState
       //   throw Exception(
       //       "You can only perform action with Return Receipt Request Document.");
       // }
-
+      final filteredItems = items.where((item) {
+        final qty = int.tryParse(item["Quantity"].toString()) ?? 0;
+        return qty != 0;
+      }).toList();
       Map<String, dynamic> data = {
         // "BPL_IDAssignedToInvoice": 1,
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.asMap().entries.map((entry) {
+        "DocumentLines": filteredItems.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
@@ -450,7 +454,7 @@ class _CreatePurchaseReturnScreenState
       if (duplicateItem.length > 1) {
         goTo(
             context,
-            DuplicateItemGPOPage(
+            DuplicateItemPRTPage(
               barCode: barCode.text,
               items: duplicateItem,
             )).then((item) {
@@ -601,7 +605,7 @@ class _CreatePurchaseReturnScreenState
           "ItemCode": element['ItemCode'],
           "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
           "Quantity": "0",
-          "TotalQuantity": getDataFromDynamic(element['Quantity']),
+          "TotalQuantity": getDataFromDynamic(element['RemainingOpenQuantity']),
           "WarehouseCode": warehouse.text,
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],

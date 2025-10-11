@@ -143,7 +143,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
             "ItemDescription":
                 element['ItemName'] ?? element['ItemDescription'],
             "Quantity": "0",
-            "TotalQuantity": getDataFromDynamic(element['Quantity']),
+            "TotalQuantity": getDataFromDynamic(element['RemainingOpenQuantity']),
             "WarehouseCode": warehouse.text,
             "UoMEntry": getDataFromDynamic(element['UoMEntry']),
             "UoMCode": element['UoMCode'],

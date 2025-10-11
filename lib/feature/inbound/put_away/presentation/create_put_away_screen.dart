@@ -464,6 +464,9 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   void onSetItemTemp(dynamic value) {
     try {
       if (value == null) return;
+        setState(() {
+          isSerialOrBatch = false;
+        });
       FocusScope.of(context).requestFocus(FocusNode());
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);

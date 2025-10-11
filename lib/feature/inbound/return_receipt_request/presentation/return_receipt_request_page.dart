@@ -264,7 +264,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
         if (state is ReturnReceiptRequestData && data.isNotEmpty) {
           _bloc
               .next(
-                  "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' and contains(CardCode,'${filter.text}')")
+                  "?\$top=10&\$skip=${data.length}&\$filter=DocumentStatus eq 'bost_Open' ${filter.text.isNotEmpty ? "and contains(CardCode,'${filter.text}')":""} ")
               .then((value) {
             if (!mounted) return;
             _bloc.set([...data, ...value]);
@@ -288,7 +288,7 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
     });
     _bloc
         .get(
-            "$query&\$filter=${getBPTypeQueryString(widget.type)} and contains(CardCode, '${filter.text}')")
+            "$query&\$filter=DocumentStatus eq 'bost_Open' ${filter.text.isNotEmpty ? "and contains(CardCode,'${filter.text}')":""}")
         .then((value) {
       if (!mounted) return;
       setState(() => data = value);

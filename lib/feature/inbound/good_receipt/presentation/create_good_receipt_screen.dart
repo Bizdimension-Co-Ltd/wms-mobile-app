@@ -424,6 +424,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
+        setState(() {
+          isSerialOrBatch = false;
+        });
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
       final state = _blocBin.state;

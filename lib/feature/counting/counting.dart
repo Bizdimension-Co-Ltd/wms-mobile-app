@@ -24,8 +24,8 @@ class Counting extends StatefulWidget {
 
 class _CountingState extends State<Counting> {
   final routes = [
-    CreateQuickCountScreen(),
-    CreateQuickCountScreen(),
+    CreateQuickCountScreen(isQuickCount:true),
+    CreateQuickCountScreen(isQuickCount:false),
     CreatePhysicalCountScreen(),
     CreateBinCountScreen()
   ];

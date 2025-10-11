@@ -7,6 +7,7 @@ import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dar
 import 'package:wms_mobile/feature/inbound/good_receipt_po/presentation/duplicateItem_GPO_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/outbounce/delivery/presentation/cubit/delivery_cubit.dart';
+import 'package:wms_mobile/feature/outbounce/delivery/presentation/duplicateItem_DLR_Screen.dart';
 import 'package:wms_mobile/feature/outbounce/sale_order/presentation/sale_order_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -292,12 +293,15 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
         throw Exception(
             "You can only perform action with Return Receipt Request Document.");
       }
-
+      final filteredItems = items.where((item) {
+        final qty = int.tryParse(item["Quantity"].toString()) ?? 0;
+        return qty != 0;
+      }).toList();
       Map<String, dynamic> data = {
         "CardCode": cardCode.text,
         "CardName": cardName.text,
         "WarehouseCode": warehouse.text,
-        "DocumentLines": items.asMap().entries.map((entry) {
+        "DocumentLines": filteredItems.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
           List<dynamic> uomCollections =
@@ -489,7 +493,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       if (duplicateItem.length > 1) {
         goTo(
             context,
-            DuplicateItemGPOPage(
+            DuplicateItemDLRPage(
               barCode: barCode.text,
               items: duplicateItem,
             )).then((item) {
@@ -643,7 +647,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
           "ItemCode": element['ItemCode'],
           "ItemDescription": element['ItemName'] ?? element['ItemDescription'],
           "Quantity": "0",
-          "TotalQuantity": getDataFromDynamic(element['Quantity']),
+          "TotalQuantity": getDataFromDynamic(element['RemainingOpenQuantity']),
           "WarehouseCode": warehouse.text,
           "UoMEntry": getDataFromDynamic(element['UoMEntry']),
           "UoMCode": element['UoMCode'],
@@ -739,264 +743,13 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
-          child:isReview
-                ? Column(
-                    children: [
-                      SizedBox(
-                        height: 5,
-                      ),
-                      ReviewHeader(),
-                      items.isEmpty
-                          ? Container(
-                              padding: EdgeInsets.all(20),
-                              child: Text(
-                                "No Item available",
-                                style:
-                                    TextStyle(fontSize: 15, color: Colors.grey),
-                              ),
-                            )
-                          : Container(),
-                      ...items.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-                        return ReviewRow(
-                          item: item,
-                          // Optional: pass index if you need inside ItemRow
-                        );
-                      }).toList(),
-                    ],
-                  )
-                : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Input(
-              //   controller: poText,
-              //   readOnly: true,
-              //   label: 'SO. #',
-              //   placeholder: 'DocNum',
-              //   onPressed: onNavigateToSO,
-              // ),
-              // Input(
-              //   controller: cardCode,
-              //   readOnly: true,
-              //   label: 'Customer Code',
-              //   placeholder: 'Customer Code',
-              // ),
-              // Input(
-              //   controller: cardName,
-              //   readOnly: true,
-              //   label: 'Customer Name',
-              //   placeholder: 'Customer Name',
-              // ),
-              // Input(
-              //   label: 'Warehouse',
-              //   placeholder: 'Warehouse',
-              //   controller: warehouse,
-              //   readOnly: true,
-              //   onPressed: onChangeWhs,
-              // ),
-              // const SizedBox(height: 20),
-              // Text(''),
-              // Input(
-              //   controller: itemCode,
-              //   onEditingComplete: onCompleteTextEditItem,
-              //   label: 'Item.',
-              //   placeholder: 'Item',
-              //   onPressed: onSelectItem,
-              // ),
-              // Input(
-              //   controller: uom,
-              //   label: 'UoM.',
-              //   placeholder: 'Unit Of Measurement',
-              //   onPressed: onChangeUoM,
-              // ),
-              // Input(
-              //   controller: binCode,
-              //   label: 'Bin.',
-              //   placeholder: 'Bin Location',
-              //   onPressed: onChangeBin,
-              // ),
-              // Input(
-              //   controller: quantity,
-              //   label: 'Quantity.',
-              //   placeholder: 'Quantity',
-              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-              //   onEditingComplete: onCompleteQuantiyInput,
-              //   onPressed: isSerialOrBatch
-              //       ? () {
-              //           onNavigateSerialOrBatch(force: true);
-              //         }
-              //       : null,
-              // ),
-              // const SizedBox(height: 40),
-              // ContentHeader(),
-              // Expanded(
-              //   child: Scrollbar(
-              //     child: ListView(
-              //       // crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: items.asMap().entries.map((entry) {
-              //         final index = entry.key;
-              //         final item = entry.value;
-
-              //         return GestureDetector(
-              //           onTap: () =>
-              //               onEdit(item, index), // Pass both item and index
-              //           child: ItemRow(item: item),
-              //         );
-              //       }).toList(),
-              //     ),
-              //   ),
-              // ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(5),
-                child: Column(
+          child: isReview
+              ? Column(
                   children: [
-                    Input(
-                      controller: poText,
-                      readOnly: true,
-                      label: 'SO. #',
-                      placeholder: 'DocNum',
-                      onPressed: onNavigateToSO,
+                    SizedBox(
+                      height: 5,
                     ),
-                    Input(
-                      label: 'Warehouse',
-                      placeholder: 'Warehouse',
-                      controller: warehouse,
-                      readOnly: true,
-                      onPressed: onChangeWhs,
-                    ),
-                    Divider(thickness: 1, color: Colors.grey.shade400),
-                    Input(
-                      controller: cardCode,
-                      readOnly: true,
-                      label: 'Customer Code',
-                      placeholder: 'Customer Code',
-                    ),
-                    Input(
-                      controller: cardName,
-                      readOnly: true,
-                      label: 'Customer Name',
-                      placeholder: 'Customer Name',
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 14),
-              Divider(thickness: 0.5, color: Colors.grey.shade300),
-              const SizedBox(height: 5),
-
-              // ====== Bin Location ======
-              InputCol(
-                label: 'Select Bin Location',
-                placeholder: 'Please select bin location',
-                controller: binCode,
-                readOnly: true,
-                onPressed: onChangeBin,
-              ),
-              const SizedBox(height: 8),
-
-              // ====== Scan & Select Items ======
-              Row(
-                children: [
-                  Expanded(
-                    child: InputCol(
-                      label: 'Item Code',
-                      placeholder: 'Chose Item',
-                      controller: itemCode,
-                      readOnly: true,
-                      // onPressed: onSelectItem,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 30),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        // your action here
-                      },
-                      icon:
-                          const Icon(Icons.document_scanner_outlined, size: 22),
-                      color: Colors.black87,
-                      tooltip: 'Scan items', // optional hover/long-press text
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-              ),
-
-              const SizedBox(height: 7),
-
-              // ====== Input Qty & UoM ======
-              Row(
-                children: [
-                  Expanded(
-                    child: InputCol(
-                      label: 'Input Qty',
-                      placeholder: 'Quantity',
-                      controller: quantity,
-                      readOnly: isSerialOrBatch ? true : false, // simpler
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onTap: isSerialOrBatch
-                          ? () {
-                              onNavigateSerialOrBatch(force: true);
-                            }
-                          : null,
-                      onEditingComplete: onCompleteQuantiyInput,
-                      onPressed: isSerialOrBatch
-                          ? () {
-                              onNavigateSerialOrBatch(force: true);
-                            }
-                          : null, // remove if icon not needed
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: InputCol(
-                      label: 'Input UoM',
-                      placeholder: 'UoM',
-                      controller: uom,
-                      readOnly: true,
-                      onPressed: onChangeUoM,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                child: Button(
-                  bgColor: PRIMARY_COLOR,
-                  onPressed: onAddItem,
-                  child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300, width: 0.5),
-                ),
-                child: Column(
-                  children: [
-                    ContentHeader(),
+                    ReviewHeader(),
                     items.isEmpty
                         ? Container(
                             padding: EdgeInsets.all(20),
@@ -1010,20 +763,273 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                     ...items.asMap().entries.map((entry) {
                       final index = entry.key;
                       final item = entry.value;
-                      return GestureDetector(
-                        onTap: () => onEdit(item, index),
-                        child: ItemRow(
-                          item: item,
-
-                          // Optional: pass index if you need inside ItemRow
-                        ),
+                      return ReviewRow(
+                        item: item,
+                        // Optional: pass index if you need inside ItemRow
                       );
                     }).toList(),
                   ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Input(
+                    //   controller: poText,
+                    //   readOnly: true,
+                    //   label: 'SO. #',
+                    //   placeholder: 'DocNum',
+                    //   onPressed: onNavigateToSO,
+                    // ),
+                    // Input(
+                    //   controller: cardCode,
+                    //   readOnly: true,
+                    //   label: 'Customer Code',
+                    //   placeholder: 'Customer Code',
+                    // ),
+                    // Input(
+                    //   controller: cardName,
+                    //   readOnly: true,
+                    //   label: 'Customer Name',
+                    //   placeholder: 'Customer Name',
+                    // ),
+                    // Input(
+                    //   label: 'Warehouse',
+                    //   placeholder: 'Warehouse',
+                    //   controller: warehouse,
+                    //   readOnly: true,
+                    //   onPressed: onChangeWhs,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // Text(''),
+                    // Input(
+                    //   controller: itemCode,
+                    //   onEditingComplete: onCompleteTextEditItem,
+                    //   label: 'Item.',
+                    //   placeholder: 'Item',
+                    //   onPressed: onSelectItem,
+                    // ),
+                    // Input(
+                    //   controller: uom,
+                    //   label: 'UoM.',
+                    //   placeholder: 'Unit Of Measurement',
+                    //   onPressed: onChangeUoM,
+                    // ),
+                    // Input(
+                    //   controller: binCode,
+                    //   label: 'Bin.',
+                    //   placeholder: 'Bin Location',
+                    //   onPressed: onChangeBin,
+                    // ),
+                    // Input(
+                    //   controller: quantity,
+                    //   label: 'Quantity.',
+                    //   placeholder: 'Quantity',
+                    //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    //   onEditingComplete: onCompleteQuantiyInput,
+                    //   onPressed: isSerialOrBatch
+                    //       ? () {
+                    //           onNavigateSerialOrBatch(force: true);
+                    //         }
+                    //       : null,
+                    // ),
+                    // const SizedBox(height: 40),
+                    // ContentHeader(),
+                    // Expanded(
+                    //   child: Scrollbar(
+                    //     child: ListView(
+                    //       // crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: items.asMap().entries.map((entry) {
+                    //         final index = entry.key;
+                    //         final item = entry.value;
+
+                    //         return GestureDetector(
+                    //           onTap: () =>
+                    //               onEdit(item, index), // Pass both item and index
+                    //           child: ItemRow(item: item),
+                    //         );
+                    //       }).toList(),
+                    //     ),
+                    //   ),
+                    // ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        children: [
+                          Input(
+                            controller: poText,
+                            readOnly: true,
+                            label: 'SO. #',
+                            placeholder: 'DocNum',
+                            onPressed: onNavigateToSO,
+                          ),
+                          Input(
+                            label: 'Warehouse',
+                            placeholder: 'Warehouse',
+                            controller: warehouse,
+                            readOnly: true,
+                            onPressed: onChangeWhs,
+                          ),
+                          Divider(thickness: 1, color: Colors.grey.shade400),
+                          Input(
+                            controller: cardCode,
+                            readOnly: true,
+                            label: 'Customer Code',
+                            placeholder: 'Customer Code',
+                          ),
+                          Input(
+                            controller: cardName,
+                            readOnly: true,
+                            label: 'Customer Name',
+                            placeholder: 'Customer Name',
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+                    Divider(thickness: 0.5, color: Colors.grey.shade300),
+                    const SizedBox(height: 5),
+
+                    // ====== Bin Location ======
+                    InputCol(
+                      label: 'Select Bin Location',
+                      placeholder: 'Please select bin location',
+                      controller: binCode,
+                      readOnly: true,
+                      onPressed: onChangeBin,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ====== Scan & Select Items ======
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputCol(
+                            label: 'Item Code',
+                            placeholder: 'Chose Item',
+                            controller: itemCode,
+                            readOnly: true,
+                            // onPressed: onSelectItem,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(top: 30),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              // your action here
+                            },
+                            icon: const Icon(Icons.document_scanner_outlined,
+                                size: 22),
+                            color: Colors.black87,
+                            tooltip:
+                                'Scan items', // optional hover/long-press text
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+
+                    const SizedBox(height: 7),
+
+                    // ====== Input Qty & UoM ======
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputCol(
+                            label: 'Input Qty',
+                            placeholder: 'Quantity',
+                            controller: quantity,
+                            readOnly: isSerialOrBatch ? true : false, // simpler
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            onTap: isSerialOrBatch
+                                ? () {
+                                    onNavigateSerialOrBatch(force: true);
+                                  }
+                                : null,
+                            onEditingComplete: onCompleteQuantiyInput,
+                            onPressed: isSerialOrBatch
+                                ? () {
+                                    onNavigateSerialOrBatch(force: true);
+                                  }
+                                : null, // remove if icon not needed
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InputCol(
+                            label: 'Input UoM',
+                            placeholder: 'UoM',
+                            controller: uom,
+                            readOnly: true,
+                            onPressed: onChangeUoM,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                      child: Button(
+                        bgColor: PRIMARY_COLOR,
+                        onPressed: onAddItem,
+                        child: Text(
+                          isEdit == -1 ? "Enter" : "Edit",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: Colors.grey.shade300, width: 0.5),
+                      ),
+                      child: Column(
+                        children: [
+                          ContentHeader(),
+                          items.isEmpty
+                              ? Container(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    "No Item available",
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.grey),
+                                  ),
+                                )
+                              : Container(),
+                          ...items.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            return GestureDetector(
+                              onTap: () => onEdit(item, index),
+                              child: ItemRow(
+                                item: item,
+
+                                // Optional: pass index if you need inside ItemRow
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -1043,8 +1049,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
               ),
             ),
             const SizedBox(width: 12),
-           
-            isReview 
+            isReview
                 ? Container()
                 : Expanded(
                     child: Button(
@@ -1062,9 +1067,7 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
                       ),
                     ),
                   ),
-                    isReview 
-                ? Container()
-                : const SizedBox(width: 12),
+            isReview ? Container() : const SizedBox(width: 12),
             Expanded(
               child: Button(
                 variant: ButtonVariant.outline,
@@ -1102,7 +1105,9 @@ class _CreateDeliveryScreenState extends State<CreateDeliveryScreen> {
 }
 
 class ContentHeader extends StatelessWidget {
-  const ContentHeader({super.key,});
+  const ContentHeader({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
