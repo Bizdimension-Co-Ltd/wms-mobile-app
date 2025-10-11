@@ -72,7 +72,7 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
             })
         .catchError((e) => throw e);
     await dio
-        .get('/sml.svc/TL_OIGE?\$select=Name,Code')
+        .get('/LK_OIGE?\$select=Name,Code')
         .then((res) => {
               if (mounted)
                 {
@@ -382,12 +382,11 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
           : Stack(
               children: [
                 General(
-                  giTypeList: _giTypeList,
-                  employee: _employee,
-                  seriesList: _seriesList,
-                  gHeader: data,
-                   binlocationList: _binLocationList
-                ),
+                    giTypeList: _giTypeList,
+                    employee: _employee,
+                    seriesList: _seriesList,
+                    gHeader: data,
+                    binlocationList: _binLocationList),
                 Positioned(
                     bottom: 30,
                     right: 30,
@@ -402,8 +401,7 @@ class _GoodIssueDetailScreensState extends State<GoodIssueDetailScreens>
                                   seriesList: _seriesList,
                                   listIssueType: _giTypeList,
                                   employeeList: _employee,
-                                  binlocationList:_binLocationList
-                                  )),
+                                  binlocationList: _binLocationList)),
                         );
                       },
                       child: Container(

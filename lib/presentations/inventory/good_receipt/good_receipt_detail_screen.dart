@@ -21,10 +21,10 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
   final DioClient dio = DioClient();
   int check = 0;
   Map<String, dynamic> data = {};
-  List<dynamic> _seriesList = [];
-  List<dynamic> _employee = [];
-  List<dynamic> _grTypeList = [];
-  List<dynamic> _binLocationList = [];
+  final List<dynamic> _seriesList = [];
+  final List<dynamic> _employee = [];
+  final List<dynamic> _grTypeList = [];
+  final List<dynamic> _binLocationList = [];
   Future<void> getById() async {
     try {
       final response =
@@ -72,7 +72,7 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
             })
         .catchError((e) => throw e);
     await dio
-        .get('/sml.svc/TL_OGIN?\$select=Name,Code')
+        .get('/LK_OIGN?\$select=Name,Code')
         .then((res) => {
               if (mounted)
                 {
@@ -382,12 +382,11 @@ class _GoodReceiptDetailScreensState extends State<GoodReceiptDetailScreens>
           : Stack(
               children: [
                 General(
-                  gHeader: data,
-                  grTypeList: _grTypeList,
-                  employee: _employee,
-                  seriesList: _seriesList,
-                  binlocationList: _binLocationList
-                ),
+                    gHeader: data,
+                    grTypeList: _grTypeList,
+                    employee: _employee,
+                    seriesList: _seriesList,
+                    binlocationList: _binLocationList),
                 Positioned(
                     bottom: 30,
                     right: 30,

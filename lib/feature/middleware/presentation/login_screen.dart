@@ -21,8 +21,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userName = TextEditingController(text: "T005");
-  final _password = TextEditingController(text: "1234");
+  final _userName = TextEditingController(text: "Biz006");
+  final _password = TextEditingController(text: "Manager@1234");
 
   late bool checkTypeInput = false;
 

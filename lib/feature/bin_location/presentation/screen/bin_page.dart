@@ -20,7 +20,7 @@ class BinPage extends StatefulWidget {
 class _BinPageState extends State<BinPage> {
   String query = "?\$top=100&\$select=AbsEntry,BinCode,Warehouse,Sublevel1";
   // int check = -1;
-    int check = 1;
+  int check = 1;
   List<BinEntity> data = [];
   List<BinEntity> filteredData = []; // NEW: filtered list
   late BinCubit _bloc;
@@ -77,7 +77,7 @@ class _BinPageState extends State<BinPage> {
   //   }
 
   //   final response = await dio.get(
-  //       "/sml.svc/ITEM?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
+  //       "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${widget.itemCode}' and WhsCode eq '${widget.warehouse}'");
 
   //   if (response.statusCode == 200) {
   //     setState(() {

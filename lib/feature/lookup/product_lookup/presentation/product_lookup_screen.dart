@@ -109,7 +109,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
       if (barCode.text == '') return;
       MaterialDialog.loading(context);
       final barcodeRes = await dio.get(
-          "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
+          "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
       if (barcodeRes.statusCode == 200) {
         if (barcodeRes.data["value"].length == 0) {
           if (barcodeRes.data["value"].length == 0) {
@@ -182,7 +182,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
       if (response["value"]?[0]?["IsSerial"] == "Y" ||
           response["value"]?[0]?["IsBatch"] == "Y") {
         final serialOrBatch = await dio.get(
-            "/sml.svc/WMS_SERIAL_BATCH?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
+            "/view.svc/WMS_SERIAL_BATCHB1SLQuery?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
         if (mounted) {
           setState(() {
             items = [];
@@ -396,7 +396,8 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                   ? EdgeInsets.only(top: 15)
                                   : EdgeInsets.fromLTRB(5, 15, 0, 15),
                           decoration: BoxDecoration(
-                              border: Border(bottom: BorderSide(width: 0.1)),color: Colors.grey.shade50),
+                              border: Border(bottom: BorderSide(width: 0.1)),
+                              color: Colors.grey.shade50),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -500,8 +501,8 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                                         padding:
                                                             EdgeInsets.fromLTRB(
                                                                 5, 7, 5, 10),
-                                                     color: Colors
-                                                            .grey.shade50,
+                                                        color:
+                                                            Colors.grey.shade50,
                                                         child: Column(
                                                           children: [
                                                             Row(
@@ -625,7 +626,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
                                                         padding:
                                                             EdgeInsets.fromLTRB(
                                                                 5, 10, 5, 10),
-                                                         color:
+                                                        color:
                                                             Colors.grey.shade50,
                                                         child: Column(
                                                           children: [
@@ -719,7 +720,7 @@ class _CreateProductLookUpScreenState extends State<CreateProductLookUpScreen> {
           ),
         ),
       ),
-     bottomNavigationBar: Container(
+      bottomNavigationBar: Container(
         margin: EdgeInsets.fromLTRB(15, 0, 15, 15),
         child: Button(
           bgColor: PRIMARY_COLOR,

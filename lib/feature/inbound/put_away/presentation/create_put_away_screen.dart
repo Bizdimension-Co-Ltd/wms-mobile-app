@@ -522,7 +522,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       quantity.text = '';
       MaterialDialog.loading(context);
       final barcodeRes = await dio.get(
-          "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
+          "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
       if (barcodeRes.statusCode == 200) {
         if (barcodeRes.data["value"].length == 0) {
           if (barcodeRes.data["value"].length == 0) {

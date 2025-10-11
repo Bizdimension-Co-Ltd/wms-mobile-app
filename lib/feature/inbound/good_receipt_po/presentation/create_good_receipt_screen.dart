@@ -224,7 +224,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         // print(value["UoMGroupDefinitionCollection"]);
         onSetItemTemp(value);
       });
-    } 
+    }
     // else {
     //   // return;
     //   goTo(
@@ -658,7 +658,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
         quantity.text = '';
         MaterialDialog.loading(context);
         final barcodeRes = await dio.get(
-            "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
+            "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
         if (barcodeRes.statusCode == 200) {
           if (barcodeRes.data["value"].length == 0) {
             MaterialDialog.close(
@@ -898,7 +898,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                         readOnly: true,
                         onPressed: onChangeBin,
                       ),
-                                            const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
                       // ====== Scan & Select Items ======
                       Row(
@@ -909,7 +909,8 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                               placeholder: 'Chose Item',
                               controller: itemCode,
                               readOnly: true,
-                              onPressed: widget.quickReceipt ? onSelectItem :null,
+                              onPressed:
+                                  widget.quickReceipt ? onSelectItem : null,
                             ),
                           ),
                           SizedBox(
@@ -976,8 +977,6 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                           ),
                         ],
                       ),
-
-                    
 
                       const SizedBox(height: 20),
                       Container(

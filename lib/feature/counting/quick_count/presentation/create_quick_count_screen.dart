@@ -234,26 +234,26 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
       binId.text = getDataFromDynamic((value as BinEntity).id);
       binCode.text = getDataFromDynamic(value.code);
-      dio
-          .get(
-              "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}' and BinCode eq '${binCode.text}'")
-          .then((e) {
-        final data = e.data["value"];
-        if (data != null && data.isNotEmpty) {
-          final onHandQty = data[0]["OnHandQty"] ?? 0;
-          setState(() {
-            if (onHandQty != null && onHandQty.toString().isNotEmpty) {
-              inWhsQty.text = onHandQty.toString();
-            } else {
-              inWhsQty.text = "0";
-            }
-          });
-        } else {
-          setState(() {
-            inWhsQty.text = "0";
-          });
-        }
-      });
+      // dio
+      //     .get(
+      //         "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}' and BinCode eq '${binCode.text}'")
+      //     .then((e) {
+      //   final data = e.data["value"];
+      //   if (data != null && data.isNotEmpty) {
+      //     final onHandQty = data[0]["OnHandQty"] ?? 0;
+      //     setState(() {
+      //       if (onHandQty != null && onHandQty.toString().isNotEmpty) {
+      //         inWhsQty.text = onHandQty.toString();
+      //       } else {
+      //         inWhsQty.text = "0";
+      //       }
+      //     });
+      //   } else {
+      //     setState(() {
+      //       inWhsQty.text = "0";
+      //     });
+      //   }
+      // });
     });
   }
 
@@ -367,40 +367,40 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
 
   void onSetItemTemp(dynamic value) async {
     try {
-        setState(() {
-          isSerialOrBatch = false;
-        });
+      setState(() {
+        isSerialOrBatch = false;
+      });
       if (value == null) return;
       binId.text = '';
       binCode.text = '';
       MaterialDialog.loading(context);
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       FocusScope.of(context).requestFocus(FocusNode());
-      final bin = await dio
-          .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
-      if (bin.data["value"].length == 0) {
-        final totalQtyWh = await dio.get(
-            "/sml.svc/ITEM?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
-        if (totalQtyWh.statusCode == 200) {
-          try {
-            // Sum the OnHandQty values from the response
-            inWhsQty.text = "0";
-            dynamic totalQty = totalQtyWh.data["value"]
-                .map<dynamic>((item) => item["OnHandQty"] as dynamic)
-                .reduce((a, b) => a + b);
+      // final bin = await dio
+      //     .get("/BinLocations?\$filter=Warehouse eq '${warehouse.text}'");
+      // if (bin.data["value"].length == 0) {
+      //   final totalQtyWh = await dio.get(
+      //       "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${itemCode.text}' and WhsCode eq '${warehouse.text}'");
+      //   if (totalQtyWh.statusCode == 200) {
+      //     try {
+      //       // Sum the OnHandQty values from the response
+      //       inWhsQty.text = "0";
+      //       dynamic totalQty = totalQtyWh.data["value"]
+      //           .map<dynamic>((item) => item["OnHandQty"] as dynamic)
+      //           .reduce((a, b) => a + b);
 
-            // Update the inWhsQty TextEditingController with the total quantity
-            inWhsQty.text = totalQty.toString();
+      //       // Update the inWhsQty TextEditingController with the total quantity
+      //       inWhsQty.text = totalQty.toString();
 
-            // Set the state to reflect the changes
-            setState(() {
-              print(totalQtyWh);
-            });
-          } catch (e) {
-            print('Error occurred while processing the data: $e');
-          }
-        }
-      }
+      //       // Set the state to reflect the changes
+      //       setState(() {
+      //         print(totalQtyWh);
+      //       });
+      //     } catch (e) {
+      //       print('Error occurred while processing the data: $e');
+      //     }
+      //   }
+      // }
 
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
@@ -461,7 +461,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       quantity.text = '';
       MaterialDialog.loading(context);
       final barcodeRes = await dio.get(
-          "/sml.svc/WMS_ITEM_BARCODE?\$filter=BarCode eq '${barCode.text}' ");
+          "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
       if (barcodeRes.statusCode == 200) {
         if (barcodeRes.data["value"].length == 0) {
           if (barcodeRes.data["value"].length == 0) {
@@ -545,7 +545,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             //         double.parse(quantity.text).toInt()
             //     ? null
             //     : true,
-             listAllSerial:true,
+            listAllSerial: true,
             binCode: binCode.text,
             serials: serialList,
             isQuickCount: true,
@@ -712,7 +712,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 readOnly: true,
                 onPressed: onChangeBin,
               ),
-                            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // ====== Scan & Select Items ======
               Row(
@@ -788,8 +788,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                 ],
               ),
 
-           
-
               const SizedBox(height: 20),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
@@ -847,7 +845,6 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-           
             Expanded(
               child: Button(
                 variant: ButtonVariant.primary,

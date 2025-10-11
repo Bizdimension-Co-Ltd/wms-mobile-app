@@ -22,7 +22,7 @@ class _GoodIssueTypeSelectState extends State<GoodIssueTypeSelect> {
 
   Future<void> getList() async {
     try {
-      final response = await dio.get('/sml.svc/TL_OIGE', query: {
+      final response = await dio.get('/LK_OIGE', query: {
         '\$select': "Name,Code",
       });
 
@@ -94,9 +94,9 @@ class _GoodIssueTypeSelectState extends State<GoodIssueTypeSelect> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
-                             bool isLastIndex = index == data.length - 1;
+                            bool isLastIndex = index == data.length - 1;
                             return ListItem(
-                                lastIndex: isLastIndex, 
+                                lastIndex: isLastIndex,
                                 twoRow: false,
                                 index: index,
                                 selectedRadio: selectedRadio,

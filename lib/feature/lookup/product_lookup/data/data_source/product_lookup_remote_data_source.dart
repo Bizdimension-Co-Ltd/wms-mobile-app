@@ -5,7 +5,8 @@ abstract class ProductLookUpRemoteDataSource {
   Future<Map<String, dynamic>> get(Map<String, dynamic> filter);
 }
 
-class ProductLookUpRemoteDataSourceImpl implements ProductLookUpRemoteDataSource {
+class ProductLookUpRemoteDataSourceImpl
+    implements ProductLookUpRemoteDataSource {
   final DioClient dio;
 
   ProductLookUpRemoteDataSourceImpl(this.dio);
@@ -13,7 +14,8 @@ class ProductLookUpRemoteDataSourceImpl implements ProductLookUpRemoteDataSource
   @override
   Future<Map<String, dynamic>> get(Map<String, dynamic> filter) async {
     try {
-      final response = await dio.get("/sml.svc/ITEM?\$filter=ItemCode eq '${filter["itemCode"]}' and WhsCode eq '${filter["warehouseCode"]}'");
+      final response = await dio.get(
+          "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${filter["itemCode"]}' and WhsCode eq '${filter["warehouseCode"]}'");
       return response.data as dynamic;
     } on Failure {
       rethrow;
