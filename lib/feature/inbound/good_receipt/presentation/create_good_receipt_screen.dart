@@ -401,7 +401,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.warning(context, title: 'Error', body: e.toString());
       }
     }
   }
@@ -424,9 +424,9 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
   void onSetItemTemp(dynamic value) async {
     try {
       if (value == null) return;
-        setState(() {
-          isSerialOrBatch = false;
-        });
+      setState(() {
+        isSerialOrBatch = false;
+      });
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
       final state = _blocBin.state;
@@ -825,7 +825,7 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
                   bgColor: PRIMARY_COLOR,
                   onPressed: onAddItem,
                   child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
+                    isEdit == -1 ? "Add Item" : "Update Item",
                     style: TextStyle(
                       color: Colors.white,
                     ),

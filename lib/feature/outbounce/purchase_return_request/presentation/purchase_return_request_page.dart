@@ -393,7 +393,33 @@ class _PurchaseReturnRequestPageState extends State<PurchaseReturnRequestPage> {
                   if (state is RequestingPurchaseReturnRequest) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
+                  if (data.isEmpty) {
+                    return Padding(
+                        padding: EdgeInsets.only(bottom: 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.file_copy,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "No return to supplier request found !",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ));
+                  }
                   return ListView(
                     controller: _scrollController,
                     children: [

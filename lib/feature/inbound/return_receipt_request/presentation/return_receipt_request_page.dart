@@ -390,7 +390,41 @@ class _ReturnReceiptRequestPageState extends State<ReturnReceiptRequestPage> {
                   if (state is RequestingReturnReceiptRequest) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
+                  if (data.isEmpty) {
+                    return Padding(
+                        padding: EdgeInsets.only(bottom: 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.file_copy,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "No Reqturn Request found !",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                // Text(
+                                //   "adjusting your search terms",
+                                //   style: TextStyle(
+                                //       color: Colors.grey, fontSize: 15),
+                                // ),
+                              ],
+                            ),
+                          ],
+                        ));
+                  }
                   return ListView(
                     controller: _scrollController,
                     children: [

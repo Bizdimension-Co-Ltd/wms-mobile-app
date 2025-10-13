@@ -261,7 +261,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.warning(context, title: 'Error', body: e.toString());
       }
     }
   }
@@ -500,7 +500,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 readOnly: true,
                 onPressed: onChangeBin,
               ),
-                            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // ====== Scan & Select Items ======
               Row(
@@ -576,8 +576,6 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                 ],
               ),
 
-             
-
               const SizedBox(height: 20),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
@@ -585,7 +583,7 @@ class _CreatePhysicalCountScreenState extends State<CreatePhysicalCountScreen> {
                   bgColor: PRIMARY_COLOR,
                   onPressed: onAddItem,
                   child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
+                    isEdit == -1 ? "Add Item" : "Update Item",
                     style: TextStyle(
                       color: Colors.white,
                     ),

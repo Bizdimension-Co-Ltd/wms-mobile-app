@@ -387,7 +387,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.warning(context, title: 'Error', body: e.toString());
       }
     }
   }
@@ -415,7 +415,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
       if (value == null) return;
       MaterialDialog.loading(context);
       FocusScope.of(context).requestFocus(FocusNode());
-     final state = _blocBin.state;
+      final state = _blocBin.state;
       // If state is not BinData, just return (no data yet)
       if (state is! BinData) {
         debugPrint("BinCubit has no data yet.");
@@ -820,7 +820,7 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
                     bgColor: PRIMARY_COLOR,
                     onPressed: onAddItem,
                     child: Text(
-                      isEdit == -1 ? "Enter" : "Edit",
+                      isEdit == -1 ? "Add Item" : "Update Item",
                       style: TextStyle(
                         color: Colors.white,
                       ),

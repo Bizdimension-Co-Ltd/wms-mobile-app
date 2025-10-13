@@ -45,7 +45,7 @@ class _OutboundState extends State<Outbound> {
           child: Padding(
             padding: const EdgeInsets.only(right: 65),
             child: const Text(
-              'Inbound',
+              'Outbound',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,

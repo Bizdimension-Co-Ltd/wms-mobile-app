@@ -294,7 +294,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.warning(context, title: 'Error', body: e.toString());
       }
     }
   }
@@ -742,7 +742,7 @@ class _CreateBinCountScreenState extends State<CreateBinCountScreen> {
                   bgColor: PRIMARY_COLOR,
                   onPressed: onAddItem,
                   child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
+                    isEdit == -1 ? "Add Item" : "Update Item",
                     style: TextStyle(
                       color: Colors.white,
                     ),

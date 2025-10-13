@@ -4,126 +4,126 @@ import 'package:wms_mobile/constant/style.dart';
 import '../../component/loading_circle.dart';
 
 class MaterialDialog {
- static Future<void> success(
-  BuildContext context, {
-  String? title,
-  String? body,
-  Function()? onOk,
-}) async {
-  final width = MediaQuery.of(context).size.width;
-  final theme = Theme.of(context);
-  final isDark = theme.brightness == Brightness.dark;
+  static Future<void> success(
+    BuildContext context, {
+    String? title,
+    String? body,
+    Function()? onOk,
+  }) async {
+    final width = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 250),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[900] : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ Header Row (icon + title)
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check_circle_rounded,
-                          color: Colors.green,
-                          size: 23,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        title ?? 'Success',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // 💬 Body
-                  if (body != null && body.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Text(
-                        body,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: isDark ? Colors.grey[300] : Colors.grey[700],
-                          height: 1.3,
-                        ),
-                      ),
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 250),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[900] : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
                     ),
                   ],
-
-                  const SizedBox(height: 20),
-
-                  // 🔘 OK Button (aligned right)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: PRIMARY_COLOR,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ✅ Header Row (icon + title)
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.15),
+                            shape: BoxShape.circle,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 22,
-                            vertical: 10,
+                          child: const Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.green,
+                            size: 23,
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          if (onOk != null) onOk();
-                        },
-                        child: const Text(
-                          'OK',
-                          style: TextStyle(color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(
+                          title ?? 'Success',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // 💬 Body
+                    if (body != null && body.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          body,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                            height: 1.3,
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ],
+
+                    const SizedBox(height: 20),
+
+                    // 🔘 OK Button (aligned right)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: PRIMARY_COLOR,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 22,
+                              vertical: 10,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            if (onOk != null) onOk();
+                          },
+                          child: const Text(
+                            'OK',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   static Future<void> warning(
     BuildContext context, {
@@ -162,6 +162,7 @@ class MaterialDialog {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header icon
                     Row(
@@ -198,7 +199,7 @@ class MaterialDialog {
                       const SizedBox(height: 8),
                       Text(
                         body,
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.start,
                         style: TextStyle(
                           fontSize: width * 0.038,
                           color: isDark ? Colors.grey[300] : Colors.grey[700],
@@ -238,10 +239,13 @@ class MaterialDialog {
                               vertical: 10,
                             ),
                           ),
-                          onPressed: () {
-                            if (onConfirm != null) onConfirm();
+                         onPressed: () async {
                             Navigator.of(context).pop();
+                            await Future.delayed(
+                                const Duration(milliseconds: 5));
+                            if (onConfirm != null) onConfirm();
                           },
+
                           child: Text(
                             confirmLabel,
                             style: TextStyle(color: Colors.white),

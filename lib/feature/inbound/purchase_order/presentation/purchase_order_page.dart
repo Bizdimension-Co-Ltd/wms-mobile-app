@@ -309,18 +309,18 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage> {
                             Column(
                               children: [
                                 Text(
-                                  "No purchase order found Try ",
+                                  "No purchase order found !",
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 15),
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  "adjusting your search terms",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 15),
-                                ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                // Text(
+                                //   "adjusting your search terms",
+                                //   style: TextStyle(
+                                //       color: Colors.grey, fontSize: 15),
+                                // ),
                               ],
                             ),
                           ],

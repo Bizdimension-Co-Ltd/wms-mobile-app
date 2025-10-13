@@ -380,26 +380,43 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
           bool isSerial = item['ManageSerialNumbers'] == 'tYES';
 
           if (isBatch || isSerial) {
-            binAllocations = [];
-
-            List<dynamic> batchOrSerialLines =
-                isSerial ? item['Serials'] : item['Batches'];
-
-            int index = 0;
-            for (var element in batchOrSerialLines) {
-              binAllocations.add({
-                "BinAbsEntry": item['BinId'],
+            binAllocations = [
+              {
+                "BinAbsEntry": item['SBinId'],
+                "Quantity": item['Quantity'],
                 "AllowNegativeQuantity": "tNO",
-                "BaseLineNumber": parentIndex,
-                "SerialAndBatchNumbersBaseLine": index,
-                "Quantity": convertQuantityUoM(
-                    alternativeUoM['BaseQuantity'],
-                    alternativeUoM['AlternateQuantity'],
-                    double.tryParse(element['Quantity']) ?? 0.00),
-              });
+                "SerialAndBatchNumbersBaseLine": parentIndex,
+                "BinActionType": "batFromWarehouse",
+                "BaseLineNumber": parentIndex
+              },
+              {
+                "BinAbsEntry": item['TBinId'],
+                "Quantity": item['Quantity'],
+                "AllowNegativeQuantity": "tNO",
+                "SerialAndBatchNumbersBaseLine": parentIndex,
+                "BinActionType": "batToWarehouse",
+                "BaseLineNumber": parentIndex
+              }
+            ];
 
-              index++;
-            }
+            // List<dynamic> batchOrSerialLines =
+            //     isSerial ? item['Serials'] : item['Batches'];
+            // print(batchOrSerialLines);
+            // int index = 0;
+            // for (var element in batchOrSerialLines) {
+            //   binAllocations.add({
+            //     "BinAbsEntry": item['SBinId'],
+            //     "AllowNegativeQuantity": "tNO",
+            //     "BaseLineNumber": parentIndex,
+            //     "SerialAndBatchNumbersBaseLine": index,
+            //     "Quantity": convertQuantityUoM(
+            //         alternativeUoM['BaseQuantity'],
+            //         alternativeUoM['AlternateQuantity'],
+            //         double.tryParse(element['Quantity']) ?? 0.00),
+            //   });
+
+            //   index++;
+            // }
           }
 
           return {
@@ -422,6 +439,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
       setState(() {
         print(data);
       });
+      // return;
       final response = await _bloc.post(data);
       if (mounted) {
         Navigator.of(context).pop();
@@ -439,7 +457,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        MaterialDialog.success(context, title: 'Error', body: e.toString());
+        MaterialDialog.warning(context, title: 'Error', body: e.toString());
       }
     }
   }
@@ -464,9 +482,9 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
   void onSetItemTemp(dynamic value) {
     try {
       if (value == null) return;
-        setState(() {
-          isSerialOrBatch = false;
-        });
+      setState(() {
+        isSerialOrBatch = false;
+      });
       FocusScope.of(context).requestFocus(FocusNode());
       itemCode.text = getDataFromDynamic(value['ItemCode']);
       itemName.text = getDataFromDynamic(value['ItemName']);
@@ -872,7 +890,7 @@ class _CreatePutAwayScreenState extends State<CreatePutAwayScreen> {
                   bgColor: PRIMARY_COLOR,
                   onPressed: onAddItem,
                   child: Text(
-                    isEdit == -1 ? "Enter" : "Edit",
+                    isEdit == -1 ? "Add Item" : "Update Item",
                     style: TextStyle(
                       color: Colors.white,
                     ),

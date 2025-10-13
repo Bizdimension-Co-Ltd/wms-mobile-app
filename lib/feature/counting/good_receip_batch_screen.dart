@@ -28,6 +28,7 @@ class GoodReceiptBatchScreen extends StatefulWidget {
       this.isQuickCount,
       this.alcQty,
       this.itemName,
+      this.inWhsQty,
       this.warehouse});
 
   final String quantity;
@@ -40,6 +41,8 @@ class GoodReceiptBatchScreen extends StatefulWidget {
   final dynamic alcQty;
   final dynamic warehouse;
   final dynamic itemName;
+  final dynamic inWhsQty;
+
   @override
   State<GoodReceiptBatchScreen> createState() => _GoodReceiptBatchScreenState();
 }
@@ -52,6 +55,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   final quantityPerBatch = TextEditingController();
   final warehouse = TextEditingController();
   final itemName = TextEditingController();
+  final inWhsQty = TextEditingController();
 
   DateTime? expDate;
   List<dynamic> items = [];
@@ -66,7 +70,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
     quantity.text = widget.quantity;
     warehouse.text = widget.warehouse;
     itemName.text = widget.itemName;
-
+    inWhsQty.text = widget.inWhsQty;
     // if (widget.isQuickCount == true) {
     //   quantityPerBatch.text = widget.alcQty.toString();
     // } else {
@@ -238,7 +242,7 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
   }
 
   void onNavigateBatchList() async {
-    // if (widget.alcQty > 0 && widget.isQuickCount) return;
+    if (widget.alcQty > 0 && widget.isQuickCount) return;
     if (quantity.text.isEmpty) {
       MaterialDialog.success(
         context,
@@ -396,6 +400,13 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
                       ),
+                      Input(
+                        controller: inWhsQty,
+                        label: 'In Whs Qty',
+                        placeholder: 'Qty',
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
                       Divider(thickness: 1, color: Colors.grey.shade400),
                       // if (widget.po != null)
                       //   Input(
@@ -484,7 +495,9 @@ class _GoodReceiptBatchScreenState extends State<GoodReceiptBatchScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          widget.listAllBatch == true
+                          widget.listAllBatch == true &&
+                                  widget.alcQty < 0 &&
+                                  widget.isQuickCount
                               ? Container()
                               : DatePicker(
                                   key: _datePickerKey,
