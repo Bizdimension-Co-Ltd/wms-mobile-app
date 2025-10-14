@@ -26,8 +26,8 @@ class _InboundState extends State<Inbound> {
   final DioClient dio = DioClient();
 
   List<Map<String, String>> gridList = [
-    {"name": "Good Receipt PO", "img": "receipt_po.svg"},
-    {"name": "Quik Goods Receipt", "img": "pen.svg"},
+    {"name": "Goods Receipt PO", "img": "receipt_po.svg"},
+    {"name": "Quick Goods Receipt", "img": "pen.svg"},
     {"name": "Customer Return Receipt", "img": "return1.svg"},
     {"name": "Goods Receipt", "img": "add_home_work.svg"},
     {"name": "Put Away", "img": "put.svg"},

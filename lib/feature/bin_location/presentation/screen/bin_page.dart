@@ -155,7 +155,41 @@ class _BinPageState extends State<BinPage> {
                   }
 
                   final displayList = filteredData; // use filtered data
-
+                  if (displayList.isEmpty) {
+                    return Padding(
+                        padding: EdgeInsets.only(bottom: 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.file_copy,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "No Bin Location found !",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                // Text(
+                                //   "adjusting your search terms",
+                                //   style: TextStyle(
+                                //       color: Colors.grey, fontSize: 15),
+                                // ),
+                              ],
+                            ),
+                          ],
+                        ));
+                  }
                   return check == -1
                       ? const Center(
                           child: SizedBox(

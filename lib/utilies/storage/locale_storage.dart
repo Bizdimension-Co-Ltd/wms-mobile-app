@@ -27,4 +27,5 @@ class LocalStorageManger {
   static Future<void> removeAllString(String key) async {
     await _secureStorage.deleteAll();
   }
+  
 }

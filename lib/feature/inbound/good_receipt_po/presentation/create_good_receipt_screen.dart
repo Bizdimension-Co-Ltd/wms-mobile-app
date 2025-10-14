@@ -797,7 +797,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 65),
                     child: const Text(
-                      'Create Quick Receipt',
+                      'Create Quick Goods Receipt',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -809,7 +809,7 @@ class _CreateGoodReceiptPOScreenState extends State<CreateGoodReceiptPOScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 65),
                     child: const Text(
-                      'Create Good Receipt PO',
+                      'Create Goods Receipt PO',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

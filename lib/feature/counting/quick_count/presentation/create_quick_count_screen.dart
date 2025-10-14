@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
+import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -64,13 +65,16 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   int isEdit = -1;
   bool isSerialOrBatch = false;
   List<dynamic> items = [];
+  List<dynamic> binLists = [];
   bool loading = false;
+  late BinCubit _blocBin;
 
   @override
   void initState() {
     init();
     _bloc = context.read<QuickCountCubit>();
     _blocItem = context.read<ItemCubit>();
+    _blocBin = context.read<BinCubit>();
 
     //
     IscanDataPlugin.methodChannel.setMethodCallHandler((MethodCall call) async {
@@ -97,7 +101,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void init() async {
     final whs = await LocalStorageManger.getString('warehouse');
     warehouse.text = whs;
-    // inWhsQty.text = '';
+    // inWhsQty.text = "0";
+
     if (!widget.isQuickCount) {
       // Populate text fields with PO data
       // poText.text = getDataFromDynamic(widget.po['DocNum']);
@@ -201,9 +206,33 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     setState(() {
       isEdit = -1;
     });
-    goTo(context, ItemPage(type: ItemType.inventory)).then((value) {
+    goTo(context, ItemPage(type: ItemType.inventory)).then((value) async {
       if (value == null) return;
+      final stateBin = _blocBin.state;
+      if (stateBin is BinData) {
+        // print(state.entities);
+        binLists = stateBin.entities;
+      }
 
+      if (binLists.where((b) => b.warehouse == warehouse.text).isEmpty) {
+        final url =
+            "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${value["ItemCode"]}' and WhsCode eq '${warehouse.text}'";
+        print("🌐 Request URL: $url");
+
+        final response = await dio.get(url);
+
+        final data = response.data["value"];
+        if (data != null && data.isNotEmpty) {
+          final onHandQty = data[0]["OnHandQty"] ?? 0;
+          setState(() {
+            inWhsQty.text = onHandQty.toString();
+          });
+        } else {
+          setState(() {
+            inWhsQty.text = "0";
+          });
+        }
+      }
       onSetItemTemp(value);
     });
   }
@@ -276,7 +305,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
     }
   }
 
-  void onEdit(dynamic item, int index) {
+  void onEdit(dynamic item, int index) async {
     // final index = items.indexWhere((e) => e['ItemCode'] == item['ItemCode']);
 
     if (index < 0) return;
@@ -286,7 +315,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
       title: 'Item (${item['ItemCode']})',
       confirmLabel: "Edit",
       cancelLabel: "Remove",
-      onConfirm: () {
+      onConfirm: () async {
         itemCode.text = getDataFromDynamic(item['ItemCode']);
         itemName.text = getDataFromDynamic(item['ItemDescription']);
         quantity.text = getDataFromDynamic(item['Quantity']);
@@ -305,6 +334,33 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         batchesInput.text = jsonEncode(item['Batches'] ?? []);
         serialsInput.text = jsonEncode(item['Serials'] ?? []);
         inWhsQty.text = getDataFromDynamic(item["InWhsQty"]);
+        final stateBin = _blocBin.state;
+        if (stateBin is BinData) {
+          // print(state.entities);
+          binLists = stateBin.entities;
+        }
+
+        if (binLists.where((b) => b.warehouse == warehouse.text).isEmpty &&
+            !widget.isQuickCount) {
+          final url =
+              "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '${item['ItemCode']}' and WhsCode eq '${warehouse.text}'";
+          print("🌐 Request URL: $url");
+
+          final response = await dio.get(url);
+
+          final data = response.data["value"];
+          print(data);
+          if (data != null && data.isNotEmpty) {
+            final onHandQty = data[0]["OnHandQty"] ?? 0;
+            setState(() {
+              inWhsQty.text = onHandQty.toString();
+            });
+          } else {
+            setState(() {
+              inWhsQty.text = "0";
+            });
+          }
+        }
         setState(() {
           isEdit = index;
 
@@ -869,8 +925,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
               Divider(thickness: 0.5, color: Colors.grey.shade500),
               const SizedBox(height: 5),
               InputCol(
-                label: 'Referance',
-                placeholder: 'Please input referance',
+                label: 'Reference',
+                placeholder: 'Please input reference',
                 controller: ref,
               ),
               const SizedBox(height: 8),
@@ -938,7 +994,9 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
                       //       }
                       //     : null,
                       onEditingComplete: onCompleteQuantiyInput,
-                      onPressed: quantity.text.isNotEmpty && (isBatch.text == "tYES" ||  isSerial.text == "tYES")
+                      onPressed: quantity.text.isNotEmpty &&
+                              (isBatch.text == "tYES" ||
+                                  isSerial.text == "tYES")
                           ? double.parse(inWhsQty.text.isEmpty
                                           ? "0"
                                           : inWhsQty.text)
