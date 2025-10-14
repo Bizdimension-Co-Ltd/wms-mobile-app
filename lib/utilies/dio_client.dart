@@ -26,9 +26,11 @@ class DioClient {
   Future<Response> get(String uri,
       {Options? options, Map<String, dynamic>? query}) async {
     try {
+      final host = await LocalStorageManger.getString('host');
+      final port = await LocalStorageManger.getString('port');
       final token = await LocalStorageManger.getString('SessionId');
       final res = await _dio.get(
-        API_URL + uri,
+        '${host == '' ? 'https://lk.biz-dimension.com' : host}:${port == '' ? '50000' : port}/b1s/v1/$uri',
         queryParameters: query,
         options: Options(
           headers: {
@@ -65,13 +67,15 @@ class DioClient {
       Object? data,
       Map<String, dynamic>? queryParameters}) async {
     try {
+      final host = await LocalStorageManger.getString('host');
+      final port = await LocalStorageManger.getString('port');
       final token = await LocalStorageManger.getString('SessionId');
       _dio.options.headers['Content-Type'] = "application/json";
       // _dio.options.headers['Authorization'] = "Bearer $token";
 
       return await _dio
           .post(
-        API_URL + uri,
+        '${host == '' ? 'https://lk.biz-dimension.com' : host}:${port == '' ? '50000' : port}/b1s/v1/$uri',
         data: data,
         options: Options(
           headers: {
@@ -122,13 +126,15 @@ class DioClient {
       Object? data,
       Map<String, dynamic>? queryParameters}) async {
     try {
+      final host = await LocalStorageManger.getString('host');
+      final port = await LocalStorageManger.getString('port');
       final token = await LocalStorageManger.getString('SessionId');
       _dio.options.headers['Content-Type'] = "application/json";
       // _dio.options.headers['Authorization'] = "Bearer $token";
 
       return await _dio
           .patch(
-            API_URL + uri,
+            '${host == '' ? 'https://lk.biz-dimension.com' : host}:${port == '' ? '50000' : port}/b1s/v1/$uri',
             data: data,
             options: Options(
               headers: {
@@ -172,13 +178,15 @@ class DioClient {
       Object? data,
       Map<String, dynamic>? queryParameters}) async {
     try {
+      final host = await LocalStorageManger.getString('host');
+      final port = await LocalStorageManger.getString('port');
       final token = await LocalStorageManger.getString('SessionId');
       _dio.options.headers['Content-Type'] = "application/json";
       // _dio.options.headers['Authorization'] = "Bearer $token";
 
       return await _dio
           .put(
-            API_URL + uri,
+            '${host == '' ? 'https://lk.biz-dimension.com' : host}:${port == '' ? '50000' : port}/b1s/v1/$uri',
             data: data,
             options: Options(
               headers: {

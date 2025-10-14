@@ -10,6 +10,7 @@ import 'package:wms_mobile/feature/middleware/presentation/bloc/authorization_bl
 import 'package:wms_mobile/feature/middleware/presentation/setting_screen.dart';
 import 'package:wms_mobile/mobile_function/dashboard.dart';
 import 'package:wms_mobile/utilies/dialog/dialog.dart';
+import 'package:wms_mobile/utilies/storage/locale_storage.dart';
 import '../../../helper/helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,8 +22,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userName = TextEditingController(text: "Biz006");
-  final _password = TextEditingController(text: "Manager@1234");
+  final _userName = TextEditingController(text: "Manager");
+  final _password = TextEditingController(text: "admin");
 
   late bool checkTypeInput = false;
 
@@ -103,12 +104,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 50),
 
                       /// App Title
-                      Text(
-                        "WMS Mobile",
-                        style: TextStyle(
-                          color: PRIMARY_COLOR,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () async {
+                          final host =
+                              await LocalStorageManger.getString('host');
+                          final port =
+                              await LocalStorageManger.getString('port');
+                          final db = await LocalStorageManger.getString(
+                              'CONNECT_COMPANY');
+                          print(host);
+                          print(port);
+                          print(db);
+                        },
+                        child: Text(
+                          "WMS Mobile",
+                          style: TextStyle(
+                            color: PRIMARY_COLOR,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),

@@ -340,7 +340,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       // ),
                       TextFormField(
                         controller: _dbConfig,
-                        keyboardType: TextInputType.number,
+                        // keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Dababase';
