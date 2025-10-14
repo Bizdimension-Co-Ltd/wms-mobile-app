@@ -293,8 +293,8 @@ class _CreateGoodIssueScreenState extends State<CreateGoodIssueScreen> {
         // "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
-        "U_tl_whsdesc": warehouse.text,
-        "U_tl_gitype": giType.text,
+        "U_lk_whsdesc": warehouse.text,
+        "U_lk_gitype": giType.text,
         "DocumentLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;

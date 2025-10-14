@@ -301,8 +301,8 @@ class _CreateGoodReceiptScreenState extends State<CreateGoodReceiptScreen> {
         // "BPL_IDAssignedToInvoice": 1,
         // "CardCode": cardCode.text,
         // "CardName": cardName.text,
-        "U_tl_grtype": grType.text,
-        "U_tl_whsdesc": warehouse.text,
+        "U_lk_grtype": grType.text,
+        "U_lk_whsdesc": warehouse.text,
         "DocumentLines": items.asMap().entries.map((entry) {
           int parentIndex = entry.key;
           Map<String, dynamic> item = entry.value;
