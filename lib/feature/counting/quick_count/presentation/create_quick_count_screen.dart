@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_mobile/component/form/input_col.dart';
 import 'package:wms_mobile/feature/bin_location/presentation/cubit/bin_cubit.dart';
+import 'package:wms_mobile/feature/counting/quick_count/presentation/duplicateItem_QC_Screen.dart';
 import 'package:wms_mobile/feature/item_by_code/presentation/screen/item_page.dart';
 import 'package:wms_mobile/feature/warehouse/presentation/screen/warehouse_page.dart';
 import 'package:wms_mobile/utilies/dio_client.dart';
@@ -124,7 +125,8 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
         for (var element in cycleLineCount.data["value"]) {
           final itemResponse =
               await _blocItem.find("('${element['ItemCode']}')");
-          print(itemResponse);
+          print(element["ItemCode"]);
+          print(itemResponse["BarCode"]);
 
           rawItems.add({
             "ItemCode": element['ItemCode'],
@@ -142,7 +144,7 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             "BinId": binId.text,
             "ManageSerialNumbers": itemResponse["ManageSerialNumbers"],
             "ManageBatchNumbers": itemResponse["ManageBatchNumbers"],
-            "BarCode": element['BarCode'],
+            "BarCode": itemResponse['BarCode'],
           });
 
           itemCodeFilter.add(element['ItemCode']);
@@ -612,6 +614,25 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
             });
           }
         }
+        if (item.isNotEmpty && whs.isNotEmpty) {
+          final url =
+              "/view.svc/ItemB1SLQuery?\$filter=ItemCode eq '$item' and WhsCode eq '$whs'";
+          print("🌐 Request URL: $url");
+
+          final response = await dio.get(url);
+
+          final data = response.data["value"];
+          if (data != null && data.isNotEmpty) {
+            final onHandQty = data[0]["OnHandQty"] ?? 0;
+            setState(() {
+              inWhsQty.text = onHandQty.toString();
+            });
+          } else {
+            setState(() {
+              inWhsQty.text = "0";
+            });
+          }
+        }
 
         print("📦 In-warehouse quantity: ${inWhsQty.text}");
       } catch (e, stack) {
@@ -677,54 +698,86 @@ class _CreateQuickCountScreenState extends State<CreateQuickCountScreen> {
   void onCompleteTextEditItem() async {
     try {
       if (barCode.text == '') return;
-      quantity.text = '';
-      MaterialDialog.loading(context);
-      final barcodeRes = await dio.get(
-          "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
-      if (barcodeRes.statusCode == 200) {
-        if (barcodeRes.data["value"].length == 0) {
-          if (barcodeRes.data["value"].length == 0) {
-            MaterialDialog.close(
-              context,
-            );
-            clear();
-            MaterialDialog.success(context, title: 'Opps.', body: "No Item");
-            return;
-          }
-        }
-        if (barcodeRes.data["value"].length > 1) {
-          for (var element in barcodeRes.data["value"]) {
-            itemCodeFilter.add(element['ItemCode']);
-          }
-          goTo(
-                  context,
-                  ItemByCodePage(
-                      type: ItemType.purchase,
-                      itemCode: itemCodeFilter
-                          .map((item) => "ItemCode eq '$item'")
-                          .join(' or ')))
-              .then((value) {
-            if (value == null) return;
-            if (mounted) {
-              MaterialDialog.close(context);
-            }
-            uom.text =
-                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
-            uomAbEntry.text =
-                getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
-            onSetItemTemp(value);
-          });
+      if (!widget.isQuickCount) {
+        final duplicateItem =
+            items.where((e) => e["BarCode"] == barCode.text).toList();
+        if (duplicateItem.isEmpty) {
+          MaterialDialog.success(context,
+              title: 'Opps.', body: "Item not found");
           return;
         }
-        final item = await _blocItem
-            .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
-        if (mounted) {
-          MaterialDialog.close(context);
+        if (duplicateItem.length > 1) {
+          goTo(
+              context,
+              DuplicateItemQCPage(
+                barCode: barCode.text,
+                items: duplicateItem,
+              )).then((item) {
+            if (item == null) return;
+            final index = items.indexWhere((e) =>
+                e['BarCode'] == item['BarCode'] &&
+                e['ItemCode'] == item['ItemCode']);
+            onEdit(item, index);
+          });
+
+          return;
         }
-        uom.text = getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
-        uomAbEntry.text =
-            getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
-        onSetItemTemp(item);
+        // Continue processing if there is only one matching item
+        final item =
+            await items.firstWhere((e) => e["BarCode"] == barCode.text);
+        final index = items.indexWhere((e) => e['BarCode'] == item['BarCode']);
+        onEdit(item, index);
+      } else {
+        quantity.text = '';
+        MaterialDialog.loading(context);
+        final barcodeRes = await dio.get(
+            "/view.svc/WMS_ITEM_BARCODEB1SLQuery?\$filter=BarCode eq '${barCode.text}' ");
+        if (barcodeRes.statusCode == 200) {
+          if (barcodeRes.data["value"].length == 0) {
+            if (barcodeRes.data["value"].length == 0) {
+              MaterialDialog.close(
+                context,
+              );
+              clear();
+              MaterialDialog.success(context, title: 'Opps.', body: "No Item");
+              return;
+            }
+          }
+          if (barcodeRes.data["value"].length > 1) {
+            for (var element in barcodeRes.data["value"]) {
+              itemCodeFilter.add(element['ItemCode']);
+            }
+            goTo(
+                    context,
+                    ItemByCodePage(
+                        type: ItemType.purchase,
+                        itemCode: itemCodeFilter
+                            .map((item) => "ItemCode eq '$item'")
+                            .join(' or ')))
+                .then((value) {
+              if (value == null) return;
+              if (mounted) {
+                MaterialDialog.close(context);
+              }
+              uom.text =
+                  getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+              uomAbEntry.text =
+                  getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+              onSetItemTemp(value);
+            });
+            return;
+          }
+          final item = await _blocItem
+              .find("('${barcodeRes.data["value"]?[0]?["ItemCode"]}')");
+          if (mounted) {
+            MaterialDialog.close(context);
+          }
+          uom.text =
+              getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomCode"]);
+          uomAbEntry.text =
+              getDataFromDynamic(barcodeRes.data["value"]?[0]?["UomEntry"]);
+          onSetItemTemp(item);
+        }
       }
     } catch (e) {
       if (mounted) {
